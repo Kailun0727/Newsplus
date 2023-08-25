@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "498719774580",
+    "project_id": "newsplus-8408b",
+    "storage_bucket": "newsplus-8408b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498719774580:android:7cc0a21c7a828f9a47be21",
+        "android_client_info": {
+          "package_name": "com.example.newsplus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498719774580-aad2pcu5l1ek5cpdsjere9td2dbi1qka.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKZg-svVrSwoLvicdmWLS6gzyaknQ_RlM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498719774580-aad2pcu5l1ek5cpdsjere9td2dbi1qka.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
