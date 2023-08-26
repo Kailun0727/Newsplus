@@ -52,6 +52,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '498719774580',
     projectId: 'newsplus-8408b',
     authDomain: 'newsplus-8408b.firebaseapp.com',
+    databaseURL: 'https://newsplus-8408b-default-rtdb.asia-southeast1.firebasedatabase.app/',
     storageBucket: 'newsplus-8408b.appspot.com',
     measurementId: 'G-04GXPVDN5N',
   );
@@ -60,6 +61,7 @@ class DefaultFirebaseOptions {
     apiKey: 'AIzaSyCKZg-svVrSwoLvicdmWLS6gzyaknQ_RlM',
     appId: '1:498719774580:android:7cc0a21c7a828f9a47be21',
     messagingSenderId: '498719774580',
+    databaseURL: 'https://newsplus-8408b-default-rtdb.asia-southeast1.firebasedatabase.app/',
     projectId: 'newsplus-8408b',
     storageBucket: 'newsplus-8408b.appspot.com',
   );

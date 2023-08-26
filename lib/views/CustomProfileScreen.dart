@@ -9,12 +9,21 @@ class CustomProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User? user = FirebaseAuth.instance.currentUser;
+    final user = FirebaseAuth.instance.currentUser;
     String? name;
+    String? email;
 
-    if(user != null){
-       name = user.displayName;
+    if (user != null) {
+      // Name, email address
+      name = user.displayName;
+      email = user.email;
+
+      print("Profile screen Username:"+ name.toString());
+      print("Profile screen Email:"+ email.toString());
+
     }
+
+
 
     return Scaffold(
       appBar: AppBar(
@@ -25,6 +34,8 @@ class CustomProfileScreen extends StatelessWidget {
           const SizedBox(height: 8),
           const Header("Profile Screen"),
 
+          Text("Hello "+ name.toString()),
+          Text("Email : "+ email.toString()),
 
           // Add a button to navigate to the '/home' page
           ElevatedButton(

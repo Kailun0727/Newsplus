@@ -8,11 +8,15 @@ import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:newsplus/views/home_page.dart';
 
+import 'package:firebase_database/firebase_database.dart';
+
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform
+  );
 
   print('Connected to firebase');
 
@@ -40,9 +44,38 @@ class MyApp extends StatelessWidget {
                     Navigator.pushReplacementNamed(context, '/home');
                   }),
 
-                  AuthStateChangeAction<UserCreated>((context, state) {
+                  AuthStateChangeAction<UserCreated>((context, state) async{
                     // User registration is successful
-                    ScaffoldMessenger.of(context).showSnackBar(
+                      print("Register is success, above");
+
+                      final user = FirebaseAuth.instance.currentUser;
+
+                      if (user != null) {
+                        print("User is not null");
+
+                        String name = user.email!.split("@")[0];
+
+                        await user.updateDisplayName(name); // Await the update
+
+                        print(name);
+
+                        final userData = {
+                          'username': name,
+                          'email': user.email ?? '',
+                          'registrationDate': DateTime.now().toUtc().toString(),
+                          'preferredLanguage' : 'English',
+                          // Add more fields as needed
+                        };
+
+                        // Store the user data in the Realtime Database
+                        DatabaseReference ref = FirebaseDatabase.instance.ref("user/"+user.uid);
+
+                        await ref.set(userData);
+
+                        print("Added user to database");
+                      }
+
+                      ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Registration successful! You can now sign in.'),
                       ),
@@ -98,8 +131,37 @@ class MyApp extends StatelessWidget {
                 Navigator.pushReplacementNamed(context, '/home');
               }),
 
-              AuthStateChangeAction<UserCreated>((context, state) {
+              AuthStateChangeAction<UserCreated>((context, state) async{
                 // User registration is successful
+                print("Register is success, below");
+
+                final user = FirebaseAuth.instance.currentUser;
+
+                if (user != null) {
+                  print("User is not null");
+
+                  String name = user.email!.split("@")[0];
+
+                  await user.updateDisplayName(name); // Await the update
+
+                  print(name);
+
+                  final userData = {
+                    'username': name,
+                    'email': user.email ?? '',
+                    'registrationDate': DateTime.now().toUtc().toString(),
+                    'preferredLanguage' : 'English',
+                    // Add more fields as needed
+                  };
+
+                  // Store the user data in the Realtime Database
+                  DatabaseReference ref = FirebaseDatabase.instance.ref("user/"+user.uid);
+
+                  await ref.set(userData);
+
+                  print("Added user to database");
+                }
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Registration successful! You can now sign in.'),
