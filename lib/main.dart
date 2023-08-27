@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:newsplus/views/CustomProfileScreen.dart';
 import 'package:newsplus/firebase_options.dart';
 
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:newsplus/views/home_page.dart';

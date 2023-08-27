@@ -1,33 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:newsplus/helper/categoryData.dart';
+import 'package:newsplus/models/CategoryModel.dart';
 import 'package:provider/provider.dart';
 import 'package:newsplus/widgets/components.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<CategoryModel> mCategoryList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    mCategoryList = getCategories();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Newsplus'),
-      ),
-      body: ListView(
-        children: <Widget>[
-          Image.asset('assets/codelab.png'),
-          const SizedBox(height: 8),
-          const Header("Welcome to Newsplus!"),
+        centerTitle: true,
+        title: Row(
+          children: [
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "News",
+                    style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    "Plus",
+                    style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
 
-
-          // Add a button to navigate to the '/profile' page
-          ElevatedButton(
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.person,
+              color: Colors.blue, // Set the color to blue
+            ),
             onPressed: () {
-              // Navigate to the '/profile' page
-              Navigator.pushNamed(context, '/profile');
+              Navigator.pushNamed(context, '/profile'); // Replace with your profile route
             },
-            child: Text('Go to Profile'),
           ),
         ],
+
+        backgroundColor: Colors.transparent,
+        elevation: 0.0,
       ),
+      body: Container(
+
+        height: 100, // Set a fixed height for the horizontal list
+        child: ListView.builder(
+          itemCount: mCategoryList.length,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) {
+            return CategoryCard(
+              imageUrl: mCategoryList[index].imageUrl,
+              categoryTitle: mCategoryList[index].categoryTitle,
+            );
+          },
+        ),
+
+
+      ),
+
+
+
+
     );
   }
 }

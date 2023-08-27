@@ -4,6 +4,66 @@
 
 import 'package:flutter/material.dart';
 
+class ArticleCard extends StatelessWidget {
+  final imageUrl;
+  final title;
+  final description;
+
+  const ArticleCard({Key? key, required this.imageUrl, required this.title, required this.description}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+
+class CategoryCard extends StatelessWidget {
+  final imageUrl;
+  final categoryTitle;
+
+  const CategoryCard(
+      {Key? key, required this.imageUrl, required this.categoryTitle})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        margin: const EdgeInsets.only(right: 12, left: 6),
+        child: Stack(
+          children: [
+            ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Image.network(
+                  imageUrl,
+                  width: 120,
+                  height: 60,
+                  fit: BoxFit.cover,
+                )),
+            Container(
+              alignment: Alignment.center,
+              width: 120,
+              height: 60,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: Colors.black26),
+              child: Text(
+                categoryTitle,
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class Header extends StatelessWidget {
   const Header(this.heading, {super.key});
   final String heading;
