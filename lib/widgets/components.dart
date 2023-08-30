@@ -4,20 +4,138 @@
 
 import 'package:flutter/material.dart';
 
-class ArticleCard extends StatelessWidget {
-  final imageUrl;
-  final title;
-  final description;
+import 'package:flutter/material.dart';
 
-  const ArticleCard({Key? key, required this.imageUrl, required this.title, required this.description}) : super(key: key);
+import 'package:flutter/material.dart';
+
+//Bottom Navigation Bar
+class CustomBottomNavigationBar extends StatefulWidget {
+  final int selectedIndex;
+  final Function(int) onItemSelected;
+
+  const CustomBottomNavigationBar({
+    required this.selectedIndex,
+    required this.onItemSelected,
+  });
 
   @override
+  _CustomBottomNavigationBarState createState() =>
+      _CustomBottomNavigationBarState();
+}
+
+class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
+  @override
   Widget build(BuildContext context) {
-    return Container();
+    return BottomNavigationBar(
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.grey,
+      selectedLabelStyle: TextStyle(color: Colors.blue),
+      unselectedLabelStyle: TextStyle(color: Colors.grey),
+      currentIndex: widget.selectedIndex,
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people),
+          label: 'Community',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.bookmark),
+          label: 'Saved News',
+        ),
+      ],
+      onTap: (index) {
+        widget.onItemSelected(index);
+        switch (index) {
+          case 0:
+            Navigator.pushNamed(context, '/home');
+            break;
+          case 1:
+            Navigator.pushNamed(context, '/profile');
+            break;
+          case 2:
+            Navigator.pushNamed(context, '/profile');
+            break;
+          default:
+
+        }
+      },
+    );
   }
 }
 
 
+//Search Bar
+class SearchBar extends StatefulWidget {
+  final TextEditingController controller;
+
+  SearchBar({required this.controller});
+
+  @override
+  _SearchBarState createState() => _SearchBarState();
+}
+
+class _SearchBarState extends State<SearchBar> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Container(
+        height: 60,
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: TextField(
+          controller: widget.controller,
+          decoration: InputDecoration(
+            hintText: 'Search News',
+            suffixIcon: IconButton(
+              icon: Icon(Icons.clear),
+              onPressed: () => widget.controller.clear(),
+            ),
+            prefixIcon: IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                // Perform the search here
+              },
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+//News Card
+class NewsCard extends StatelessWidget {
+  final imageUrl;
+  final title;
+  final description;
+
+  const NewsCard({Key? key, required this.imageUrl, required this.title, required this.description}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          Image.network(imageUrl),
+          Text(title),
+          Text(description)
+
+        ],
+      ),
+    );
+  }
+}
+
+
+//Category Card
 class CategoryCard extends StatelessWidget {
   final imageUrl;
   final categoryTitle;

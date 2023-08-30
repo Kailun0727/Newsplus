@@ -14,6 +14,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<CategoryModel> mCategoryList = [];
 
+  // This controller will store the value of the search bar
+  final TextEditingController searchController = TextEditingController();
+
+  // selected index of the bottom navigation bar
+  int selectedIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -22,6 +28,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -33,18 +41,19 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Text(
                     "News",
-                    style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        color: Colors.blue, fontWeight: FontWeight.w600),
                   ),
                   Text(
                     "Plus",
-                    style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        color: Colors.grey, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
             ),
           ],
         ),
-
         actions: [
           IconButton(
             icon: Icon(
@@ -52,34 +61,68 @@ class _HomePageState extends State<HomePage> {
               color: Colors.blue, // Set the color to blue
             ),
             onPressed: () {
-              Navigator.pushNamed(context, '/profile'); // Replace with your profile route
+              Navigator.pushNamed(
+                  context, '/profile'); // Replace with your profile route
             },
           ),
         ],
-
         backgroundColor: Colors.transparent,
         elevation: 0.0,
       ),
-      body: Container(
-
-        height: 100, // Set a fixed height for the horizontal list
-        child: ListView.builder(
-          itemCount: mCategoryList.length,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) {
-            return CategoryCard(
-              imageUrl: mCategoryList[index].imageUrl,
-              categoryTitle: mCategoryList[index].categoryTitle,
-            );
-          },
-        ),
-
-
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SearchBar(
+            controller: searchController,
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              "All Category :",
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            height: 100, // Set a fixed height for the horizontal list
+            child: ListView.builder(
+              itemCount: mCategoryList.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return CategoryCard(
+                  imageUrl: mCategoryList[index].imageUrl,
+                  categoryTitle: mCategoryList[index].categoryTitle,
+                );
+              },
+            ),
+          ),
+        ],
       ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        selectedIndex: selectedIndex,
+        onItemSelected: (index) {
+          setState(() {
+            selectedIndex = index;
+            print("Current index: " + selectedIndex.toString());
+            // Implement navigation based on the selected index here
+          });
+        },
+      ),
+
 
 
 
 
     );
+
+
   }
+
 }
+
+

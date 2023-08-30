@@ -1,0 +1,6 @@
+class News{
+
+  List<ArticleModel> = [];
+
+
+}
