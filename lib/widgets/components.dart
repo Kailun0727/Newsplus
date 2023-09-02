@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
@@ -59,13 +60,11 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
             Navigator.pushNamed(context, '/profile');
             break;
           default:
-
         }
       },
     );
   }
 }
-
 
 //Search Bar
 class SearchBar extends StatefulWidget {
@@ -109,26 +108,73 @@ class _SearchBarState extends State<SearchBar> {
   }
 }
 
-
-
 //News Card
 class NewsCard extends StatelessWidget {
   final imageUrl;
   final title;
   final description;
 
-  const NewsCard({Key? key, required this.imageUrl, required this.title, required this.description}) : super(key: key);
+  const NewsCard({
+    Key? key,
+    required this.imageUrl,
+    required this.title,
+    required this.description,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Column(
-        children: [
-          Image.network(imageUrl),
-          Text(title),
-          Text(description)
+      child: Container(
+        margin: EdgeInsets.only(bottom: 14),
+        child: Container(
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 500,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                  Text(
+                    title,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 6,),
+                  Text(
+                    description,
+                    style: TextStyle(color: Colors.black54),
+                  ),
+                ],
+              ),
+              Positioned(
+                top: 8, // Adjust the top position as needed
+                right: 1, // Adjust the right position as needed
+                child: Container(
 
-        ],
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.blue, // Change to your desired color
+                  ),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.more_vert, // You can replace this with your kebab menu icon
+                      size: 24, // Adjust the icon size as needed
+                      color: Colors.white, // Change to your desired icon color
+                    ),
+                    onPressed: () {
+                      // Implement the action when the kebab menu is clicked
+                    },
+                  ),
+                  width: 42, // Adjust the width to make the circle smaller
+                  height: 42, // Adjust the height to make the circle smaller
+                ),
+              ),
+
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -154,8 +200,8 @@ class CategoryCard extends StatelessWidget {
           children: [
             ClipRRect(
                 borderRadius: BorderRadius.circular(4),
-                child: Image.network(
-                  imageUrl,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
                   width: 120,
                   height: 60,
                   fit: BoxFit.cover,

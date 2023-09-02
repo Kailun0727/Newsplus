@@ -1,5 +1,16 @@
 class ArticleModel {
-  String category;
-  String title;
-  String description;
+  String? author;
+  String? url;
+  String? urlToImage;
+  String? title;
+  String? description;
+  String? content;
+
+  ArticleModel(
+      {required this.author,
+      required this.description,
+      required this.title,
+      required this.content,
+      required this.url,
+      required this.urlToImage});
 }
