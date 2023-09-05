@@ -22,7 +22,6 @@ class News {
       json['articles'].forEach((data) {
         if (data['urlToImage'] != null && data['description'] != null && data['content'] != null) {
 
-          print(data);
 
           ArticleModel mArticleModel = ArticleModel(
             author: data['author'],
@@ -37,9 +36,6 @@ class News {
 
           newsList.add(mArticleModel);
 
-          print("Added article model into list");
-
-          print(mArticleModel);
         }
       });
     }

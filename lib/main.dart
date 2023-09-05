@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:newsplus/views/ArticleScreen.dart';
 import 'package:newsplus/views/CustomProfileScreen.dart';
 import 'package:newsplus/firebase_options.dart';
 
@@ -176,6 +177,7 @@ class MyApp extends StatelessWidget {
         },
         '/home': (context) => const HomePage(),
         '/profile': (context) => const CustomProfileScreen(),
+
       },
     );
   }

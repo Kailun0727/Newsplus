@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
+import 'package:newsplus/views/ArticleScreen.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+
 
 //Bottom Navigation Bar
 class CustomBottomNavigationBar extends StatefulWidget {
@@ -113,66 +116,84 @@ class NewsCard extends StatelessWidget {
   final imageUrl;
   final title;
   final description;
+  final url;
+
+
+
 
   const NewsCard({
     Key? key,
     required this.imageUrl,
     required this.title,
     required this.description,
+    required this.url
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: ()  {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ArticleScreen(url: url), // Pass the URL to ArticleScreen
+          ),
+        );
+      },
       child: Container(
-        margin: EdgeInsets.only(bottom: 14),
         child: Container(
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    width: 500,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
-                  Text(
-                    title,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 6,),
-                  Text(
-                    description,
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                ],
-              ),
-              Positioned(
-                top: 8, // Adjust the top position as needed
-                right: 1, // Adjust the right position as needed
-                child: Container(
-
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.blue, // Change to your desired color
-                  ),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.more_vert, // You can replace this with your kebab menu icon
-                      size: 24, // Adjust the icon size as needed
-                      color: Colors.white, // Change to your desired icon color
+          margin: EdgeInsets.only(bottom: 14),
+          child: Container(
+            child: Stack(
+              children: [
+                Column(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        width: 500,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    onPressed: () {
-                      // Implement the action when the kebab menu is clicked
-                    },
-                  ),
-                  width: 42, // Adjust the width to make the circle smaller
-                  height: 42, // Adjust the height to make the circle smaller
+                    Text(
+                      title,
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 6,),
+                    Text(
+                      description,
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                  ],
                 ),
-              ),
+                Positioned(
+                  top: 8, // Adjust the top position as needed
+                  right: 1, // Adjust the right position as needed
+                  child: Container(
 
-            ],
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.blue, // Change to your desired color
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.more_vert, // You can replace this with your kebab menu icon
+                        size: 24, // Adjust the icon size as needed
+                        color: Colors.white, // Change to your desired icon color
+                      ),
+                      onPressed: () {
+                        // Implement the action when the kebab menu is clicked
+                      },
+                    ),
+                    width: 42, // Adjust the width to make the circle smaller
+                    height: 42, // Adjust the height to make the circle smaller
+                  ),
+                ),
+
+              ],
+            ),
           ),
         ),
       ),

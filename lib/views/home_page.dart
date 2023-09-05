@@ -20,17 +20,51 @@ class _HomePageState extends State<HomePage> {
 
   bool loadingNews = true;
 
+
+  bool isFABVisible = false;
+  ScrollController _scrollController = ScrollController();
+
+
   // This controller will store the value of the search bar
   final TextEditingController searchController = TextEditingController();
 
   // selected index of the bottom navigation bar
   int selectedIndex = 0;
 
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0.0,
+      duration: Duration(milliseconds: 500), // Adjust the duration as needed
+      curve: Curves.easeInOut,
+    );
+  }
+
+
+
   @override
   void initState() {
     super.initState();
     mCategoryList = getCategories();
+
+
     initializeNews();
+
+    _scrollController.addListener(() {
+      // Check if the user has scrolled to the top
+      if (_scrollController.offset <= 0) {
+        setState(() {
+          // Hide the FAB when at the top
+          isFABVisible = false;
+        });
+      } else {
+        setState(() {
+          // Show the FAB when not at the top
+          isFABVisible = true;
+        });
+      }
+    });
+
   }
 
   initializeNews() async {
@@ -46,6 +80,16 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
+      floatingActionButton: Visibility(
+        visible: isFABVisible,
+        child: FloatingActionButton(
+          onPressed: _scrollToTop,
+          child: Icon(Icons.arrow_upward),
+        ),
+      ),
+
+
       appBar: AppBar(
         centerTitle: true,
         title: Row(
@@ -87,6 +131,7 @@ class _HomePageState extends State<HomePage> {
       body: loadingNews
           ? Center(child: Container(child: CircularProgressIndicator()))
           : SingleChildScrollView(
+            controller: _scrollController, // Add this line
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child:
 
@@ -137,7 +182,10 @@ class _HomePageState extends State<HomePage> {
                           return NewsCard(
                               imageUrl: mArticleList[index].urlToImage,
                               title: mArticleList[index].title,
-                              description: mArticleList[index].description);
+                              description: mArticleList[index].description,
+                              url: mArticleList[index].url,
+                          );
+
                         }),
                   )
                 ],

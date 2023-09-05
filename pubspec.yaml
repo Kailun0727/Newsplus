@@ -45,6 +45,9 @@ dependencies:
   firebase_database: ^10.2.5
   http: ^0.13.6
   cached_network_image: ^3.2.3
+  webview_flutter: ^4.2.4
+  flutter_inappwebview: ^5.7.2+3
+  flutter_custom_tabs: ^1.0.4
 
 
 dev_dependencies:
