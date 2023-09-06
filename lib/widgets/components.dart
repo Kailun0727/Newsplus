@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
+import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/views/ArticleScreen.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -69,47 +70,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   }
 }
 
-//Search Bar
-class SearchBar extends StatefulWidget {
-  final TextEditingController controller;
 
-  SearchBar({required this.controller});
-
-  @override
-  _SearchBarState createState() => _SearchBarState();
-}
-
-class _SearchBarState extends State<SearchBar> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Container(
-        height: 60,
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: TextField(
-          controller: widget.controller,
-          decoration: InputDecoration(
-            hintText: 'Search News',
-            suffixIcon: IconButton(
-              icon: Icon(Icons.clear),
-              onPressed: () => widget.controller.clear(),
-            ),
-            prefixIcon: IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {
-                // Perform the search here
-              },
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 //News Card
 class NewsCard extends StatelessWidget {
@@ -117,6 +78,7 @@ class NewsCard extends StatelessWidget {
   final title;
   final description;
   final url;
+  final publishedAt;
 
 
 
@@ -126,6 +88,7 @@ class NewsCard extends StatelessWidget {
     required this.imageUrl,
     required this.title,
     required this.description,
+    required this.publishedAt,
     required this.url
   }) : super(key: key);
 
@@ -144,55 +107,66 @@ class NewsCard extends StatelessWidget {
         child: Container(
           margin: EdgeInsets.only(bottom: 14),
           child: Container(
-            child: Stack(
-              children: [
-                Column(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        width: 500,
-                        height: 200,
-                        fit: BoxFit.cover,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Stack(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start, // Align children to the start (left side)
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          width: 500,
+                          height: 200,
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ),
-                    Text(
-                      title,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 6,),
-                    Text(
-                      description,
-                      style: TextStyle(color: Colors.black54),
-                    ),
-                  ],
-                ),
-                Positioned(
-                  top: 8, // Adjust the top position as needed
-                  right: 1, // Adjust the right position as needed
-                  child: Container(
+                      SizedBox(height: 6,),
+                      Text(
+                        publishedAt,
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+                      ),
+                      SizedBox(height: 6,),
+                      Text(
+                        title,
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 6,),
+                      Text(
+                        description,
+                        style: TextStyle(color: Colors.black54),
+                      ),
 
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.blue, // Change to your desired color
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.more_vert, // You can replace this with your kebab menu icon
-                        size: 24, // Adjust the icon size as needed
-                        color: Colors.white, // Change to your desired icon color
-                      ),
-                      onPressed: () {
-                        // Implement the action when the kebab menu is clicked
-                      },
-                    ),
-                    width: 42, // Adjust the width to make the circle smaller
-                    height: 42, // Adjust the height to make the circle smaller
+                    ],
                   ),
-                ),
+                  Positioned(
+                    top: 8, // Adjust the top position as needed
+                    right: 1, // Adjust the right position as needed
+                    child: Container(
 
-              ],
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blue, // Change to your desired color
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.more_vert, // You can replace this with your kebab menu icon
+                          size: 24, // Adjust the icon size as needed
+                          color: Colors.white, // Change to your desired icon color
+                        ),
+                        onPressed: () {
+                          // Implement the action when the kebab menu is clicked
+                        },
+                      ),
+                      width: 42, // Adjust the width to make the circle smaller
+                      height: 42, // Adjust the height to make the circle smaller
+                    ),
+                  ),
+
+                ],
+              ),
             ),
           ),
         ),

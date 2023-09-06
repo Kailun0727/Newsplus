@@ -6,7 +6,7 @@ class News {
   List<ArticleModel> newsList = [];
 
   Future<void> getNewsData() async {
-    final apiKey = "2bb4019c07fb4e9ebda44c552cc573ac"; // Replace with your actual API key
+    const apiKey = "2bb4019c07fb4e9ebda44c552cc573ac"; // Replace with your actual API key
     if (apiKey == null || apiKey.isEmpty) {
       print("API key is missing or empty");
       return; // Return early if the API key is missing or empty
@@ -28,6 +28,7 @@ class News {
             description: data['description'],
             title: data['title'],
             content: data['content'],
+            publishedAt: data['publishedAt'],
             url: data['url'],
             urlToImage: data['urlToImage'],
           );

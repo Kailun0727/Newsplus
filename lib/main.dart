@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/views/ArticleScreen.dart';
 import 'package:newsplus/views/CustomProfileScreen.dart';
 import 'package:newsplus/firebase_options.dart';
@@ -9,6 +10,7 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:newsplus/views/home_page.dart';
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,15 @@ Future<void> main() async{
 
   print('Connected to firebase');
 
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => NewsController()),
+        // Add other providers if needed
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

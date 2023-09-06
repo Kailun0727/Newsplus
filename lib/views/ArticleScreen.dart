@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class ArticleScreen extends StatefulWidget {
@@ -65,31 +65,46 @@ class _ArticleScreenState extends State<ArticleScreen> {
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                children: const [
                   Text(
                     "News",
                     style: TextStyle(
-                        color: Colors.blue, fontWeight: FontWeight.w600),
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   Text(
                     "Plus",
                     style: TextStyle(
-                        color: Colors.grey, fontWeight: FontWeight.w600),
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
             ),
           ],
         ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back, // Use the back arrow icon
+            color: Colors.blue, // Set the color to blue
+          ),
+          onPressed: () {
+            Navigator.pop(context); // Navigate back when the back button is pressed
+          },
+        ),
         actions: [
           IconButton(
             icon: Icon(
               Icons.person,
-              color: Colors.blue, // Set the color to blue
+              color: Colors.blue,
             ),
             onPressed: () {
               Navigator.pushNamed(
-                  context, '/profile'); // Replace with your profile route
+                context,
+                '/profile',
+              );
             },
           ),
         ],
@@ -97,7 +112,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
         elevation: 0.0,
       ),
 
-      body: InAppWebView(
+
+        body: InAppWebView(
         initialUrlRequest: URLRequest(url: Uri.parse(transformUrl(widget.url))),
 
         initialOptions: InAppWebViewGroupOptions(
