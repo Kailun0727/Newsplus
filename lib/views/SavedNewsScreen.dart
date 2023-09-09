@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/models/ArticleModel.dart';
+import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:newsplus/widgets/components.dart';
 import 'package:provider/provider.dart';
 
-class CategoryNewsScreen extends StatefulWidget {
-  final String categoryTitle;
+class SavedNewsScreen extends StatefulWidget {
 
 
-
-  const CategoryNewsScreen({Key? key, required this.categoryTitle})
+  const SavedNewsScreen({Key? key})
       : super(key: key);
 
   @override
-  State<CategoryNewsScreen> createState() => _CategoryNewsScreenState();
+  State<SavedNewsScreen> createState() => _SavedNewsScreenState();
 }
 
-class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
+class _SavedNewsScreenState extends State<SavedNewsScreen> {
 
-  List<ArticleModel> newsList = [];
+  List<SavedNewsModel> savedNewsList = [];
 
   bool isFilterApplied = false;
 
@@ -30,6 +29,8 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
 
   bool loadingNews = true;
 
+  // selected index of the bottom navigation bar
+  int selectedIndex = 0;
 
   // This controller will store the value of the search bar
   final TextEditingController searchController = TextEditingController();
@@ -49,7 +50,7 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
     // TODO: implement initState
     super.initState();
 
-    getCategoryNews();
+    getSavedNews();
 
     _scrollController.addListener(() {
       // Check if the user has scrolled to the top
@@ -161,8 +162,8 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
       loadingNews = true; // Set loadingNews to true while fetching search results
     });
 
-    // Perform the search
-    await newsController.searchCategoryNews(keyword,widget.categoryTitle);
+    // // Perform the search
+    // await newsController.searchCategoryNews(keyword,widget.categoryTitle);
 
     setState(() {
       loadingNews = false; // Set loadingNews to false when the search results are available
@@ -173,15 +174,15 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
 
 
 
-  getCategoryNews() async {
+  getSavedNews() async {
 
     // News defaultNews = News();
     // await defaultNews.getNewsData();
     // mArticleList = defaultNews.newsList;
 
-    await newsController.fetchCategoryNews(widget.categoryTitle); // Use the NewsController to fetch news data
+    await newsController.fetchSavedNews(); // Use the NewsController to fetch news data
 
-    newsList = newsController.newsList;
+    savedNewsList = newsController.savedNewsList;
 
     setState(() {
       loadingNews = false;
@@ -201,34 +202,36 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
 
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
-          widget.categoryTitle,
-          style: TextStyle(
-            color: Colors.blue,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back, // Use the back arrow icon
-            color: Colors.blue, // Set the color to blue
-          ),
-          onPressed: () {
-            Navigator.pop(
-                context); // Navigate back when the back button is pressed
-          },
+        title: Row(
+          children: [
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    "News",
+                    style: TextStyle(
+                        color: Colors.blue, fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    "Plus",
+                    style: TextStyle(
+                        color: Colors.grey, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.person,
-              color: Colors.blue,
+              color: Colors.blue, // Set the color to blue
             ),
             onPressed: () {
               Navigator.pushNamed(
-                context,
-                '/profile',
-              );
+                  context, '/profile'); // Replace with your profile route
             },
           ),
         ],
@@ -245,49 +248,22 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               Row(
                 children: [
-                  Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Container(
-                          height: 60,
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextField(
-                            controller: searchController,
-                            decoration: InputDecoration(
-                              hintText: 'Search in ' + widget.categoryTitle,
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () => searchController.clear(),
-                              ),
-                              prefixIcon: IconButton(
-                                icon: const Icon(Icons.search),
-                                onPressed: () async{
-
-                                  final keyword = searchController.text.toString();
-                                  if (keyword.isNotEmpty) {
-                                    // Perform the search when the keyword is not empty
-                                    _searchNews(keyword);
-                                  } else {
-                                    // Show an error message if the keyword is empty
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Please enter a keyword to search.'),
-                                      ),
-                                    );
-                                  }
-
-                                },
-
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Total Saved News : " +
+                          (isFilterApplied
+                              ? newsController.filteredNewsList.length
+                              .toString()
+                              : newsController.savedNewsList.length.toString()),
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   IconButton(
                     icon: Icon(Icons.filter_list),
@@ -308,26 +284,26 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
 
                   itemCount: isFilterApplied
                       ? newsController.filteredNewsList.length
-                      : newsController.newsList.length, // Use filteredNewsList if a filter is applied
+                      : newsController.savedNewsList.length, // Use filteredNewsList if a filter is applied
                   scrollDirection: Axis.vertical,
                   itemBuilder: (context, index) {
-                    return NewsCard(
-                      imageUrl: isFilterApplied
-                          ? newsController.filteredNewsList[index].urlToImage
-                          : newsController.newsList[index].urlToImage, // Use filteredNewsList if a filter is applied
-                      title: isFilterApplied
-                          ? newsController.filteredNewsList[index].title
-                          : newsController.newsList[index].title, // Use filteredNewsList if a filter is applied
-                      description: isFilterApplied
-                          ? newsController.filteredNewsList[index].description
-                          : newsController.newsList[index].description, // Use filteredNewsList if a filter is applied
-                      publishedAt: isFilterApplied
-                          ? newsController.filteredNewsList[index].publishedAt
-                          : newsController.newsList[index].publishedAt, // Use filteredNewsList if a filter is applied
-                      url: isFilterApplied
-                          ? newsController.filteredNewsList[index].url
-                          : newsController.newsList[index].url, // Use filteredNewsList if a filter is applied
-                    );
+                      return SavedNewsCard(
+                          imageUrl: isFilterApplied
+                              ? newsController.filteredNewsList[index].urlToImage
+                              : newsController.savedNewsList[index].imageUrl,
+                          title: isFilterApplied
+                              ? newsController.filteredNewsList[index].title
+                              : newsController.savedNewsList[index].title,
+                          description: isFilterApplied
+                              ? newsController.filteredNewsList[index].description
+                              : newsController.savedNewsList[index].description,
+                          creationDate:  isFilterApplied
+                              ? newsController.filteredNewsList[index].publishedAt
+                              : newsController.savedNewsList[index].creationDate.toString(),
+                          url:  isFilterApplied
+                              ? newsController.filteredNewsList[index].url
+                              : newsController.savedNewsList[index].url,
+                      );
                   },
                 ),
               )
@@ -337,7 +313,15 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
       }),
 
 
-
+      bottomNavigationBar: CustomBottomNavigationBar(
+        selectedIndex: 2,
+        onItemSelected: (index) {
+          setState(() {
+            selectedIndex = index;
+            // Implement navigation based on the selected index here
+          });
+        },
+      ),
 
     );
   }

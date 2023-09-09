@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class ArticleScreen extends StatefulWidget {
-
   final String url;
 
   // Named constructor that takes a parameter
@@ -16,44 +15,44 @@ class ArticleScreen extends StatefulWidget {
 }
 
 class _ArticleScreenState extends State<ArticleScreen> {
+  late InAppWebViewController _webViewController;
 
-   late InAppWebViewController _webViewController;
+  bool _isLoading = true; // Add this variable
 
+  String transformUrl(String inputUrl) {
+    // Split the input URL by '/'
+    List<String> urlParts = inputUrl.split('/');
 
+    if (urlParts.length >= 4) {
+      // Replace '.' with '-' in the part before ".translate.goog"
+      String domainPart = urlParts[2].replaceAll('.', '-');
 
+      // Reconstruct the URL with ".translate.goog" inserted before the third '/'
+      String transformedUrl = 'https://${domainPart}.translate.goog';
 
-   String transformUrl(String inputUrl) {
-     // Split the input URL by '/'
-     List<String> urlParts = inputUrl.split('/');
+      // Append the remaining parts of the URL
+      for (int i = 3; i < urlParts.length; i++) {
+        transformedUrl += '/${urlParts[i]}';
+      }
 
-     if (urlParts.length >= 4) {
-       // Replace '.' with '-' in the part before ".translate.goog"
-       String domainPart = urlParts[2].replaceAll('.', '-');
+      return transformedUrl +
+          '?_x_tr_sl=auto&_x_tr_tl=zh-CN&_x_tr_hl=en-US&_x_tr_pto=wapp';
+    } else {
+      // If the URL doesn't have at least 4 parts, return it as is
+      return inputUrl;
+    }
+  }
 
-       // Reconstruct the URL with ".translate.goog" inserted before the third '/'
-       String transformedUrl = 'https://${domainPart}.translate.goog';
+  @override
+  void dispose() async{
 
+    super.dispose();
+  }
 
-
-       // Append the remaining parts of the URL
-       for (int i = 3; i < urlParts.length; i++) {
-         transformedUrl += '/${urlParts[i]}';
-       }
-
-       return transformedUrl + '?_x_tr_sl=auto&_x_tr_tl=zh-CN&_x_tr_hl=en-US&_x_tr_pto=wapp';
-     } else {
-       // If the URL doesn't have at least 4 parts, return it as is
-       return inputUrl;
-     }
-   }
-
-
-   @override
-   void initState() {
-     super.initState();
-
-
-   }
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +90,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
             color: Colors.blue, // Set the color to blue
           ),
           onPressed: () {
-            Navigator.pop(context); // Navigate back when the back button is pressed
+            Navigator.pop(
+                context); // Navigate back when the back button is pressed
           },
         ),
         actions: [
@@ -111,27 +111,72 @@ class _ArticleScreenState extends State<ArticleScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
       ),
+      body: Stack(
+        children: [
+          InAppWebView(
+            initialUrlRequest:
+            URLRequest(url: Uri.parse(transformUrl(widget.url))),
+
+            initialOptions: InAppWebViewGroupOptions(
+              android: AndroidInAppWebViewOptions(
+                useWideViewPort: true,
+                useOnRenderProcessGone: true,
+              ),
+              ios: IOSInAppWebViewOptions(
+                allowsInlineMediaPlayback: true,
+              ),
+            ),
+            onWebViewCreated: (controller) {
+              _webViewController = controller;
+            },
+            onProgressChanged: (controller, progress) {
+              // Handle progress changes
+            },
+            // Add more event handlers as needed
+
+            onLoadHttpError: (controller, url, code, message) {
+              setState(() {
+                _isLoading = false; // Stop loading on error
+              });
+
+              _webViewController.loadUrl(
+                  urlRequest: URLRequest(url: Uri.parse('https://google.com/not-very+found'))
+              );
+
+              // Handle the error here, and possibly show an error message to the user
+              print("Error loading web page: $message");
+            },
 
 
-        body: InAppWebView(
-        initialUrlRequest: URLRequest(url: Uri.parse(transformUrl(widget.url))),
 
-        initialOptions: InAppWebViewGroupOptions(
-          android: AndroidInAppWebViewOptions(
-            useWideViewPort: true,
-            useOnRenderProcessGone: true,
+            onLoadStart: (controller, url) {
+              setState(() {
+                _isLoading = true; // Start loading
+              });
+            },
+            onLoadStop: (controller, url) {
+              setState(() {
+                _isLoading = false; // Stop loading
+              });
+            },
+            onLoadError: (controller, url, code, message) {
+              setState(() {
+                _isLoading = false; // Stop loading on error
+              });
+
+              _webViewController.loadUrl(
+                  urlRequest: URLRequest(url: Uri.parse('https://google.com/not-very+found'))
+              );
+
+              // Handle the error here, and possibly show an error message to the user
+              print("Error loading web page: $message");
+            },
           ),
-          ios: IOSInAppWebViewOptions(
-            allowsInlineMediaPlayback: true,
-          ),
-        ),
-        onWebViewCreated: (controller) {
-          _webViewController = controller;
-        },
-        onProgressChanged: (controller, progress) {
-          // Handle progress changes
-        },
-        // Add more event handlers as needed
+          if (_isLoading)
+            Center(
+              child: CircularProgressIndicator(), // Show a loading indicator
+            ),
+        ],
       ),
     );
   }

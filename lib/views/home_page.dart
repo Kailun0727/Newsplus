@@ -23,19 +23,15 @@ class _HomePageState extends State<HomePage> {
 
   bool isFilterApplied = false;
 
-
   bool isFABVisible = false;
   final ScrollController _scrollController = ScrollController();
 
   NewsController newsController = NewsController();
 
-
-
   // This controller will store the value of the search bar
   final TextEditingController searchController = TextEditingController();
 
   final TextEditingController filterController = TextEditingController();
-
 
   // selected index of the bottom navigation bar
   int selectedIndex = 0;
@@ -43,7 +39,8 @@ class _HomePageState extends State<HomePage> {
   void _scrollToTop() {
     _scrollController.animateTo(
       0.0,
-      duration: const Duration(milliseconds: 500), // Adjust the duration as needed
+      duration:
+          const Duration(milliseconds: 500), // Adjust the duration as needed
       curve: Curves.easeInOut,
     );
   }
@@ -65,19 +62,39 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 // Apply the filter based on the keyword entered
                 String keyword = filterController.text;
-                // Call a method to apply the filter based on the keyword
-                _applyFilter(keyword);
-                Navigator.pop(context);
+                if (keyword.isEmpty) {
+                  // Show an error message if the text is empty
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a keyword to filter news.'),
+                    ),
+                  );
+                } else {
+                  // Call a method to apply the filter based on the keyword
+                  _applyFilter(keyword);
+                  Navigator.pop(context);
+                }
               },
               child: const Text('Apply'),
             ),
             TextButton(
               onPressed: () {
-                // Clear the filter
-                filterController.clear();
-                // Call a method to clear the filter
-                _clearFilter();
-                Navigator.pop(context);
+                if (isFilterApplied) {
+                  // Clear the filter only if isFiltered is true
+                  filterController.clear();
+                  _clearFilter();
+                  setState(() {
+                    isFilterApplied = false; // Set isFiltered to false
+                  });
+                  Navigator.pop(context);
+                } else {
+                  // Show an error message if the filter is not applied
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('No filter to clear.'),
+                    ),
+                  );
+                }
               },
               child: const Text('Clear'),
             ),
@@ -115,21 +132,18 @@ class _HomePageState extends State<HomePage> {
 
   void _searchNews(String keyword) async {
     setState(() {
-      loadingNews = true; // Set loadingNews to true while fetching search results
+      loadingNews =
+          true; // Set loadingNews to true while fetching search results
     });
 
     // Perform the search
     await newsController.searchNews(keyword);
 
     setState(() {
-      loadingNews = false; // Set loadingNews to false when the search results are available
+      loadingNews =
+          false; // Set loadingNews to false when the search results are available
     });
   }
-
-
-
-
-
 
   @override
   void initState() {
@@ -159,7 +173,8 @@ class _HomePageState extends State<HomePage> {
     // await defaultNews.getNewsData();
     // mArticleList = defaultNews.newsList;
 
-    await newsController.fetchNewsData(); // Use the NewsController to fetch news data
+    await newsController
+        .fetchNewsData(); // Use the NewsController to fetch news data
 
     setState(() {
       loadingNews = false;
@@ -168,7 +183,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       floatingActionButton: Visibility(
         visible: isFABVisible,
@@ -227,37 +241,47 @@ class _HomePageState extends State<HomePage> {
                     Row(
                       children: [
                         Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Container(
-                              height: 60,
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: TextField(
-                                controller: searchController,
-                                decoration: InputDecoration(
-                                  hintText: 'Search News',
-                                  suffixIcon: IconButton(
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: () => searchController.clear(),
-                                  ),
-                                  prefixIcon: IconButton(
-                                    icon: const Icon(Icons.search),
-                                    onPressed: () async{
-                                      // Perform the search here
-                                      _searchNews(searchController.text.toString());
-
-                                      print(newsController.newsList.length);
-                                    },
-
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20.0),
-                                  ),
+                            child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Container(
+                            height: 60,
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: TextField(
+                              controller: searchController,
+                              decoration: InputDecoration(
+                                hintText: 'Search News',
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () => searchController.clear(),
+                                ),
+                                prefixIcon: IconButton(
+                                  icon: const Icon(Icons.search),
+                                  onPressed: () async {
+                                    final keyword =
+                                        searchController.text.toString();
+                                    if (keyword.isNotEmpty) {
+                                      // Perform the search when the keyword is not empty
+                                      _searchNews(keyword);
+                                    } else {
+                                      // Show an error message if the keyword is empty
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Please enter a keyword to search.'),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
                                 ),
                               ),
                             ),
-                          )
-                        ),
+                          ),
+                        )),
                         IconButton(
                           icon: Icon(Icons.filter_list),
                           onPressed: () {
@@ -268,8 +292,6 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
 
-
-
                     const SizedBox(
                       height: 20,
                     ),
@@ -278,7 +300,7 @@ class _HomePageState extends State<HomePage> {
                       child: Text(
                         "All Category :",
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold),
+                            fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(
@@ -300,35 +322,54 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
 
-
-
+                    Text(
+                      "Total Result : " +
+                          (isFilterApplied
+                              ? newsController.filteredNewsList.length
+                                  .toString()
+                              : newsController.newsList.length.toString()),
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
 
                     //News Card
                     Container(
                       child: ListView.builder(
                         shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
+                        primary: false,
+
                         itemCount: isFilterApplied
                             ? newsController.filteredNewsList.length
-                            : newsController.newsList.length, // Use filteredNewsList if a filter is applied
+                            : newsController.newsList
+                                .length, // Use filteredNewsList if a filter is applied
                         scrollDirection: Axis.vertical,
                         itemBuilder: (context, index) {
                           return NewsCard(
                             imageUrl: isFilterApplied
-                                ? newsController.filteredNewsList[index].urlToImage
-                                : newsController.newsList[index].urlToImage, // Use filteredNewsList if a filter is applied
+                                ? newsController
+                                    .filteredNewsList[index].urlToImage
+                                : newsController.newsList[index]
+                                    .urlToImage, // Use filteredNewsList if a filter is applied
                             title: isFilterApplied
                                 ? newsController.filteredNewsList[index].title
-                                : newsController.newsList[index].title, // Use filteredNewsList if a filter is applied
+                                : newsController.newsList[index]
+                                    .title, // Use filteredNewsList if a filter is applied
                             description: isFilterApplied
-                                ? newsController.filteredNewsList[index].description
-                                : newsController.newsList[index].description, // Use filteredNewsList if a filter is applied
+                                ? newsController
+                                    .filteredNewsList[index].description
+                                : newsController.newsList[index]
+                                    .description, // Use filteredNewsList if a filter is applied
                             publishedAt: isFilterApplied
-                                ? newsController.filteredNewsList[index].publishedAt
-                                : newsController.newsList[index].publishedAt, // Use filteredNewsList if a filter is applied
+                                ? newsController
+                                    .filteredNewsList[index].publishedAt
+                                : newsController.newsList[index]
+                                    .publishedAt, // Use filteredNewsList if a filter is applied
                             url: isFilterApplied
                                 ? newsController.filteredNewsList[index].url
-                                : newsController.newsList[index].url, // Use filteredNewsList if a filter is applied
+                                : newsController.newsList[index]
+                                    .url, // Use filteredNewsList if a filter is applied
                           );
                         },
                       ),

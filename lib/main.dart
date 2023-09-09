@@ -7,6 +7,7 @@ import 'package:newsplus/firebase_options.dart';
 
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:newsplus/views/SavedNewsScreen.dart';
 import 'package:newsplus/views/home_page.dart';
 
 import 'package:firebase_database/firebase_database.dart';
@@ -72,7 +73,7 @@ class MyApp extends StatelessWidget {
                         final userData = {
                           'username': name,
                           'email': user.email ?? '',
-                          'registrationDate': DateTime.now().toUtc().toString(),
+                          'registrationDate': DateTime.now().add(Duration(hours: 8)).toString(),
                           'preferredLanguage' : 'English',
                           // Add more fields as needed
                         };
@@ -159,7 +160,7 @@ class MyApp extends StatelessWidget {
                   final userData = {
                     'username': name,
                     'email': user.email ?? '',
-                    'registrationDate': DateTime.now().toUtc().toString(),
+                    'registrationDate': DateTime.now().add(Duration(hours: 8)).toString(),
                     'preferredLanguage' : 'English',
                     // Add more fields as needed
                   };
@@ -187,6 +188,7 @@ class MyApp extends StatelessWidget {
         },
         '/home': (context) => const HomePage(),
         '/profile': (context) => const CustomProfileScreen(),
+        '/savedNews' : (context) => const SavedNewsScreen()
 
       },
     );
