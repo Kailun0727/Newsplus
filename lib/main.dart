@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
@@ -52,7 +53,14 @@ class MyApp extends StatelessWidget {
               return SignInScreen(
                 providers: providers,
                 actions: [
-                  AuthStateChangeAction<SignedIn>((context, state) {
+                  AuthStateChangeAction<SignedIn>((context, state) async {
+                    await FirebaseAnalytics.instance.logEvent(
+                      name: "login",
+                      parameters: {
+                        "userId": 'id',
+                      },
+                    );
+
                     Navigator.pushReplacementNamed(context, '/home');
                   }),
 
@@ -92,6 +100,9 @@ class MyApp extends StatelessWidget {
                         content: Text('Registration successful! You can now sign in.'),
                       ),
                     );
+
+
+
                     // Navigate to the home page
                     Navigator.pushReplacementNamed(context, '/home');
                   }),
@@ -139,7 +150,14 @@ class MyApp extends StatelessWidget {
           return SignInScreen(
             providers: providers,
             actions: [
-              AuthStateChangeAction<SignedIn>((context, state) {
+              AuthStateChangeAction<SignedIn>((context, state) async {
+                await FirebaseAnalytics.instance.logEvent(
+                  name: "login",
+                  parameters: {
+                    "userId": 'id',
+                  },
+                );
+
                 Navigator.pushReplacementNamed(context, '/home');
               }),
 

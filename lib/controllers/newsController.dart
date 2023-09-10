@@ -7,18 +7,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:newsplus/models/SavedNewsModel.dart';
 
-// Initialize Firebase Analytics
-FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
-// Log an event
-Future<void> logFetchDataEvent() async {
-  await analytics.logEvent(
-    name: 'fetch_data',
-    parameters: <String, dynamic>{
-      'data': 'example_data',
-    },
-  );
-}
 
 class NewsController extends ChangeNotifier {
   final List<ArticleModel> _newsList = [];
@@ -80,7 +69,7 @@ class NewsController extends ChangeNotifier {
             });
           }
 
-          await logFetchDataEvent();
+
         }
       } catch (error) {
         // Handle any errors that occur during the process

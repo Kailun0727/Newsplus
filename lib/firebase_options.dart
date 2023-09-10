@@ -17,7 +17,10 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -46,23 +49,12 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyB1ozcM2GgMYBetAYP_7Zht2iNINF3YIAA',
-    appId: '1:498719774580:web:995121b3a4266f4747be21',
-    messagingSenderId: '498719774580',
-    projectId: 'newsplus-8408b',
-    authDomain: 'newsplus-8408b.firebaseapp.com',
-    databaseURL: 'https://newsplus-8408b-default-rtdb.asia-southeast1.firebasedatabase.app/',
-    storageBucket: 'newsplus-8408b.appspot.com',
-    measurementId: 'G-04GXPVDN5N',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCKZg-svVrSwoLvicdmWLS6gzyaknQ_RlM',
     appId: '1:498719774580:android:7cc0a21c7a828f9a47be21',
     messagingSenderId: '498719774580',
-    databaseURL: 'https://newsplus-8408b-default-rtdb.asia-southeast1.firebasedatabase.app/',
     projectId: 'newsplus-8408b',
+    databaseURL: 'https://newsplus-8408b-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'newsplus-8408b.appspot.com',
   );
 
@@ -71,6 +63,7 @@ class DefaultFirebaseOptions {
     appId: '1:498719774580:ios:f3af0539abcd06c647be21',
     messagingSenderId: '498719774580',
     projectId: 'newsplus-8408b',
+    databaseURL: 'https://newsplus-8408b-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'newsplus-8408b.appspot.com',
     iosClientId: '498719774580-64p2chcffae0bo61rcg1no57oq2gpgtd.apps.googleusercontent.com',
     iosBundleId: 'com.example.newsplus',

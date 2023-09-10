@@ -176,9 +176,13 @@ class _HomePageState extends State<HomePage> {
     await newsController
         .fetchNewsData(); // Use the NewsController to fetch news data
 
-    setState(() {
-      loadingNews = false;
-    });
+
+    if(mounted){
+      setState(() {
+        loadingNews = false;
+      });
+    }
+
   }
 
   @override

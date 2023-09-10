@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/models/ArticleModel.dart';
@@ -16,6 +17,19 @@ class SavedNewsScreen extends StatefulWidget {
 }
 
 class _SavedNewsScreenState extends State<SavedNewsScreen> {
+
+  // Initialize Firebase Analytics
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+// Log an event
+  Future<void> logEvent() async {
+    await analytics.logEvent(
+      name: 'button_click',
+      parameters: <String, dynamic>{
+        'button_id': 'example_button',
+      },
+    );
+  }
 
   List<SavedNewsModel> savedNewsList = [];
 
@@ -49,6 +63,8 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    logEvent();
 
     getSavedNews();
 

@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "498719774580",
+    "firebase_url": "https://newsplus-8408b-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "newsplus-8408b",
     "storage_bucket": "newsplus-8408b.appspot.com"
   },
@@ -29,6 +30,13 @@
             {
               "client_id": "498719774580-aad2pcu5l1ek5cpdsjere9td2dbi1qka.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "498719774580-64p2chcffae0bo61rcg1no57oq2gpgtd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.newsplus"
+              }
             }
           ]
         }
