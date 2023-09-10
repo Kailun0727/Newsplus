@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
@@ -5,6 +6,19 @@ import 'package:newsplus/models/ArticleModel.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:newsplus/models/SavedNewsModel.dart';
+
+// Initialize Firebase Analytics
+FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+// Log an event
+Future<void> logFetchDataEvent() async {
+  await analytics.logEvent(
+    name: 'fetch_data',
+    parameters: <String, dynamic>{
+      'data': 'example_data',
+    },
+  );
+}
 
 class NewsController extends ChangeNotifier {
   final List<ArticleModel> _newsList = [];
@@ -65,6 +79,8 @@ class NewsController extends ChangeNotifier {
               _savedNewsList.add(savedNews);
             });
           }
+
+          await logFetchDataEvent();
         }
       } catch (error) {
         // Handle any errors that occur during the process
@@ -74,6 +90,50 @@ class NewsController extends ChangeNotifier {
 
     }
   }
+
+
+  static Future<void> removeSavedNews(String title) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      String userId = user.uid;
+
+      DatabaseReference newsRef = FirebaseDatabase.instance.ref().child("news");
+
+      try {
+        // Create a query to find the news item to remove by matching userId and title
+        Query query = newsRef.orderByChild("userId").equalTo(userId);
+
+        // Retrieve data once from the database
+        DatabaseEvent event = await query.once();
+
+        if (event.snapshot != null) {
+          // Get the key of the news item to remove, or use a default value if it's null
+          String newsKey = event.snapshot!.key ?? '';
+
+          // Get the value of the snapshot
+          final dynamic newsMap = event.snapshot!.value;
+
+          // Check if the retrieved data is a Map
+          if (newsMap is Map) {
+            // Iterate through each key-value pair in the Map
+            newsMap.forEach((key, newsData) async {
+              if (newsData['title'] == title) {
+                // If the title matches, remove the news item
+                print('Key : '+key);
+                await newsRef.child(key).remove();
+              }
+            });
+          }
+        }
+      } catch (error) {
+        // Handle any errors that occur during the removal process
+        print('Error removing saved news: $error');
+        throw error;
+      }
+    }
+  }
+
 
 
   static Future<void> saveNews(SavedNewsModel model) async {

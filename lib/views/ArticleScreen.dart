@@ -35,8 +35,18 @@ class _ArticleScreenState extends State<ArticleScreen> {
         transformedUrl += '/${urlParts[i]}';
       }
 
-      return transformedUrl +
-          '?_x_tr_sl=auto&_x_tr_tl=zh-CN&_x_tr_hl=en-US&_x_tr_pto=wapp';
+
+      if (transformedUrl.contains('?')) {
+        // The transformedUrl contains the '?' symbol
+        return transformedUrl +
+            '&_x_tr_sl=auto&_x_tr_tl=zh-CN&_x_tr_hl=en-US&_x_tr_pto=wapp';
+      } else {
+        // The transformedUrl does not contain the '?' symbol
+        return transformedUrl +
+            '?_x_tr_sl=auto&_x_tr_tl=zh-CN&_x_tr_hl=en-US&_x_tr_pto=wapp';
+      }
+
+
     } else {
       // If the URL doesn't have at least 4 parts, return it as is
       return inputUrl;
@@ -121,6 +131,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
               android: AndroidInAppWebViewOptions(
                 useWideViewPort: true,
                 useOnRenderProcessGone: true,
+
               ),
               ios: IOSInAppWebViewOptions(
                 allowsInlineMediaPlayback: true,
@@ -129,27 +140,14 @@ class _ArticleScreenState extends State<ArticleScreen> {
             onWebViewCreated: (controller) {
               _webViewController = controller;
             },
-            onProgressChanged: (controller, progress) {
-              // Handle progress changes
-            },
-            // Add more event handlers as needed
 
-            onLoadHttpError: (controller, url, code, message) {
-              setState(() {
-                _isLoading = false; // Stop loading on error
-              });
-
-              _webViewController.loadUrl(
-                  urlRequest: URLRequest(url: Uri.parse('https://google.com/not-very+found'))
-              );
-
-              // Handle the error here, and possibly show an error message to the user
+            onLoadError: (controller, url, code, message) {
               print("Error loading web page: $message");
+              // Handle the error here or take appropriate action
             },
-
-
 
             onLoadStart: (controller, url) {
+              print("Current Transform URL :" + transformUrl(widget.url));
               setState(() {
                 _isLoading = true; // Start loading
               });
@@ -159,18 +157,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 _isLoading = false; // Stop loading
               });
             },
-            onLoadError: (controller, url, code, message) {
-              setState(() {
-                _isLoading = false; // Stop loading on error
-              });
 
-              _webViewController.loadUrl(
-                  urlRequest: URLRequest(url: Uri.parse('https://google.com/not-very+found'))
-              );
-
-              // Handle the error here, and possibly show an error message to the user
-              print("Error loading web page: $message");
-            },
           ),
           if (_isLoading)
             Center(

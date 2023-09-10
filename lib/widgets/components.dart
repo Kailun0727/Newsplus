@@ -37,8 +37,8 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
     return BottomNavigationBar(
       selectedItemColor: Colors.blue,
       unselectedItemColor: Colors.grey,
-      selectedLabelStyle: TextStyle(color: Colors.blue),
-      unselectedLabelStyle: TextStyle(color: Colors.grey),
+      selectedLabelStyle: const TextStyle(color: Colors.blue),
+      unselectedLabelStyle: const TextStyle(color: Colors.grey),
       currentIndex: widget.selectedIndex,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
@@ -108,7 +108,7 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
       },
       child: Container(
         child: Container(
-          margin: EdgeInsets.only(bottom: 14),
+          margin: const EdgeInsets.only(bottom: 14),
           child: Container(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -127,30 +127,30 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                           fit: BoxFit.cover,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 6,
                       ),
                       Text(
                         widget.creationDate,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.blue),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 6,
                       ),
                       Text(
                         widget.title,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 6,
                       ),
                       Text(
                         widget.description,
-                        style: TextStyle(color: Colors.black54),
+                        style: const TextStyle(color: Colors.black54),
                       ),
                     ],
                   ),
@@ -159,10 +159,28 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                     right: 8, // Adjust the right position as needed
                     child: PopupMenuButton<String>(
                       itemBuilder: (context) => <PopupMenuEntry<String>>[
+
+                        PopupMenuItem<String>(
+                          value: 'Share',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.share,
+                                  color: Colors.blue), // Share icon
+                              const SizedBox(width: 8.0),
+                              const Text(
+                                'Share',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
                         PopupMenuItem<String>(
                           value: 'Remove',
                           child: Row(
-                            children: [
+                            children: const [
                               Icon(Icons.remove,
                                   color: Colors.blue), // Share icon
                               SizedBox(width: 8.0),
@@ -177,18 +195,34 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                         ),
                       ],
                       onSelected: (value) async {
-                        // Handle the selected menu item
-                        if (value == 'Remove') {
+
+                        if (value == 'Share') {
                           // Perform action for Share
                           Share.share(widget.url);
+                        } else if (value == 'Remove') {
+                          try {
+                            await NewsController.removeSavedNews(widget.title);
+                            // Removal successful, show a success message
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                              content: Text('News removed successfully'),
+                              duration: Duration(seconds: 2), // You can adjust the duration as needed
+                            ));
+                          } catch (error) {
+                            // Removal failed, show an error message
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('Failed to remove news: $error'),
+                              duration: const Duration(seconds: 2), // You can adjust the duration as needed
+                            ));
+                          }
+
                         }
                       },
                       child: Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.blue, // Change to your desired color
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons
                               .more_vert, // You can replace this with your kebab menu icon
                           size: 24, // Adjust the icon size as needed
@@ -250,7 +284,7 @@ class _NewsCardState extends State<NewsCard> {
       },
       child: Container(
         child: Container(
-          margin: EdgeInsets.only(bottom: 14),
+          margin: const EdgeInsets.only(bottom: 14),
           child: Container(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -269,30 +303,30 @@ class _NewsCardState extends State<NewsCard> {
                           fit: BoxFit.cover,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 6,
                       ),
                       Text(
                         widget.publishedAt,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.blue),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 6,
                       ),
                       Text(
                         widget.title,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 6,
                       ),
                       Text(
                         widget.description,
-                        style: TextStyle(color: Colors.black54),
+                        style: const TextStyle(color: Colors.black54),
                       ),
                     ],
                   ),
@@ -305,10 +339,10 @@ class _NewsCardState extends State<NewsCard> {
                           value: 'Share',
                           child: Row(
                             children: [
-                              Icon(Icons.share,
+                              const Icon(Icons.share,
                                   color: Colors.blue), // Share icon
-                              SizedBox(width: 8.0),
-                              Text(
+                              const SizedBox(width: 8.0),
+                              const Text(
                                 'Share',
                                 style: TextStyle(
                                   color: Colors.blue,
@@ -325,7 +359,7 @@ class _NewsCardState extends State<NewsCard> {
                                   color: (isSavedToLater
                                       ? Colors.grey
                                       : Colors.green)), // Save icon
-                              SizedBox(width: 8.0),
+                              const SizedBox(width: 8.0),
                               Text(
                                 isSavedToLater ? 'Saved' : 'Save to Later',
                                 style: TextStyle(
@@ -340,7 +374,7 @@ class _NewsCardState extends State<NewsCard> {
                         PopupMenuItem<String>(
                           value: 'Like',
                           child: Row(
-                            children: [
+                            children: const [
                               Icon(Icons.thumb_up,
                                   color: Colors.orange), // Thumb up icon
                               SizedBox(width: 8.0),
@@ -356,7 +390,7 @@ class _NewsCardState extends State<NewsCard> {
                         PopupMenuItem<String>(
                           value: 'Dislike',
                           child: Row(
-                            children: [
+                            children: const [
                               Icon(Icons.thumb_down,
                                   color: Colors.red), // Thumb down icon
                               SizedBox(width: 8.0),
@@ -399,7 +433,7 @@ class _NewsCardState extends State<NewsCard> {
                                   isSavedToLater = true;
                                 });
 
-                                final snackBar = SnackBar(
+                                const snackBar = SnackBar(
                                   content: Text('News saved successfully'),
                                   duration: Duration(seconds: 2),
                                 );
@@ -410,7 +444,7 @@ class _NewsCardState extends State<NewsCard> {
                                 print('Error saving news: $error');
                                 final snackBar = SnackBar(
                                   content: Text('Error saving news: $error'),
-                                  duration: Duration(seconds: 2),
+                                  duration: const Duration(seconds: 2),
                                 );
 
                                 ScaffoldMessenger.of(context)
@@ -418,7 +452,7 @@ class _NewsCardState extends State<NewsCard> {
                               }
                             }
                           } else {
-                            final snackBar = SnackBar(
+                            const snackBar = SnackBar(
                               content: Text('This news is already saved'),
                               duration: Duration(seconds: 2),
                             );
@@ -433,21 +467,21 @@ class _NewsCardState extends State<NewsCard> {
                         }
                       },
                       child: Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.blue, // Change to your desired color
                         ),
-                        child: Icon(
+                        width:
+                            42, // Adjust the width to make the circle smaller
+                        height:
+                            42,
+                        child: const Icon(
                           Icons
                               .more_vert, // You can replace this with your kebab menu icon
                           size: 24, // Adjust the icon size as needed
                           color:
                               Colors.white, // Change to your desired icon color
-                        ),
-                        width:
-                            42, // Adjust the width to make the circle smaller
-                        height:
-                            42, // Adjust the height to make the circle smaller
+                        ), // Adjust the height to make the circle smaller
                       ),
                     ),
                   ),

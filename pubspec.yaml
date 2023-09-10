@@ -45,6 +45,7 @@ dependencies:
   cached_network_image: ^3.2.3
   flutter_inappwebview: ^5.7.2+3
   share: ^2.0.4
+  firebase_analytics: ^10.4.5
 
 
 
