@@ -239,6 +239,9 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
       ),
 
       body: Consumer<NewsController>(builder: (context, newsProvider, child) {
+
+        List<SavedNewsModel> savedNewsList = newsProvider.savedNewsList;
+
         return loadingNews
             ? Center(child: Container(child: CircularProgressIndicator()))
             : SingleChildScrollView(
@@ -296,6 +299,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                   scrollDirection: Axis.vertical,
                   itemBuilder: (context, index) {
                       return SavedNewsCard(
+                        controller: newsController,
                           imageUrl: isFilterApplied
                               ? newsController.filterSavedNewsList[index].imageUrl
                               : newsController.savedNewsList[index].imageUrl,

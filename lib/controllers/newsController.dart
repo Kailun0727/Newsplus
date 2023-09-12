@@ -8,8 +8,7 @@ import 'package:newsplus/models/ArticleModel.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:newsplus/models/SavedNewsModel.dart';
-
-
+import 'package:intl/intl.dart';
 
 class NewsController extends ChangeNotifier {
   final List<ArticleModel> _newsList = [];
@@ -18,13 +17,11 @@ class NewsController extends ChangeNotifier {
   List<SavedNewsModel> _savedNewsList = [];
   List<SavedNewsModel> _filterSavedNewsList = [];
 
-
   bool _loadingNews = true;
   String _filterKeyword = ""; // Store the filter keyword
 
   List<SavedNewsModel> get savedNewsList => _savedNewsList;
   List<SavedNewsModel> get filterSavedNewsList => _filterSavedNewsList;
-
 
   List<ArticleModel> get newsList => _newsList;
   List<ArticleModel> get filteredNewsList =>
@@ -35,9 +32,8 @@ class NewsController extends ChangeNotifier {
   NewsController() {}
 
   Future<void> fetchSavedNews() async {
-
-    final DatabaseReference newsRef = FirebaseDatabase.instance.ref().child("news");
-
+    final DatabaseReference newsRef =
+        FirebaseDatabase.instance.ref().child("news");
     final user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
@@ -57,6 +53,9 @@ class NewsController extends ChangeNotifier {
 
           // Check if the retrieved data is a Map
           if (newsMap is Map) {
+            // Clear the list before adding fetched items
+            _savedNewsList.clear();
+
             // Iterate through each key-value pair in the Map
             newsMap.forEach((key, newsData) {
               // Convert the data to a SavedNewsModel
@@ -72,16 +71,23 @@ class NewsController extends ChangeNotifier {
               // Add the converted SavedNewsModel to the _savedNewsList
               _savedNewsList.add(savedNews);
             });
+
+            // Notify listeners after adding all items to the list
+
+            if (_savedNewsList.isEmpty) {
+              print('Fetch Saved news but list is empty');
+            } else {
+              print('Fetch Saved news but list is not empty');
+            }
+
+            notifyListeners();
           }
-
-
         }
       } catch (error) {
         // Handle any errors that occur during the process
         print('Error fetching saved news: $error');
         throw error;
       }
-
     }
   }
 
@@ -96,48 +102,52 @@ class NewsController extends ChangeNotifier {
     // Filter the newsList based on the keyword
     _filterSavedNewsList = _savedNewsList
         .where((article) =>
-    (article.title?.toLowerCase()?.contains(_filterKeyword) ?? false) ||
-        (article.description?.toLowerCase()?.contains(_filterKeyword) ??
-            false))
+            (article.title?.toLowerCase()?.contains(_filterKeyword) ?? false) ||
+            (article.description?.toLowerCase()?.contains(_filterKeyword) ??
+                false))
         .toList();
 
     notifyListeners();
   }
 
-
-  static Future<void> removeSavedNews(String title) async {
+  Future<void> removeSavedNews(String title) async {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
       String userId = user.uid;
-
       DatabaseReference newsRef = FirebaseDatabase.instance.ref().child("news");
 
       try {
-        // Create a query to find the news item to remove by matching userId and title
-        Query query = newsRef.orderByChild("userId").equalTo(userId);
 
-        // Retrieve data once from the database
-        DatabaseEvent event = await query.once();
+        int index = _savedNewsList.indexWhere((item) => item.title == title);
 
-        if (event.snapshot != null) {
-          // Get the key of the news item to remove, or use a default value if it's null
-          String newsKey = event.snapshot!.key ?? '';
+        if (index != -1) {
 
-          // Get the value of the snapshot
-          final dynamic newsMap = event.snapshot!.value;
+          // Find and remove the news item from Firebase using userId and title
+          Query query = newsRef.orderByChild("userId").equalTo(userId);
+          DatabaseEvent event = await query.once();
 
-          // Check if the retrieved data is a Map
-          if (newsMap is Map) {
-            // Iterate through each key-value pair in the Map
-            newsMap.forEach((key, newsData) async {
-              if (newsData['title'] == title) {
-                // If the title matches, remove the news item
-                print('Key : '+key);
-                await newsRef.child(key).remove();
-              }
-            });
+          if (event.snapshot != null) {
+            final dynamic newsMap = event.snapshot!.value;
+
+            if (newsMap is Map) {
+              newsMap.forEach((key, newsData) async {
+                if (newsData['title'] == title) {
+                  // If the title matches, remove the news item
+                  await newsRef.child(key).remove();
+                }
+              });
+            }
           }
+
+          // Remove the item from _savedNewsList
+           _savedNewsList.removeAt(index);
+          notifyListeners();
+
+
+        } else {
+          // No matching item found in _savedNewsList
+          print('No matching item found');
         }
       } catch (error) {
         // Handle any errors that occur during the removal process
@@ -148,20 +158,22 @@ class NewsController extends ChangeNotifier {
   }
 
 
-
   static Future<void> saveNews(SavedNewsModel model) async {
+    final formattedDate = DateFormat('yyyy-MM-dd').format(model.creationDate);
+    final formattedDateString = formattedDate.toString();
 
     final data = {
       'title': model.title,
-      'description' : model.description,
+      'description': model.description,
       'imageUrl': model.imageUrl,
-      'url' : model.url,
-      'creationDate': model.creationDate.add(Duration(hours: 8)).toString(),
+      'url': model.url,
+      'creationDate': formattedDateString, // Extract only the date part
       'userId': model.userId,
     };
 
     DatabaseReference ref = FirebaseDatabase.instance.ref().child("news");
-    DatabaseReference newNewsRef = ref.push(); // Generates a unique key for the news
+    DatabaseReference newNewsRef =
+        ref.push(); // Generates a unique key for the news
 
     try {
       await newNewsRef.set(data);
@@ -169,11 +181,8 @@ class NewsController extends ChangeNotifier {
       // Handle any errors that occur during the saving process
       print('Error saving news: $error');
       throw error;
-
     }
-
   }
-
 
   Future<void> searchCategoryNews(String keyword, String categoryTitle) async {
     _newsList.clear();
@@ -209,7 +218,6 @@ class NewsController extends ChangeNotifier {
               "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
           ArticleModel mArticleModel = ArticleModel(
-            author: data['author'],
             description: data['description'],
             title: data['title'],
             content: data['content'],
@@ -242,7 +250,7 @@ class NewsController extends ChangeNotifier {
     }
 
     final apiUrl = Uri.parse(
-            "https://newsapi.org/v2/everything?q=$keyword&sortBy=publishedAt&searchIn=title,description&pageSize=50&apiKey=$apiKey");
+        "https://newsapi.org/v2/everything?q=$keyword&sortBy=publishedAt&searchIn=title,description&pageSize=50&apiKey=$apiKey");
 
     final res = await http.get(apiUrl);
 
@@ -263,7 +271,6 @@ class NewsController extends ChangeNotifier {
               "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
           ArticleModel mArticleModel = ArticleModel(
-            author: data['author'],
             description: data['description'],
             title: data['title'],
             content: data['content'],
@@ -335,7 +342,7 @@ class NewsController extends ChangeNotifier {
     }
 
     final apiUrl = Uri.parse(
-        "https://newsapi.org/v2/top-headlines?country=us&category=$categoryTitle&apiKey=$apiKey");
+        "https://newsapi.org/v2/top-headlines?pageSize=100&country=us&category=$categoryTitle&apiKey=$apiKey");
 
     final res = await http.get(apiUrl);
 
@@ -358,7 +365,6 @@ class NewsController extends ChangeNotifier {
               "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
           ArticleModel mArticleModel = ArticleModel(
-            author: data['author'],
             description: data['description'],
             title: data['title'],
             content: data['content'],
@@ -366,6 +372,47 @@ class NewsController extends ChangeNotifier {
             url: data['url'],
             urlToImage: data['urlToImage'],
           );
+          _newsList.add(mArticleModel);
+        } else {
+          // If any of the fields is null, assign default values
+          String inputDateString = data['publishedAt'];
+
+          DateTime dateTime = DateTime.parse(inputDateString);
+
+          String formattedDate =
+              "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
+
+          ArticleModel mArticleModel = ArticleModel(
+            title: data['title'],
+            publishedAt: formattedDate,
+            url: data['url'],
+          );
+
+          if (data['urlToImage'] == null) {
+            // If urlToImage is null, assign a default image URL
+            mArticleModel.urlToImage =
+                'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png';
+          } else {
+            // If urlToImage is not null, use the original value
+            mArticleModel.urlToImage = data['urlToImage'];
+          }
+
+          if (data['description'] == null) {
+            // If description is null, assign a default description
+            mArticleModel.description = 'Click the news for more details.';
+          } else {
+            // If description is not null, use the original value
+            mArticleModel.description = data['description'];
+          }
+
+          if (data['content'] == null) {
+            // If content is null, assign a default content
+            mArticleModel.content = 'Click the news for more details.';
+          } else {
+            // If content is not null, use the original value
+            mArticleModel.content = data['content'];
+          }
+
           _newsList.add(mArticleModel);
         }
       }
@@ -388,21 +435,68 @@ class NewsController extends ChangeNotifier {
     }
 
     List<String> countryList = [
-      'ae', 'ar', 'at', 'au', 'be', 'bg', 'br', 'ca', 'ch', 'cn', 'co', 'cu', 'cz',
-      'de', 'eg', 'fr', 'gb', 'gr', 'hk', 'hu', 'id', 'ie', 'il', 'in', 'it', 'jp',
-      'kr', 'lt', 'lv', 'ma', 'mx', 'my', 'ng', 'nl', 'no', 'nz', 'ph', 'pl', 'pt',
-      'ro', 'rs', 'ru', 'sa', 'se', 'sg', 'si', 'sk', 'th', 'tr', 'tw', 'ua', 'us',
-      've', 'za'
+      'ae',
+      'ar',
+      'at',
+      'au',
+      'be',
+      'bg',
+      'br',
+      'ca',
+      'ch',
+      'cn',
+      'co',
+      'cu',
+      'cz',
+      'de',
+      'eg',
+      'fr',
+      'gb',
+      'gr',
+      'hk',
+      'hu',
+      'id',
+      'ie',
+      'il',
+      'in',
+      'it',
+      'jp',
+      'kr',
+      'lt',
+      'lv',
+      'ma',
+      'mx',
+      'my',
+      'ng',
+      'nl',
+      'no',
+      'nz',
+      'ph',
+      'pl',
+      'pt',
+      'ro',
+      'rs',
+      'ru',
+      'sa',
+      'se',
+      'sg',
+      'si',
+      'sk',
+      'th',
+      'tr',
+      'tw',
+      'ua',
+      'us',
+      've',
+      'za'
     ];
 
     Random random = Random();
     int randomIndex = random.nextInt(countryList.length);
     String selectedCountry = countryList[randomIndex];
 
-
-
     final apiUrl = Uri.parse(
-        "https://newsapi.org/v2/top-headlines?country=$selectedCountry&category=$categoryTitle&apiKey=$apiKey");
+        "https://newsapi.org/v2/top-headlines?country=my&pageSize=100&category=Technology&apiKey=$apiKey");
 
     final res = await http.get(apiUrl);
 
@@ -410,22 +504,19 @@ class NewsController extends ChangeNotifier {
 
     if (json['status'] == "ok") {
       for (final data in json['articles']) {
+        // Check if urlToImage, description, and content are not null
         if (data['urlToImage'] != null &&
             data['description'] != null &&
             data['content'] != null) {
+          // If all fields are not null, use the original values
           String inputDateString = data['publishedAt'];
 
-          // String translatedText = await translateText(data['title']);
-
-          // Parse the input string into a DateTime object
           DateTime dateTime = DateTime.parse(inputDateString);
 
-          // Format the DateTime object into the desired format (YYYY-MM-dd)
           String formattedDate =
               "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
           ArticleModel mArticleModel = ArticleModel(
-            author: data['author'],
             description: data['description'],
             title: data['title'],
             content: data['content'],
@@ -433,6 +524,47 @@ class NewsController extends ChangeNotifier {
             url: data['url'],
             urlToImage: data['urlToImage'],
           );
+          _newsList.add(mArticleModel);
+        } else {
+          // If any of the fields is null, assign default values
+          String inputDateString = data['publishedAt'];
+
+          DateTime dateTime = DateTime.parse(inputDateString);
+
+          String formattedDate =
+              "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
+
+          ArticleModel mArticleModel = ArticleModel(
+            title: data['title'],
+            publishedAt: formattedDate,
+            url: data['url'],
+          );
+
+          if (data['urlToImage'] == null) {
+            // If urlToImage is null, assign a default image URL
+            mArticleModel.urlToImage =
+                'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png';
+          } else {
+            // If urlToImage is not null, use the original value
+            mArticleModel.urlToImage = data['urlToImage'];
+          }
+
+          if (data['description'] == null) {
+            // If description is null, assign a default description
+            mArticleModel.description = 'Click the news for more details.';
+          } else {
+            // If description is not null, use the original value
+            mArticleModel.description = data['description'];
+          }
+
+          if (data['content'] == null) {
+            // If content is null, assign a default content
+            mArticleModel.content = 'Click the news for more details.';
+          } else {
+            // If content is not null, use the original value
+            mArticleModel.content = data['content'];
+          }
+
           _newsList.add(mArticleModel);
         }
       }
@@ -468,8 +600,6 @@ class NewsController extends ChangeNotifier {
     _loadingNews = false;
     notifyListeners();
   }
-
-
 
   // Apply filter based on keyword
   void applyFilter(String keyword) {

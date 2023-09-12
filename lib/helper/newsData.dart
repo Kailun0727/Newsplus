@@ -24,7 +24,6 @@ class News {
 
 
           ArticleModel mArticleModel = ArticleModel(
-            author: data['author'],
             description: data['description'],
             title: data['title'],
             content: data['content'],

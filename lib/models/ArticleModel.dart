@@ -1,5 +1,5 @@
 class ArticleModel {
-  String? author;
+
   String? url;
   String? urlToImage;
   String? title;
@@ -8,11 +8,11 @@ class ArticleModel {
   String? content;
 
   ArticleModel(
-      {required this.author,
-      required this.description,
+      {
+      this.description,
       required this.publishedAt,
       required this.title,
-      required this.content,
+        this.content,
       required this.url,
-      required this.urlToImage});
+      this.urlToImage});
 }
