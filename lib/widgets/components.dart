@@ -15,6 +15,7 @@ import 'package:newsplus/views/ArticleScreen.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:newsplus/views/CategoryNewsScreen.dart';
 import 'package:share/share.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 //Bottom Navigation Bar
 class CustomBottomNavigationBar extends StatefulWidget {
@@ -253,6 +254,7 @@ class NewsCard extends StatefulWidget {
   final description;
   final url;
   final publishedAt;
+  final category;
 
   const NewsCard(
       {Key? key,
@@ -260,7 +262,10 @@ class NewsCard extends StatefulWidget {
       required this.title,
       required this.description,
       required this.publishedAt,
-      required this.url})
+      required this.url,
+        required this.category
+
+      })
       : super(key: key);
 
   @override
@@ -419,7 +424,6 @@ class _NewsCardState extends State<NewsCard> {
                               SavedNewsModel model = SavedNewsModel(
                                 title: widget.title,
                                 description: widget.description,
-                                category: 'General',
                                 url : widget.url,
                                 imageUrl: widget.imageUrl,
                                 creationDate: DateTime.now(),
@@ -432,6 +436,8 @@ class _NewsCardState extends State<NewsCard> {
                                 setState(() {
                                   isSavedToLater = true;
                                 });
+
+
 
                                 const snackBar = SnackBar(
                                   content: Text('News saved successfully'),
@@ -462,6 +468,20 @@ class _NewsCardState extends State<NewsCard> {
                           }
                         } else if (value == 'Like') {
                           // Perform action for More Stories Like This
+                          // Store the widget.category using shared preferences
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          await prefs.setString('prefer_category', widget.category);
+
+                          print('Prefer Category changed to '+ widget.category);
+
+                          final snackBar = SnackBar(
+                            content: Text("You'll see more stories like"),
+                            duration: Duration(seconds: 2),
+                          );
+
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+
                         } else if (value == 'Dislike') {
                           // Perform action for Fewer Stories Like This
                         }

@@ -2,7 +2,6 @@ class SavedNewsModel {
 
   final String title;
   final String description;
-  final String category;
   final String imageUrl;
   final String url;
   final DateTime creationDate;
@@ -11,7 +10,6 @@ class SavedNewsModel {
   SavedNewsModel({
     required this.title,
     required this.description,
-    required this.category,
     required this.imageUrl,
     required this.url,
     required this.creationDate,

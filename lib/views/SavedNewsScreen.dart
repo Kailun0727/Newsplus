@@ -120,7 +120,6 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
             TextButton(
               onPressed: () {
 
-
                 if (isFilterApplied) {
                   // Clear the filter only if isFiltered is true
                   filterController.clear();
@@ -149,7 +148,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
 
   void _applyFilter(String keyword) {
     // Call the applyFilter method of NewsController
-    newsController.applyFilter(keyword);
+    newsController.applySavedNewsFilter(keyword);
 
     setState(() {
       // Update loadingNews to false only if a filter is not applied
@@ -172,22 +171,6 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
       isFilterApplied = false; // Clear the filter applied flag
     });
   }
-
-  void _searchNews(String keyword) async {
-    setState(() {
-      loadingNews = true; // Set loadingNews to true while fetching search results
-    });
-
-    // // Perform the search
-    // await newsController.searchCategoryNews(keyword,widget.categoryTitle);
-
-    setState(() {
-      loadingNews = false; // Set loadingNews to false when the search results are available
-    });
-  }
-
-
-
 
 
   getSavedNews() async {
@@ -270,27 +253,36 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Total Saved News : " +
-                          (isFilterApplied
-                              ? newsController.filteredNewsList.length
-                              .toString()
-                              : newsController.savedNewsList.length.toString()),
+                      (isFilterApplied
+                          ? " Filter Results : " +
+                          newsController.filterSavedNewsList.length.toString()
+                          : "Total Saved News : " +
+                          newsController.savedNewsList.length.toString()),
                       style: TextStyle(
                           fontSize: 18,
                           color: Colors.black,
                           fontWeight: FontWeight.bold),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.filter_list),
-                    onPressed: () {
-                      // Open a filter dialog or screen when the filter button is pressed
-                      _openFilterDialog(context);
-
-                    },
+                  Spacer(), // This will push the Container to the right
+                  Container(
+                    width: 40.0,
+                    height: 40.0,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.filter_list, color: Colors.white),
+                      onPressed: () {
+                        // Open a filter dialog or screen when the filter button is pressed
+                        _openFilterDialog(context);
+                      },
+                    ),
                   ),
                 ],
               ),
+
 
               //News Card
               Container(
@@ -299,25 +291,25 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                   primary: false,
 
                   itemCount: isFilterApplied
-                      ? newsController.filteredNewsList.length
+                      ? newsController.filterSavedNewsList.length
                       : newsController.savedNewsList.length, // Use filteredNewsList if a filter is applied
                   scrollDirection: Axis.vertical,
                   itemBuilder: (context, index) {
                       return SavedNewsCard(
                           imageUrl: isFilterApplied
-                              ? newsController.filteredNewsList[index].urlToImage
+                              ? newsController.filterSavedNewsList[index].imageUrl
                               : newsController.savedNewsList[index].imageUrl,
                           title: isFilterApplied
-                              ? newsController.filteredNewsList[index].title
+                              ? newsController.filterSavedNewsList[index].title
                               : newsController.savedNewsList[index].title,
                           description: isFilterApplied
-                              ? newsController.filteredNewsList[index].description
+                              ? newsController.filterSavedNewsList[index].description
                               : newsController.savedNewsList[index].description,
                           creationDate:  isFilterApplied
-                              ? newsController.filteredNewsList[index].publishedAt
+                              ? newsController.filterSavedNewsList[index].creationDate.toString()
                               : newsController.savedNewsList[index].creationDate.toString(),
                           url:  isFilterApplied
-                              ? newsController.filteredNewsList[index].url
+                              ? newsController.filterSavedNewsList[index].url
                               : newsController.savedNewsList[index].url,
                       );
                   },

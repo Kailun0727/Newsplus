@@ -6,6 +6,7 @@ import 'package:newsplus/models/ArticleModel.dart';
 import 'package:newsplus/models/CategoryModel.dart';
 import 'package:provider/provider.dart';
 import 'package:newsplus/widgets/components.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -35,6 +36,24 @@ class _HomePageState extends State<HomePage> {
 
   // selected index of the bottom navigation bar
   int selectedIndex = 0;
+
+  //prefer category to recommend news
+  String category='';
+
+  Future<String> getPreferCategory() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('prefer_category') ?? 'General'; // default value = General if not found
+  }
+
+// To set the 'category' variable, you need to await the result of the Future.
+  Future<void> getCategory() async {
+    category = await getPreferCategory();
+    print("getCategory call first : " + category);
+  }
+
+
+
+
 
   void _scrollToTop() {
     _scrollController.animateTo(
@@ -150,7 +169,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     mCategoryList = getCategories();
 
-    initializeNews();
+    recommendNews();
 
     _scrollController.addListener(() {
       // Check if the user has scrolled to the top
@@ -166,15 +185,29 @@ class _HomePageState extends State<HomePage> {
         });
       }
     });
+
   }
 
-  initializeNews() async {
+  Future<void> recommendNews() async {
+    // Call getCategory and wait for it to complete
+    await getCategory();
+
+    print("In Recommend News function , category :"+category.toString());
+
+    // Now you can call initializeNews with the category obtained from getCategory
+    initializeNews(category.toString());
+  }
+
+
+  initializeNews(String categoryTitle) async {
     // News defaultNews = News();
     // await defaultNews.getNewsData();
     // mArticleList = defaultNews.newsList;
 
+
+
     await newsController
-        .fetchNewsData(); // Use the NewsController to fetch news data
+        .fetchNewsData(categoryTitle); // Use the NewsController to fetch news data
 
 
     if(mounted){
@@ -187,6 +220,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+
+
     return Scaffold(
       floatingActionButton: Visibility(
         visible: isFABVisible,
@@ -286,13 +322,21 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         )),
-                        IconButton(
-                          icon: Icon(Icons.filter_list),
-                          onPressed: () {
-                            // Open a filter dialog or screen when the filter button is pressed
-                            _openFilterDialog(context);
-                          },
-                        ),
+                        Container(
+                          width: 40.0, // Set the width to your desired size
+                          height: 40.0, // Set the height to your desired size
+                          decoration: BoxDecoration(
+                            color: Colors.blue, // Set the background color to blue
+                            borderRadius: BorderRadius.circular(20), // Optional: Add rounded corners
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.filter_list, color: Colors.white), // Set the icon color to white
+                            onPressed: () {
+                              // Open a filter dialog or screen when the filter button is pressed
+                              _openFilterDialog(context);
+                            },
+                          ),
+                        )
                       ],
                     ),
 
@@ -304,7 +348,7 @@ class _HomePageState extends State<HomePage> {
                       child: Text(
                         "All Category :",
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.bold),
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(
@@ -326,17 +370,24 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
 
-                    Text(
-                      "Total Result : " +
-                          (isFilterApplied
-                              ? newsController.filteredNewsList.length
-                                  .toString()
-                              : newsController.newsList.length.toString()),
-                      style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold),
+                    Padding(
+                      padding: const EdgeInsets.only(left:8.0),
+                      child: Text(
+                        (isFilterApplied
+                            ? " Filter Results : "+ newsController.filteredNewsList.length
+                            .toString()
+                            :  "Total Result : " + newsController.newsList.length.toString())
+
+                           ,
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
+
+
+
 
                     //News Card
                     Container(
@@ -351,6 +402,8 @@ class _HomePageState extends State<HomePage> {
                         scrollDirection: Axis.vertical,
                         itemBuilder: (context, index) {
                           return NewsCard(
+                            // should retrieve prefer category from shared preference, but now i just set to general
+                            category: category.toString(),
                             imageUrl: isFilterApplied
                                 ? newsController
                                     .filteredNewsList[index].urlToImage

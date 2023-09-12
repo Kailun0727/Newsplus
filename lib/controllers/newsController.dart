@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -14,11 +16,15 @@ class NewsController extends ChangeNotifier {
   List<ArticleModel> _filteredNewsList = []; // Declare _filteredNewsList
 
   List<SavedNewsModel> _savedNewsList = [];
+  List<SavedNewsModel> _filterSavedNewsList = [];
+
 
   bool _loadingNews = true;
   String _filterKeyword = ""; // Store the filter keyword
 
   List<SavedNewsModel> get savedNewsList => _savedNewsList;
+  List<SavedNewsModel> get filterSavedNewsList => _filterSavedNewsList;
+
 
   List<ArticleModel> get newsList => _newsList;
   List<ArticleModel> get filteredNewsList =>
@@ -57,7 +63,6 @@ class NewsController extends ChangeNotifier {
               SavedNewsModel savedNews = SavedNewsModel(
                 title: newsData['title'],
                 description: newsData['description'],
-                category: newsData['category'],
                 imageUrl: newsData['imageUrl'],
                 url: newsData['url'],
                 creationDate: DateTime.parse(newsData['creationDate']),
@@ -78,6 +83,25 @@ class NewsController extends ChangeNotifier {
       }
 
     }
+  }
+
+  // Apply filter based on keyword
+  void applySavedNewsFilter(String keyword) {
+    _filterKeyword = keyword
+        .toLowerCase(); // Convert to lowercase for case-insensitive filtering
+
+    // Clear the filtered list first to avoid duplicates
+    _filterSavedNewsList.clear();
+
+    // Filter the newsList based on the keyword
+    _filterSavedNewsList = _savedNewsList
+        .where((article) =>
+    (article.title?.toLowerCase()?.contains(_filterKeyword) ?? false) ||
+        (article.description?.toLowerCase()?.contains(_filterKeyword) ??
+            false))
+        .toList();
+
+    notifyListeners();
   }
 
 
@@ -130,7 +154,6 @@ class NewsController extends ChangeNotifier {
     final data = {
       'title': model.title,
       'description' : model.description,
-      'category': model.category,
       'imageUrl': model.imageUrl,
       'url' : model.url,
       'creationDate': model.creationDate.add(Duration(hours: 8)).toString(),
@@ -353,7 +376,7 @@ class NewsController extends ChangeNotifier {
   }
 
   // Fetch news data and set _newsList and _loadingNews
-  Future<void> fetchNewsData() async {
+  Future<void> fetchNewsData(String categoryTitle) async {
     // Fetch news data from your data source (e.g., API)
     // Update _newsList and _loadingNews accordingly
     _loadingNews = true;
@@ -364,8 +387,22 @@ class NewsController extends ChangeNotifier {
       return; // Return early if the API key is missing or empty
     }
 
+    List<String> countryList = [
+      'ae', 'ar', 'at', 'au', 'be', 'bg', 'br', 'ca', 'ch', 'cn', 'co', 'cu', 'cz',
+      'de', 'eg', 'fr', 'gb', 'gr', 'hk', 'hu', 'id', 'ie', 'il', 'in', 'it', 'jp',
+      'kr', 'lt', 'lv', 'ma', 'mx', 'my', 'ng', 'nl', 'no', 'nz', 'ph', 'pl', 'pt',
+      'ro', 'rs', 'ru', 'sa', 'se', 'sg', 'si', 'sk', 'th', 'tr', 'tw', 'ua', 'us',
+      've', 'za'
+    ];
+
+    Random random = Random();
+    int randomIndex = random.nextInt(countryList.length);
+    String selectedCountry = countryList[randomIndex];
+
+
+
     final apiUrl = Uri.parse(
-        "https://newsapi.org/v2/top-headlines?country=us&apiKey=$apiKey");
+        "https://newsapi.org/v2/top-headlines?country=$selectedCountry&category=$categoryTitle&apiKey=$apiKey");
 
     final res = await http.get(apiUrl);
 
@@ -431,6 +468,8 @@ class NewsController extends ChangeNotifier {
     _loadingNews = false;
     notifyListeners();
   }
+
+
 
   // Apply filter based on keyword
   void applyFilter(String keyword) {

@@ -289,16 +289,44 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
                         ),
                       )
                   ),
-                  IconButton(
-                    icon: Icon(Icons.filter_list),
-                    onPressed: () {
-                      // Open a filter dialog or screen when the filter button is pressed
-                      _openFilterDialog(context);
-
-                    },
-                  ),
+                  Container(
+                    width: 40.0, // Set the width to your desired size
+                    height: 40.0, // Set the height to your desired size
+                    decoration: BoxDecoration(
+                      color: Colors.blue, // Set the background color to blue
+                      borderRadius: BorderRadius.circular(20), // Optional: Add rounded corners
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.filter_list, color: Colors.white), // Set the icon color to white
+                      onPressed: () {
+                        // Open a filter dialog or screen when the filter button is pressed
+                        _openFilterDialog(context);
+                      },
+                    ),
+                  )
                 ],
               ),
+
+              SizedBox(height: 15,),
+
+              Padding(
+                padding: const EdgeInsets.only(left:10.0),
+                child: Text(
+                  (isFilterApplied
+                      ? " Filter Results : "+ newsController.filteredNewsList.length
+                      .toString()
+                      :  "Total Result : " + newsController.newsList.length.toString())
+
+                  ,
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+
+
+              SizedBox(height: 15,),
 
               //News Card
               Container(
@@ -312,6 +340,8 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
                   scrollDirection: Axis.vertical,
                   itemBuilder: (context, index) {
                     return NewsCard(
+                      category: widget.categoryTitle,
+
                       imageUrl: isFilterApplied
                           ? newsController.filteredNewsList[index].urlToImage
                           : newsController.newsList[index].urlToImage, // Use filteredNewsList if a filter is applied
