@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/views/ArticleScreen.dart';
+import 'package:newsplus/views/CommunityScreen.dart';
 import 'package:newsplus/views/CustomProfileScreen.dart';
 import 'package:newsplus/firebase_options.dart';
 
@@ -170,6 +171,8 @@ class MyApp extends StatelessWidget {
                 if (user != null) {
                   print("User is not null");
 
+
+
                   String name = user.email!.split("@")[0];
 
                   await user.updateDisplayName(name); // Await the update
@@ -207,7 +210,8 @@ class MyApp extends StatelessWidget {
         },
         '/home': (context) => const HomePage(),
         '/profile': (context) => const CustomProfileScreen(),
-        '/savedNews' : (context) => const SavedNewsScreen()
+        '/savedNews' : (context) => const SavedNewsScreen(),
+        '/community' : (context) => const CommunityScreen(),
 
       },
     );

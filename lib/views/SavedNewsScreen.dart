@@ -5,6 +5,7 @@ import 'package:newsplus/models/ArticleModel.dart';
 import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:newsplus/widgets/components.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class SavedNewsScreen extends StatefulWidget {
 
@@ -85,62 +86,87 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
 
   }
 
+
   void _openFilterDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Filter News'),
-          content: TextField(
-            controller: filterController,
-            decoration: const InputDecoration(
-              hintText: 'Enter keyword to filter news',
+          title: Text(
+            'Filter News',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20.0,
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Apply the filter based on the keyword entered
-                String keyword = filterController.text;
-                if (keyword.isEmpty) {
-                  // Show an error message if the text is empty
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a keyword to filter news.'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: filterController,
+                decoration: InputDecoration(
+                  hintText: 'Enter keyword to filter news',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0), // Add some spacing
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Apply the filter based on the keyword entered
+                      String keyword = filterController.text;
+                      if (keyword.isEmpty) {
+                        // Show an error message if the text is empty
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Please enter a keyword to filter news.'),
+                          ),
+                        );
+                      } else {
+                        // Call a method to apply the filter based on the keyword
+                        _applyFilter(keyword);
+                        Navigator.pop(context);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blue, // Change the button color
+                      onPrimary: Colors.white, // Change the text color
                     ),
-                  );
-                } else {
-                  // Call a method to apply the filter based on the keyword
-                  _applyFilter(keyword);
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('Apply'),
-            ),
-            TextButton(
-              onPressed: () {
-
-                if (isFilterApplied) {
-                  // Clear the filter only if isFiltered is true
-                  filterController.clear();
-                  _clearFilter();
-                  setState(() {
-                    isFilterApplied = false; // Set isFiltered to false
-                  });
-                  Navigator.pop(context);
-                } else {
-                  // Show an error message if the filter is not applied
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('No filter to clear.'),
+                    child: Text('Apply'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (isFilterApplied) {
+                        // Clear the filter only if isFiltered is true
+                        filterController.clear();
+                        _clearFilter();
+                        setState(() {
+                          isFilterApplied = false; // Set isFiltered to false
+                        });
+                        Navigator.pop(context);
+                      } else {
+                        // Show an error message if the filter is not applied
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('No filter to clear.'),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red, // Change the button color
+                      onPrimary: Colors.white, // Change the text color
                     ),
-                  );
-                }
-
-              },
-              child: const Text('Clear'),
-            ),
-          ],
+                    child: Text('Clear'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         );
       },
     );
@@ -240,8 +266,6 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
 
       body: Consumer<NewsController>(builder: (context, newsProvider, child) {
 
-        List<SavedNewsModel> savedNewsList = newsProvider.savedNewsList;
-
         return loadingNews
             ? Center(child: Container(child: CircularProgressIndicator()))
             : SingleChildScrollView(
@@ -310,8 +334,8 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                               ? newsController.filterSavedNewsList[index].description
                               : newsController.savedNewsList[index].description,
                           creationDate:  isFilterApplied
-                              ? newsController.filterSavedNewsList[index].creationDate.toString()
-                              : newsController.savedNewsList[index].creationDate.toString(),
+                              ? "Saved Date : " + DateFormat('yyyy-MM-dd').format(newsController.filterSavedNewsList[index].creationDate)
+                              : "Saved Date : " + DateFormat('yyyy-MM-dd').format(newsController.savedNewsList[index].creationDate),
                           url:  isFilterApplied
                               ? newsController.filterSavedNewsList[index].url
                               : newsController.savedNewsList[index].url,

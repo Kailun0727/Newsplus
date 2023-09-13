@@ -62,7 +62,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
             Navigator.pushNamed(context, '/home');
             break;
           case 1:
-            Navigator.pushNamed(context, '/profile');
+            Navigator.pushNamed(context, '/community');
             break;
           case 2:
             Navigator.pushNamed(context, '/savedNews');
@@ -218,6 +218,7 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                               try {
 
                                 await widget.controller.removeSavedNews(widget.title);
+
                                 // Removal successful, show a success message
                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                   content: Text('News removed successfully'),
@@ -554,6 +555,205 @@ class _NewsCardState extends State<NewsCard> {
     );
   }
 }
+
+
+class PostCard extends StatefulWidget {
+  const PostCard({Key? key}) : super(key: key);
+
+  @override
+  _PostCardState createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  int likeCount = 0;
+  bool isLiked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.0,
+      margin: const EdgeInsets.all(8.0),
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Avatar
+            CircleAvatar(
+              radius: 24.0,
+              backgroundImage: NetworkImage(
+                  'https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper-thumbnail.png'),
+            ),
+            const SizedBox(width: 12.0),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Username
+                      Text(
+                        'Username',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                      // Kebab Menu
+                      PopupMenuButton<String>(
+                        onSelected: (value) {
+                          // Handle menu item selection
+                          if (value == 'edit') {
+                            // Handle edit action
+                          } else if (value == 'delete') {
+                            // Handle delete action
+                          }
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return [
+                            PopupMenuItem<String>(
+                              value: 'edit',
+                              child: Text('Edit'),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Text('Delete'),
+                            ),
+                          ];
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4.0), // Add spacing below the username and kebab menu
+                  // Post Created Time
+                  Text(
+                    '2 hours ago',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  // Content
+                  Text(
+                    'This is the post content. It can be long and wrap to the next line if necessary.',
+                    style: TextStyle(fontSize: 14.0),
+                  ),
+                  const SizedBox(height: 12.0),
+                  // Like Button with Like Count and Toggle
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          // Toggle the like status
+                          setState(() {
+                            if (isLiked) {
+                              likeCount--;
+                            } else {
+                              likeCount++;
+                            }
+                            isLiked = !isLiked;
+                          });
+                        },
+                        icon: Icon(
+                          isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                          // Change the icon to outline when not liked
+                        ),
+                        label: Text(
+                          '$likeCount Likes',
+                          style: TextStyle(
+                            fontSize: 14.0,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          // Handle the reply button tap
+                        },
+                        icon: Icon(Icons.reply),
+                        label: Text('Reply'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+class CommunityCard extends StatelessWidget {
+  final String communityId;
+  final String description;
+
+  const CommunityCard({
+    Key? key,
+    required this.communityId,
+    required this.description,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // Handle the tap action for the community card here
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 12, left: 6),
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: // You can use an image widget here if you have an image for the community
+              Container(
+                width: 120,
+                height: 60,
+                color: Colors.blue, // Replace with your desired background color
+                child: Center(
+                  child: Text(
+                    communityId,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              alignment: Alignment.center,
+              width: 120,
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                color: Colors.black54,
+              ),
+              child: Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
 
 //Category Card
 class CategoryCard extends StatelessWidget {

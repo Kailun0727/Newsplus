@@ -68,63 +68,87 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
 
   }
 
+
   void _openFilterDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Filter News'),
-          content: TextField(
-            controller: filterController,
-            decoration: const InputDecoration(
-              hintText: 'Enter keyword to filter news',
+          title: Text(
+            'Filter News',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20.0,
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Apply the filter based on the keyword entered
-                String keyword = filterController.text;
-                if (keyword.isEmpty) {
-                  // Show an error message if the text is empty
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a keyword to filter news.'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: filterController,
+                decoration: InputDecoration(
+                  hintText: 'Enter keyword to filter news',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0), // Add some spacing
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Apply the filter based on the keyword entered
+                      String keyword = filterController.text;
+                      if (keyword.isEmpty) {
+                        // Show an error message if the text is empty
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Please enter a keyword to filter news.'),
+                          ),
+                        );
+                      } else {
+                        // Call a method to apply the filter based on the keyword
+                        _applyFilter(keyword);
+                        Navigator.pop(context);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blue, // Change the button color
+                      onPrimary: Colors.white, // Change the text color
                     ),
-                  );
-                } else {
-                  // Call a method to apply the filter based on the keyword
-                  _applyFilter(keyword);
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('Apply'),
-            ),
-            TextButton(
-              onPressed: () {
-
-
-                if (isFilterApplied) {
-                  // Clear the filter only if isFiltered is true
-                  filterController.clear();
-                  _clearFilter();
-                  setState(() {
-                    isFilterApplied = false; // Set isFiltered to false
-                  });
-                  Navigator.pop(context);
-                } else {
-                  // Show an error message if the filter is not applied
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('No filter to clear.'),
+                    child: Text('Apply'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (isFilterApplied) {
+                        // Clear the filter only if isFiltered is true
+                        filterController.clear();
+                        _clearFilter();
+                        setState(() {
+                          isFilterApplied = false; // Set isFiltered to false
+                        });
+                        Navigator.pop(context);
+                      } else {
+                        // Show an error message if the filter is not applied
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('No filter to clear.'),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red, // Change the button color
+                      onPrimary: Colors.white, // Change the text color
                     ),
-                  );
-                }
-
-              },
-              child: const Text('Clear'),
-            ),
-          ],
+                    child: Text('Clear'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         );
       },
     );
@@ -247,86 +271,38 @@ class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
             children: [
               Row(
                 children: [
-                  Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Container(
-                          height: 60,
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextField(
-                            controller: searchController,
-                            decoration: InputDecoration(
-                              hintText: 'Search in ' + widget.categoryTitle,
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () => searchController.clear(),
-                              ),
-                              prefixIcon: IconButton(
-                                icon: const Icon(Icons.search),
-                                onPressed: () async{
-
-                                  final keyword = searchController.text.toString();
-                                  if (keyword.isNotEmpty) {
-                                    // Perform the search when the keyword is not empty
-                                    _searchNews(keyword);
-                                  } else {
-                                    // Show an error message if the keyword is empty
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Please enter a keyword to search.'),
-                                      ),
-                                    );
-                                  }
-
-                                },
-
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      (isFilterApplied
+                          ? " Filter Results : " +
+                          newsController.filteredNewsList.length.toString()
+                          : "Total News in " + widget.categoryTitle + " : "+
+                          newsController.newsList.length.toString()),
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
+                  Spacer(), // This will push the Container to the right
                   Container(
-                    width: 40.0, // Set the width to your desired size
-                    height: 40.0, // Set the height to your desired size
+                    width: 40.0,
+                    height: 40.0,
                     decoration: BoxDecoration(
-                      color: Colors.blue, // Set the background color to blue
-                      borderRadius: BorderRadius.circular(20), // Optional: Add rounded corners
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: IconButton(
-                      icon: Icon(Icons.filter_list, color: Colors.white), // Set the icon color to white
+                      icon: Icon(Icons.filter_list, color: Colors.white),
                       onPressed: () {
                         // Open a filter dialog or screen when the filter button is pressed
                         _openFilterDialog(context);
                       },
                     ),
-                  )
+                  ),
                 ],
               ),
-
-              SizedBox(height: 15,),
-
-              Padding(
-                padding: const EdgeInsets.only(left:10.0),
-                child: Text(
-                  (isFilterApplied
-                      ? " Filter Results : "+ newsController.filteredNewsList.length
-                      .toString()
-                      :  "Total Result : " + newsController.newsList.length.toString())
-
-                  ,
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-
-
-              SizedBox(height: 15,),
 
               //News Card
               Container(

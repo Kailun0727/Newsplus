@@ -72,14 +72,10 @@ class NewsController extends ChangeNotifier {
               _savedNewsList.add(savedNews);
             });
 
+            // Sort the _savedNewsList by creationDate in ascending order
+            _savedNewsList.sort((a, b) => a.creationDate.compareTo(b.creationDate));
+
             // Notify listeners after adding all items to the list
-
-            if (_savedNewsList.isEmpty) {
-              print('Fetch Saved news but list is empty');
-            } else {
-              print('Fetch Saved news but list is not empty');
-            }
-
             notifyListeners();
           }
         }
@@ -118,10 +114,13 @@ class NewsController extends ChangeNotifier {
       DatabaseReference newsRef = FirebaseDatabase.instance.ref().child("news");
 
       try {
-
+        // Find the index of the item to remove in _savedNewsList
         int index = _savedNewsList.indexWhere((item) => item.title == title);
 
         if (index != -1) {
+          // Remove the item from _savedNewsList
+          _savedNewsList.removeAt(index);
+          notifyListeners();
 
           // Find and remove the news item from Firebase using userId and title
           Query query = newsRef.orderByChild("userId").equalTo(userId);
@@ -133,18 +132,12 @@ class NewsController extends ChangeNotifier {
             if (newsMap is Map) {
               newsMap.forEach((key, newsData) async {
                 if (newsData['title'] == title) {
-                  // If the title matches, remove the news item
+                  // If the title matches, remove the news item from Firebase
                   await newsRef.child(key).remove();
                 }
               });
             }
           }
-
-          // Remove the item from _savedNewsList
-           _savedNewsList.removeAt(index);
-          notifyListeners();
-
-
         } else {
           // No matching item found in _savedNewsList
           print('No matching item found');
