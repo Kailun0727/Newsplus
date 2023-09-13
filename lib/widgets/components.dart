@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
+import 'package:newsplus/helper/dateFormat.dart';
+import 'package:newsplus/models/PostModel.dart';
 import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:newsplus/views/ArticleScreen.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -219,6 +221,9 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
 
                                 await widget.controller.removeSavedNews(widget.title);
 
+                                //force to refresh page after remove
+                                setState(() {});
+
                                 // Removal successful, show a success message
                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                   content: Text('News removed successfully'),
@@ -231,6 +236,8 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                                   duration: const Duration(seconds: 2), // You can adjust the duration as needed
                                 ));
                               }
+
+
 
                             }
                           },
@@ -558,18 +565,23 @@ class _NewsCardState extends State<NewsCard> {
 
 
 class PostCard extends StatefulWidget {
-  const PostCard({Key? key}) : super(key: key);
+  final PostModel post;
+
+  const PostCard({Key? key, required this.post}) : super(key: key);
 
   @override
   _PostCardState createState() => _PostCardState();
 }
 
 class _PostCardState extends State<PostCard> {
-  int likeCount = 0;
   bool isLiked = false;
+
+  // int likeCount = widget.post.likesCount;
 
   @override
   Widget build(BuildContext context) {
+    final post = widget.post; // Access the post from the widget's properties
+
     return Card(
       elevation: 2.0,
       margin: const EdgeInsets.all(8.0),
@@ -582,7 +594,8 @@ class _PostCardState extends State<PostCard> {
             CircleAvatar(
               radius: 24.0,
               backgroundImage: NetworkImage(
-                  'https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper-thumbnail.png'),
+                'https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper-thumbnail.png',
+              ),
             ),
             const SizedBox(width: 12.0),
             Expanded(
@@ -594,7 +607,7 @@ class _PostCardState extends State<PostCard> {
                     children: [
                       // Username
                       Text(
-                        'Username',
+                        post.username, // Use post.username from the passed PostModel
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16.0,
@@ -628,7 +641,7 @@ class _PostCardState extends State<PostCard> {
                   const SizedBox(height: 4.0), // Add spacing below the username and kebab menu
                   // Post Created Time
                   Text(
-                    '2 hours ago',
+                    post.creationDate ,
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 12.0,
@@ -637,7 +650,7 @@ class _PostCardState extends State<PostCard> {
                   const SizedBox(height: 8.0),
                   // Content
                   Text(
-                    'This is the post content. It can be long and wrap to the next line if necessary.',
+                    post.content, // Use post.content from the passed PostModel
                     style: TextStyle(fontSize: 14.0),
                   ),
                   const SizedBox(height: 12.0),
@@ -647,22 +660,24 @@ class _PostCardState extends State<PostCard> {
                     children: [
                       ElevatedButton.icon(
                         onPressed: () {
-                          // Toggle the like status
-                          setState(() {
-                            if (isLiked) {
-                              likeCount--;
-                            } else {
-                              likeCount++;
-                            }
-                            isLiked = !isLiked;
-                          });
+                          print("Likes count : " + widget.post.likesCount.toString());
+
+                          // // Toggle the like status
+                          // setState(() {
+                          //   if (isLiked) {
+                          //     widget.post.likeCount--;
+                          //   } else {
+                          //     likeCount++;
+                          //   }
+                          //   isLiked = !isLiked;
+                          // });
                         },
                         icon: Icon(
                           isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
                           // Change the icon to outline when not liked
                         ),
                         label: Text(
-                          '$likeCount Likes',
+                          widget.post.likesCount.toString() +' Likes',
                           style: TextStyle(
                             fontSize: 14.0,
                           ),

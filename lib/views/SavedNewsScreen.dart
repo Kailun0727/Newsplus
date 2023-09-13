@@ -334,8 +334,8 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                               ? newsController.filterSavedNewsList[index].description
                               : newsController.savedNewsList[index].description,
                           creationDate:  isFilterApplied
-                              ? "Saved Date : " + DateFormat('yyyy-MM-dd').format(newsController.filterSavedNewsList[index].creationDate)
-                              : "Saved Date : " + DateFormat('yyyy-MM-dd').format(newsController.savedNewsList[index].creationDate),
+                              ? "Saved Date : " + DateFormat('yyyy-MM-dd HH:mm').format(newsController.filterSavedNewsList[index].creationDate)
+                              : "Saved Date : " + DateFormat('yyyy-MM-dd HH:mm').format(newsController.savedNewsList[index].creationDate),
                           url:  isFilterApplied
                               ? newsController.filterSavedNewsList[index].url
                               : newsController.savedNewsList[index].url,

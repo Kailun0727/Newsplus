@@ -68,8 +68,10 @@ class NewsController extends ChangeNotifier {
                 userId: newsData['userId'],
               );
 
+              print(newsData['creationDate']);
+
               // Add the converted SavedNewsModel to the _savedNewsList
-              _savedNewsList.add(savedNews);
+              _savedNewsList.insert(0, savedNews);
             });
 
             // Sort the _savedNewsList by creationDate in ascending order
@@ -152,7 +154,7 @@ class NewsController extends ChangeNotifier {
 
 
   static Future<void> saveNews(SavedNewsModel model) async {
-    final formattedDate = DateFormat('yyyy-MM-dd').format(model.creationDate);
+    final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(model.creationDate);
     final formattedDateString = formattedDate.toString();
 
     final data = {
@@ -272,7 +274,7 @@ class NewsController extends ChangeNotifier {
             urlToImage: data['urlToImage'],
           );
 
-          _newsList.add(mArticleModel);
+          _newsList.insert(0,mArticleModel);
         }
       });
     }

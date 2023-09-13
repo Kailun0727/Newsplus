@@ -8,6 +8,9 @@ class PostController extends ChangeNotifier{
 
 
   Future<void> fetchPosts() async {
+    // Clear the list before adding fetched items
+    mPostsList.clear();
+
     // Define a reference to the Firebase Realtime Database
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
 
@@ -25,8 +28,7 @@ class PostController extends ChangeNotifier{
 
         // Check if the retrieved data is a Map
         if (postMap is Map) {
-          // Clear the list before adding fetched items
-          mPostsList.clear();
+
 
           postMap.forEach((key, postData) {
             // Convert the data to a PostModel
@@ -43,8 +45,15 @@ class PostController extends ChangeNotifier{
             );
 
             // Add the post to the list
-            mPostsList.add(post);
+            mPostsList.insert(0, post);
           });
+
+          // Print the values in the list
+          for (var post in mPostsList) {
+            print('Post ID: ${post.postId}');
+            print('Content: ${post.content}');
+            // Add more fields as needed
+          }
 
           // Notify listeners after adding all items to the list
           notifyListeners();
@@ -91,6 +100,19 @@ class PostController extends ChangeNotifier{
 
     try {
       // Save the post data to Firebase
+      // Add the post to the list
+      mPostsList.add(post);
+
+      // Print the values in the list
+      for (var post in mPostsList) {
+        print('Post ID: ${post.postId}');
+        print('Content: ${post.content}');
+        // Add more fields as needed
+      }
+
+      // Notify listeners after adding all items to the list
+      notifyListeners();
+
       await postRef.set(data);
     } catch (error) {
       // Handle any errors that occur during the saving process

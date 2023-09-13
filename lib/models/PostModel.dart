@@ -20,4 +20,6 @@ class PostModel {
     required this.username,
     required this.communityId
   });
+
+
 }

@@ -2,6 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
+import 'package:newsplus/controllers/postController.dart';
 import 'package:newsplus/views/ArticleScreen.dart';
 import 'package:newsplus/views/CommunityScreen.dart';
 import 'package:newsplus/views/CustomProfileScreen.dart';
@@ -30,6 +31,7 @@ Future<void> main() async{
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NewsController()),
+        ChangeNotifierProvider(create: (_) => PostController()),
         // Add other providers if needed
       ],
       child: MyApp(),
