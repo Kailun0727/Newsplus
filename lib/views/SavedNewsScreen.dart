@@ -1,7 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:newsplus/controllers/newsController.dart';
-import 'package:newsplus/models/ArticleModel.dart';
+import 'package:newsplus/controllers/savedNewsController.dart';
 import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:newsplus/widgets/components.dart';
 import 'package:provider/provider.dart';
@@ -40,15 +39,13 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
   bool isFABVisible = false;
   final ScrollController _scrollController = ScrollController();
 
-  NewsController newsController = NewsController();
+  SavedNewsController savedNewsController = SavedNewsController();
 
   bool loadingNews = true;
 
   // selected index of the bottom navigation bar
   int selectedIndex = 0;
 
-  // This controller will store the value of the search bar
-  final TextEditingController searchController = TextEditingController();
 
   final TextEditingController filterController = TextEditingController();
 
@@ -174,7 +171,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
 
   void _applyFilter(String keyword) {
     // Call the applyFilter method of NewsController
-    newsController.applySavedNewsFilter(keyword);
+    savedNewsController.applySavedNewsFilter(keyword);
 
     setState(() {
       // Update loadingNews to false only if a filter is not applied
@@ -187,7 +184,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
 
   void _clearFilter() {
     // Call the clearFilter method of NewsController
-    newsController.clearFilter();
+    savedNewsController.clearFilter();
 
     setState(() {
       // Update loadingNews to true only if a filter is not applied
@@ -205,9 +202,9 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
     // await defaultNews.getNewsData();
     // mArticleList = defaultNews.newsList;
 
-    await newsController.fetchSavedNews(); // Use the NewsController to fetch news data
+    await savedNewsController.fetchSavedNews(); // Use the NewsController to fetch news data
 
-    savedNewsList = newsController.savedNewsList;
+    savedNewsList = savedNewsController.savedNewsList;
 
     setState(() {
       loadingNews = false;
@@ -264,7 +261,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
         elevation: 0.0,
       ),
 
-      body: Consumer<NewsController>(builder: (context, newsProvider, child) {
+      body: Consumer<SavedNewsController>(builder: (context, savedNewsProvider, child) {
 
         return loadingNews
             ? Center(child: Container(child: CircularProgressIndicator()))
@@ -282,9 +279,9 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                     child: Text(
                       (isFilterApplied
                           ? " Filter Results : " +
-                          newsController.filterSavedNewsList.length.toString()
+                          savedNewsController.filterSavedNewsList.length.toString()
                           : "Total Saved News : " +
-                          newsController.savedNewsList.length.toString()),
+                          savedNewsController.savedNewsList.length.toString()),
                       style: TextStyle(
                           fontSize: 18,
                           color: Colors.black,
@@ -318,27 +315,34 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                   primary: false,
 
                   itemCount: isFilterApplied
-                      ? newsController.filterSavedNewsList.length
-                      : newsController.savedNewsList.length, // Use filteredNewsList if a filter is applied
+                      ? savedNewsController.filterSavedNewsList.length
+                      : savedNewsController.savedNewsList.length, // Use filteredNewsList if a filter is applied
                   scrollDirection: Axis.vertical,
                   itemBuilder: (context, index) {
                       return SavedNewsCard(
-                        controller: newsController,
+                        controller: savedNewsController,
                           imageUrl: isFilterApplied
-                              ? newsController.filterSavedNewsList[index].imageUrl
-                              : newsController.savedNewsList[index].imageUrl,
+                              ? savedNewsController.filterSavedNewsList[index].imageUrl
+                              : savedNewsController.savedNewsList[index].imageUrl,
                           title: isFilterApplied
-                              ? newsController.filterSavedNewsList[index].title
-                              : newsController.savedNewsList[index].title,
+                              ? savedNewsController.filterSavedNewsList[index].title
+                              : savedNewsController.savedNewsList[index].title,
                           description: isFilterApplied
-                              ? newsController.filterSavedNewsList[index].description
-                              : newsController.savedNewsList[index].description,
+                              ? savedNewsController.filterSavedNewsList[index].description
+                              : savedNewsController.savedNewsList[index].description,
                           creationDate:  isFilterApplied
-                              ? "Saved Date : " + DateFormat('yyyy-MM-dd HH:mm').format(newsController.filterSavedNewsList[index].creationDate)
-                              : "Saved Date : " + DateFormat('yyyy-MM-dd HH:mm').format(newsController.savedNewsList[index].creationDate),
+                              ? "Saved Date : " + DateFormat('yyyy-MM-dd HH:mm').format(savedNewsController.filterSavedNewsList[index].creationDate)
+                              : "Saved Date : " + DateFormat('yyyy-MM-dd HH:mm').format(savedNewsController.savedNewsList[index].creationDate),
                           url:  isFilterApplied
-                              ? newsController.filterSavedNewsList[index].url
-                              : newsController.savedNewsList[index].url,
+                              ? savedNewsController.filterSavedNewsList[index].url
+                              : savedNewsController.savedNewsList[index].url,
+
+                        onRemove: () {
+                          // callback to refresh the screen
+                          setState(() {
+                          });
+                        },
+
                       );
                   },
                 ),

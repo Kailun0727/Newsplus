@@ -41,115 +41,164 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   void _showCreatePostDialog() {
     TextEditingController postTextController = TextEditingController();
+    TextEditingController titleController = TextEditingController();
     String selectedCategory = '1'; // Default category is 'General'
+
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Create Post'),
-          content: Container(
-            width: double.maxFinite,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<String>(
-                  value: selectedCategory, // Selected category
-                  onChanged: (value) {
-                    setState(() {
-                      selectedCategory = value!;
-                    });
-                  },
-                  items: [
-                    DropdownMenuItem(
-                      value: '1',
-                      child: Text('General'),
-                    ),
-                    DropdownMenuItem(
-                      value: '2',
-                      child: Text('Entertainment'),
-                    ),
-                    DropdownMenuItem(
-                      value: '3',
-                      child: Text('Business'),
-                    ),
-                    DropdownMenuItem(
-                      value: '4',
-                      child: Text('Technology'),
-                    ),
-                    DropdownMenuItem(
-                      value: '5',
-                      child: Text('Health'),
-                    ),
-                    DropdownMenuItem(
-                      value: '6',
-                      child: Text('Science'),
-                    ),
-                    DropdownMenuItem(
-                      value: '7',
-                      child: Text('Sports'),
-                    ),
-                  ],
-                  decoration: InputDecoration(
-                    labelText: 'Select Category',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                TextField(
-                  controller: postTextController,
-                  maxLines: 4,
-                  decoration: InputDecoration(
-                    hintText: 'What\'s on your mind?',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+          title: const Text('Create Post'),
+          content: SingleChildScrollView(
+            child: Container(
+              width: double.maxFinite,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        String postText = postTextController.text;
-                        final user = FirebaseAuth.instance.currentUser;
-
-                        if (user != null) {
-                          final displayName = user.displayName ?? 'Unknown User';
-                          await postController.createPost(
-                              postText, user.uid, displayName, selectedCategory);
-                        }
-                        Navigator.pop(context);
-
-                        //force to refresh page after create post
-                        setState(() {});
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedCategory = value!;
+                        });
                       },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.blue,
-                        elevation: 0,
-                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                      ),
-                      child: Text(
-                        'Create',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                      decoration: InputDecoration(
+                        labelText: 'Select Category',
+                        border: OutlineInputBorder(),
+                        // Customize the label text style
+                        labelStyle: TextStyle(
+                          color: Colors.blue, // Change the label text color to your preference
                         ),
                       ),
+                      // Customize the dropdown button style
+                      icon: Icon(Icons.arrow_drop_down), // Change the dropdown icon to your preference
+                      iconSize: 24, // Adjust the icon size as needed
+                      elevation: 16, // Adjust the elevation of the dropdown
+                      style: TextStyle(
+                        color: Colors.black, // Change the text color of the selected item
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: '1',
+                          child: Text('General'),
+                        ),
+                        DropdownMenuItem(
+                          value: '2',
+                          child: Text('Entertainment'),
+                        ),
+                        DropdownMenuItem(
+                          value: '3',
+                          child: Text('Business'),
+                        ),
+                        DropdownMenuItem(
+                          value: '4',
+                          child: Text('Technology'),
+                        ),
+                        DropdownMenuItem(
+                          value: '5',
+                          child: Text('Health'),
+                        ),
+                        DropdownMenuItem(
+                          value: '6',
+                          child: Text('Science'),
+                        ),
+                        DropdownMenuItem(
+                          value: '7',
+                          child: Text('Sports'),
+                        ),
+                      ],
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(
-                          color: Colors.grey,
-                        ),
+                    const SizedBox(height: 8.0),
+                    TextFormField(
+                      controller: titleController,
+                      maxLines: 1,
+                      decoration: const InputDecoration(
+                        hintText: 'Enter a descriptive title...',
+                        border: OutlineInputBorder(),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Title cannot be empty';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 8.0),
+                    TextFormField(
+                      controller: postTextController,
+                      maxLines: 4,
+                      decoration: const InputDecoration(
+                        hintText: 'What\'s on your mind?',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Post text cannot be empty';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 8.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              String postText = postTextController.text.toString();
+                              String title = titleController.text.toString();
+
+                              final user = FirebaseAuth.instance.currentUser;
+
+                              if (user != null) {
+                                final displayName = user.displayName ?? 'Unknown User';
+                                await postController.createPost(
+                                  title,
+                                  postText,
+                                  user.uid,
+                                  displayName,
+                                  selectedCategory,
+                                );
+                              }
+                              Navigator.pop(context);
+
+                              // Force to refresh page after creating a post
+                              setState(() {});
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.blue,
+                            elevation: 0,
+                            padding: EdgeInsets.symmetric(horizontal: 20.0),
+                          ),
+                          child: Text(
+                            'Create',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         );
@@ -365,6 +414,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 ),
               ),
 
+              const SizedBox(
+                height: 20,
+              ),
+
               const Padding(
                 padding: EdgeInsets.only(left: 8.0),
                 child: Text(
@@ -384,7 +437,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 itemCount: postController.mPostsList.length, // Replace with the actual number of posts
                 itemBuilder: (context, index) {
                   // Create and return a PostCard widget for this post
-                  return PostCard(post: postController.mPostsList[index]);
+                  return PostCard(post: postController.mPostsList[index], controller: postController,);
                 },
               )
 

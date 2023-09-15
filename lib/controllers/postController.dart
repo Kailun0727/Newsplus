@@ -2,10 +2,11 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:newsplus/models/PostModel.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
-class PostController extends ChangeNotifier{
-  final List<PostModel> mPostsList = []; // Initialize an empty list to store posts
-
+class PostController extends ChangeNotifier {
+  final List<PostModel> mPostsList = [
+  ]; // Initialize an empty list to store posts
 
   Future<void> fetchPosts() async {
     // Clear the list before adding fetched items
@@ -28,12 +29,11 @@ class PostController extends ChangeNotifier{
 
         // Check if the retrieved data is a Map
         if (postMap is Map) {
-
-
           postMap.forEach((key, postData) {
             // Convert the data to a PostModel
             PostModel post = PostModel(
               postId: postData['postId'],
+              title: postData['title'],
               content: postData['content'],
               creationDate: postData['creationDate'],
               likesCount: postData['likesCount'],
@@ -48,14 +48,12 @@ class PostController extends ChangeNotifier{
             mPostsList.insert(0, post);
           });
 
-          // Print the values in the list
-          for (var post in mPostsList) {
-            print('Post ID: ${post.postId}');
-            print('Content: ${post.content}');
-            // Add more fields as needed
-          }
 
-          // Notify listeners after adding all items to the list
+          // Sort the list by likesCount in descending order (highest likesCount first)
+          mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
+
+
+          // Notify listeners after adding and sorting all items to the list
           notifyListeners();
         }
       }
@@ -64,26 +62,33 @@ class PostController extends ChangeNotifier{
       print('Error fetching posts: $error');
       throw error;
     }
-
   }
 
-  Future<void> createPost(String postText, String userId, String username, String communityId) async {
+  Future<void> createPost(String title, String postText, String userId, String username,
+      String communityId) async {
+
+    // Generate a unique ID for the post
+    final uuid = Uuid();
+    final postId = uuid.v4();
+
     // Create a new post model with initial values
     final post = PostModel(
-      postId: 'unique', // You can generate a unique ID for the post if needed
-      content: postText,
-      creationDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-      likesCount: 0,
-      reportCount: 0,
-      hidden: false,
-      userId: userId,
-      username: username,
-      communityId: communityId
+        postId: postId,
+        title: title,
+        content: postText,
+        creationDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        likesCount: 0,
+        reportCount: 0,
+        hidden: false,
+        userId: userId,
+        username: username,
+        communityId: communityId
     );
 
     // Convert the post model to a map
     final data = {
-      'postId': post.postId, // You can generate a unique ID for the post if needed
+      'postId': post.postId,
+      'title' : post.title,
       'content': post.content,
       'creationDate': post.creationDate,
       'likesCount': post.likesCount,
@@ -91,29 +96,20 @@ class PostController extends ChangeNotifier{
       'hidden': post.hidden,
       'userId': post.userId,
       'username': post.username,
-      'communityId' : post.communityId
+      'communityId': post.communityId
     };
 
-    // Define a reference to the Firebase Realtime Database
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
-    DatabaseReference postRef = ref.push(); // Generates a unique key for the news
 
     try {
-      // Save the post data to Firebase
       // Add the post to the list
-      mPostsList.add(post);
+      mPostsList.insert(0,post);
 
-      // Print the values in the list
-      for (var post in mPostsList) {
-        print('Post ID: ${post.postId}');
-        print('Content: ${post.content}');
-        // Add more fields as needed
-      }
+      // Save the post data to Firebase with the generated ID
+      await ref.child(postId).set(data);
 
       // Notify listeners after adding all items to the list
       notifyListeners();
-
-      await postRef.set(data);
     } catch (error) {
       // Handle any errors that occur during the saving process
       print('Error saving news: $error');
@@ -121,6 +117,37 @@ class PostController extends ChangeNotifier{
     }
   }
 
+  Future<void> updateLikesCount(String postId, int likesCount,
+      bool isLiked) async {
+    // Define a reference to the Firebase Realtime Database
+    DatabaseReference ref = FirebaseDatabase.instance.ref().child('post').child(postId);
 
+    int updatedLikesCount = isLiked ? --likesCount : ++likesCount;
+
+    try {
+
+      print('Likes before :' + likesCount.toString());
+
+      // Update the likesCount in Firebase
+      await ref.update({'likesCount': updatedLikesCount});
+
+      // Find the post in mPostsList and update its likesCount
+      final updatedPostIndex = mPostsList.indexWhere((post) => post.postId == postId);
+      if (updatedPostIndex != -1) {
+        final updatedPost = mPostsList[updatedPostIndex];
+        updatedPost.likesCount = updatedLikesCount;
+        mPostsList[updatedPostIndex] = updatedPost;
+        // Print the updated likes count for verification
+        print('Likes after :' + updatedPost.likesCount.toString());
+      }
+
+      print('Likes Count updated');
+
+    } catch (error) {
+      // Handle any errors that occur during the fetching process
+      print('Error fetching posts: $error');
+      throw error;
+    }
+  }
 
 }

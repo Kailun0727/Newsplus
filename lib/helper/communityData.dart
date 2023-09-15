@@ -33,16 +33,13 @@ Future<List<CommunityModel>> getCommunity() async {
             description: communityData['description'],
           );
 
-          print(communityData['communityId']);
-          print(communityData['description']);
-
           // Add the converted CommunityModel to the mCommunity list
           mCommunity.add(community);
         });
 
         // Sort the mCommunity list if needed
         // For example, to sort by communityId:
-        // mCommunity.sort((a, b) => a.communityId.compareTo(b.communityId));
+        mCommunity.sort((a, b) => a.communityId.compareTo(b.communityId));
       }
     }
 

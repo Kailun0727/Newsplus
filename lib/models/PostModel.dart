@@ -1,5 +1,6 @@
 class PostModel {
   final String postId;
+  final String title;
   final String content;
   final String creationDate;
   int likesCount;
@@ -11,6 +12,7 @@ class PostModel {
 
   PostModel({
     required this.postId,
+    required this.title,
     required this.content,
     required this.creationDate,
     required this.likesCount,
