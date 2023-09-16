@@ -8,10 +8,15 @@ import 'package:newsplus/models/PostModel.dart';
 import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:newsplus/views/ArticleScreen.dart';
 import 'package:newsplus/views/CategoryNewsScreen.dart';
+import 'package:newsplus/views/ReplyScreen.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:newsplus/models/ReplyModel.dart';
+
+
+
+
 
 //Bottom Navigation Bar
 class CustomBottomNavigationBar extends StatefulWidget {
@@ -562,6 +567,122 @@ class _NewsCardState extends State<NewsCard> {
 }
 
 
+class ReplyCard extends StatelessWidget {
+  final String username;
+  final String creationDate;
+  final String content;
+
+  const ReplyCard({
+    required this.username,
+    required this.creationDate,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.0,
+      margin: const EdgeInsets.all(8.0),
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const CircleAvatar(
+                  radius: 24.0,
+                  backgroundImage: NetworkImage(
+                    'https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg',
+                  ),
+                ),
+                // Username
+                Container(
+                  margin: EdgeInsets.only(right: 64.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        username,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                      const SizedBox(height: 6,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          // Post Created Time
+                          Text(
+                            creationDate,
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // Kebab Menu
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    // Handle menu item selection
+                    if (value == 'report') {
+                      // Handle report action
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem<String>(
+                        value: 'report',
+                        child: Row(
+                          children: const [
+                            Icon(
+                              Icons.report,
+                              color: Colors.red, // Set the icon color to red
+                            ),
+                            SizedBox(width: 8.0),
+                            Text(
+                              'Report',
+                              style: TextStyle(
+                                color: Colors.red, // Set the text color to red
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ];
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 8.0),
+            // Content
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  content,
+                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 6,),
+                // You can add more widgets for additional content or actions here
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
 class PostCard extends StatefulWidget {
   final PostModel post;
 
@@ -575,6 +696,7 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   bool isLiked = false;
+
 
   // map communityId values to category names
   String mapCommunityIdToCategory(String communityId) {
@@ -620,7 +742,7 @@ class _PostCardState extends State<PostCard> {
                       const CircleAvatar(
                         radius: 24.0,
                         backgroundImage: NetworkImage(
-                          'https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper-thumbnail.png',
+                          'https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg',
                         ),
                       ),
                       // Username
@@ -647,7 +769,7 @@ class _PostCardState extends State<PostCard> {
                                 Text(
                                   post.creationDate,
                                   style: const TextStyle(
-                                    color: Colors.black54,
+                                    color: Colors.blue,
                                     fontSize: 12.0,
                                   ),
                                 ),
@@ -655,14 +777,14 @@ class _PostCardState extends State<PostCard> {
                                 const Icon(
                                   Icons.circle, // You can replace this with your desired icon
                                   size: 4.0, // Adjust the size of the icon as needed
-                                  color: Colors.black54, // Set the color of the icon
+                                  color: Colors.blue, // Set the color of the icon
                                 ),
                                 const SizedBox(width: 6.0), // Add a small gap between icon and category
                                 // Category
                                 Text(
                                   mapCommunityIdToCategory(post.communityId),
                                   style: const TextStyle(
-                                    color: Colors.black54, // Set the text color to blue or your desired color
+                                    color: Colors.blue, // Set the text color to blue or your desired color
                                     fontSize: 12.0,
                                   ),
                                 ),
@@ -756,6 +878,12 @@ class _PostCardState extends State<PostCard> {
                       ElevatedButton.icon(
                         onPressed: () {
                           // Handle the reply button tap
+                          // Navigate to the ReplyScreen and pass the post object
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ReplyScreen(post: widget.post),
+                            ),
+                          );
                         },
                         icon: Icon(Icons.reply),
                         label: Text('Reply'),
@@ -903,12 +1031,6 @@ class CommunityCard extends StatelessWidget {
 
 
 
-
-
-
-
-
-
 //Category Card
 class CategoryCard extends StatelessWidget {
   final imageUrl;
@@ -963,64 +1085,4 @@ class CategoryCard extends StatelessWidget {
   }
 }
 
-class Header extends StatelessWidget {
-  const Header(this.heading, {super.key});
-  final String heading;
 
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          heading,
-          style: const TextStyle(fontSize: 24),
-        ),
-      );
-}
-
-class Paragraph extends StatelessWidget {
-  const Paragraph(this.content, {super.key});
-  final String content;
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Text(
-          content,
-          style: const TextStyle(fontSize: 18),
-        ),
-      );
-}
-
-class IconAndDetail extends StatelessWidget {
-  const IconAndDetail(this.icon, this.detail, {super.key});
-  final IconData icon;
-  final String detail;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            Icon(icon),
-            const SizedBox(width: 8),
-            Text(
-              detail,
-              style: const TextStyle(fontSize: 18),
-            )
-          ],
-        ),
-      );
-}
-
-class StyledButton extends StatelessWidget {
-  const StyledButton({required this.child, required this.onPressed, super.key});
-  final Widget child;
-  final void Function() onPressed;
-
-  @override
-  Widget build(BuildContext context) => OutlinedButton(
-        style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Colors.deepPurple)),
-        onPressed: onPressed,
-        child: child,
-      );
-}

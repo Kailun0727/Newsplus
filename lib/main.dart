@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:newsplus/controllers/replyController.dart';
 import 'package:newsplus/l10n/l10n.dart';
 
 import 'package:intl/intl.dart';
@@ -45,6 +46,7 @@ Future<void> main() async{
         ChangeNotifierProvider(create: (_) => NewsController()),
         ChangeNotifierProvider(create: (_) => PostController()),
         ChangeNotifierProvider(create: (_) => SavedNewsController()),
+        ChangeNotifierProvider(create: (_) => ReplyController()),
         // Add other providers if needed
       ],
       child: MyApp(),

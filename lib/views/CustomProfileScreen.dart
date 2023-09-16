@@ -32,7 +32,7 @@ class CustomProfileScreen extends StatelessWidget {
       body: ListView(
         children: <Widget>[
           const SizedBox(height: 8),
-          const Header("Profile Screen"),
+          const Text("Profile Screen"),
 
           Text("Hello "+ name.toString()),
           Text("Email : "+ email.toString()),

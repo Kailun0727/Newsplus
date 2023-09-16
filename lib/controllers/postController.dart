@@ -5,8 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 class PostController extends ChangeNotifier {
-  final List<PostModel> mPostsList = [
-  ]; // Initialize an empty list to store posts
+  final List<PostModel> mPostsList = []; // Initialize an empty list to store posts
 
   Future<void> fetchPosts() async {
     // Clear the list before adding fetched items
@@ -76,7 +75,7 @@ class PostController extends ChangeNotifier {
         postId: postId,
         title: title,
         content: postText,
-        creationDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        creationDate: DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now().add(Duration(hours: 8))),
         likesCount: 0,
         reportCount: 0,
         hidden: false,
