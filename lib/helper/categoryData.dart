@@ -1,5 +1,5 @@
 import 'package:newsplus/models/CategoryModel.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 List<CategoryModel> getCategories() {
   List<CategoryModel> myCategories = [];

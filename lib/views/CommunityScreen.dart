@@ -253,11 +253,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
           Visibility(
             visible: isFABVisible,
             child: FloatingActionButton(
+              heroTag: "btn_up",
               onPressed: _scrollToTop,
               child: Icon(Icons.arrow_upward),
             ),
           ),
           FloatingActionButton(
+            heroTag: "btn_create",
             onPressed: _showCreatePostDialog,
             child: Icon(Icons.add),
           ),

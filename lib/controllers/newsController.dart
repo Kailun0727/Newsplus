@@ -31,127 +31,6 @@ class NewsController extends ChangeNotifier {
   // Constructor
   NewsController() {}
 
-  Future<void> fetchSavedNews() async {
-    final DatabaseReference newsRef =
-        FirebaseDatabase.instance.ref().child("news");
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      String userId = user.uid;
-
-      try {
-        // Create a query to filter news items by userId
-        Query query = newsRef.orderByChild("userId").equalTo(userId);
-
-        // Retrieve data once from the database
-        DatabaseEvent event = await query.once();
-
-        // Check if the snapshot contains data
-        if (event.snapshot != null) {
-          // Get the value of the snapshot
-          final dynamic newsMap = event.snapshot!.value;
-
-          // Check if the retrieved data is a Map
-          if (newsMap is Map) {
-            // Clear the list before adding fetched items
-            _savedNewsList.clear();
-
-            // Iterate through each key-value pair in the Map
-            newsMap.forEach((key, newsData) {
-              // Convert the data to a SavedNewsModel
-              SavedNewsModel savedNews = SavedNewsModel(
-                title: newsData['title'],
-                description: newsData['description'],
-                imageUrl: newsData['imageUrl'],
-                url: newsData['url'],
-                creationDate: DateTime.parse(newsData['creationDate']),
-                userId: newsData['userId'],
-              );
-
-              print(newsData['creationDate']);
-
-              // Add the converted SavedNewsModel to the _savedNewsList
-              _savedNewsList.insert(0, savedNews);
-            });
-
-            // Sort the _savedNewsList by creationDate in ascending order
-            _savedNewsList.sort((a, b) => a.creationDate.compareTo(b.creationDate));
-
-            // Notify listeners after adding all items to the list
-            notifyListeners();
-          }
-        }
-      } catch (error) {
-        // Handle any errors that occur during the process
-        print('Error fetching saved news: $error');
-        throw error;
-      }
-    }
-  }
-
-  // Apply filter based on keyword
-  void applySavedNewsFilter(String keyword) {
-    _filterKeyword = keyword
-        .toLowerCase(); // Convert to lowercase for case-insensitive filtering
-
-    // Clear the filtered list first to avoid duplicates
-    _filterSavedNewsList.clear();
-
-    // Filter the newsList based on the keyword
-    _filterSavedNewsList = _savedNewsList
-        .where((article) =>
-            (article.title?.toLowerCase()?.contains(_filterKeyword) ?? false) ||
-            (article.description?.toLowerCase()?.contains(_filterKeyword) ??
-                false))
-        .toList();
-
-    notifyListeners();
-  }
-
-  Future<void> removeSavedNews(String title) async {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      String userId = user.uid;
-      DatabaseReference newsRef = FirebaseDatabase.instance.ref().child("news");
-
-      try {
-        // Find the index of the item to remove in _savedNewsList
-        int index = _savedNewsList.indexWhere((item) => item.title == title);
-
-        if (index != -1) {
-          // Remove the item from _savedNewsList
-          _savedNewsList.removeAt(index);
-          notifyListeners();
-
-          // Find and remove the news item from Firebase using userId and title
-          Query query = newsRef.orderByChild("userId").equalTo(userId);
-          DatabaseEvent event = await query.once();
-
-          if (event.snapshot != null) {
-            final dynamic newsMap = event.snapshot!.value;
-
-            if (newsMap is Map) {
-              newsMap.forEach((key, newsData) async {
-                if (newsData['title'] == title) {
-                  // If the title matches, remove the news item from Firebase
-                  await newsRef.child(key).remove();
-                }
-              });
-            }
-          }
-        } else {
-          // No matching item found in _savedNewsList
-          print('No matching item found');
-        }
-      } catch (error) {
-        // Handle any errors that occur during the removal process
-        print('Error removing saved news: $error');
-        throw error;
-      }
-    }
-  }
-
 
   static Future<void> saveNews(SavedNewsModel model) async {
     final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(model.creationDate);
@@ -179,11 +58,45 @@ class NewsController extends ChangeNotifier {
     }
   }
 
+  String convertCategoryTitle(String localizedCategory) {
+    switch (localizedCategory) {
+      case "Umum":
+      case "一般":
+        return "General";
+      case "Hiburan":
+      case "娱乐":
+        return "Entertainment";
+      case "Perniagaan":
+      case "商业":
+        return "Business";
+      case "Teknologi":
+      case "科技":
+        return "Technology";
+      case "Kesihatan":
+      case "健康":
+        return "Health";
+      case "Sains":
+      case "科学":
+        return "Science";
+      case "Sukan":
+      case "体育":
+        return "Sports"; // Chinese: 体育
+      default:
+        return localizedCategory;
+    }
+  }
+
+
+
   Future<void> searchCategoryNews(String keyword, String categoryTitle) async {
     _newsList.clear();
     _filteredNewsList.clear();
 
     _loadingNews = true;
+
+    String convertedCategory = convertCategoryTitle(categoryTitle);
+
+    print('Converted cateogry title : '+convertedCategory);
 
     const apiKey = "2bb4019c07fb4e9ebda44c552cc573ac";
     if (apiKey == null || apiKey.isEmpty) {
@@ -192,7 +105,7 @@ class NewsController extends ChangeNotifier {
     }
 
     final apiUrl = Uri.parse(
-        "https://newsapi.org/v2/top-headlines?country=us&q=$keyword&category=$categoryTitle&sortBy=publishedAt&searchIn=title,description&pageSize=50&apiKey=$apiKey");
+        "https://newsapi.org/v2/top-headlines?country=us&q=$keyword&category=$convertedCategory&sortBy=publishedAt&searchIn=title,description&pageSize=50&apiKey=$apiKey");
 
     final res = await http.get(apiUrl);
 
@@ -328,6 +241,8 @@ class NewsController extends ChangeNotifier {
     // Update _newsList and _loadingNews accordingly
     _loadingNews = true;
 
+    String convertedCategory = convertCategoryTitle(categoryTitle);
+
     newsList.clear(); //clear previous data
 
     const apiKey = "2bb4019c07fb4e9ebda44c552cc573ac";
@@ -337,7 +252,7 @@ class NewsController extends ChangeNotifier {
     }
 
     final apiUrl = Uri.parse(
-        "https://newsapi.org/v2/top-headlines?pageSize=100&country=us&category=$categoryTitle&apiKey=$apiKey");
+        "https://newsapi.org/v2/top-headlines?pageSize=100&country=us&category=$convertedCategory&apiKey=$apiKey");
 
     final res = await http.get(apiUrl);
 

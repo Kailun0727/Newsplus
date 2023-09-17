@@ -49,17 +49,9 @@ class ReplyController extends ChangeNotifier {
             _mReplyList.insert(0, reply);
           });
 
-
-          // for (var reply in _mReplyList) {
-          //   print('postId: ${reply.postId}');
-          //   print('content: ${reply.content}');
-          //   print('creationDate: ${reply.creationDate}');
-          //   print('likesCount: ${reply.likesCount}');
-          //   print('userId: ${reply.userId}');
-          //   print('username: ${reply.username}');
-          //   print('---------------'); // Add a separator for clarity
-          // }
-
+          for (var reply in _mReplyList) {
+            print('replyId: ${reply.replyId}');
+          }
 
 
           // Sort the list by likesCount in descending order (highest likesCount first)
@@ -113,7 +105,7 @@ class ReplyController extends ChangeNotifier {
 
     try {
       // Add the reply to the list
-      _mReplyList.insert(0,reply);
+      _mReplyList.add(reply);
 
       // Save the reply data to Firebase with the generated ID
       await ref.child(replyId).set(data);
@@ -128,8 +120,31 @@ class ReplyController extends ChangeNotifier {
   }
 
   // Update likes count for a reply
-  Future<void> updateLikesCount(String replyId, int newLikesCount) async {
+  Future<void> updateLikesCount(String replyId, int likesCount, bool isLiked) async {
 
+    DatabaseReference ref = FirebaseDatabase.instance.ref().child('reply').child(replyId);
+
+    int updatedLikesCount = isLiked ? --likesCount : ++likesCount;
+
+    try {
+      // Update the likesCount in Firebase
+      await ref.update({'likesCount': updatedLikesCount});
+
+      final updatedReplyIndex = mReplyList.indexWhere((reply) => reply.replyId == replyId);
+
+      if (updatedReplyIndex != -1) {
+        final updatedReply = mReplyList[updatedReplyIndex];
+        updatedReply.likesCount = updatedLikesCount;
+        mReplyList[updatedReplyIndex] = updatedReply;
+        // Print the updated likes count for verification
+        print('Reply Likes after :' + updatedReply.likesCount.toString());
+      }
+
+    } catch (error) {
+      // Handle any errors that occur during the fetching process
+      print('Error fetching posts: $error');
+      throw error;
+    }
   }
 
 

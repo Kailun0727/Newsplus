@@ -125,8 +125,6 @@ class PostController extends ChangeNotifier {
 
     try {
 
-      print('Likes before :' + likesCount.toString());
-
       // Update the likesCount in Firebase
       await ref.update({'likesCount': updatedLikesCount});
 
@@ -136,11 +134,8 @@ class PostController extends ChangeNotifier {
         final updatedPost = mPostsList[updatedPostIndex];
         updatedPost.likesCount = updatedLikesCount;
         mPostsList[updatedPostIndex] = updatedPost;
-        // Print the updated likes count for verification
-        print('Likes after :' + updatedPost.likesCount.toString());
       }
 
-      print('Likes Count updated');
 
     } catch (error) {
       // Handle any errors that occur during the fetching process

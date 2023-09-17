@@ -1,5 +1,22 @@
 {
   "home": "Home",
   "community": "Community",
-  "savedNews": "Saved News"
+  "savedNews": "Saved News",
+  "allCategory": "All Category",
+  "totalResults": "Total Results",
+  "filterResults": "Filter Results",
+  "apply": "Apply",
+  "clear": "Clear",
+  "noFilterToClear": "No filter to clear",
+  "keywordFilter": "Please enter a keyword to filter news",
+  "filterTitle" : "Filter News",
+  "keywordSearch": "Please enter a keyword to search",
+  "searchHintText" : "Search anything here",
+  "general": "General",
+  "entertainment": "Entertainment",
+  "business": "Business",
+  "technology": "Technology",
+  "health": "Health",
+  "science": "Science",
+  "sports": "Sports"
 }

@@ -1,5 +1,22 @@
 {
   "home": "Laman Utama",
   "community": "Komuniti",
-  "savedNews": "Berita Disimpan"
+  "savedNews": "Berita Disimpan",
+  "allCategory": "Semua Kategori",
+  "totalResults": "Jumlah Hasil",
+  "filterResults": "Tapis Hasil",
+  "apply": "Gunakan",
+  "clear": "Kosongkan",
+  "noFilterToClear": "Tiada tapisan untuk dikosongkan",
+  "keywordFilter": "Sila masukkan kata kunci untuk menapis berita",
+  "filterTitle": "Tapis Berita",
+  "keywordSearch": "Sila masukkan kata kunci untuk mencari",
+  "searchHintText": "Cari apa-apa di sini",
+  "general": "Umum",
+  "entertainment": "Hiburan",
+  "business": "Perniagaan",
+  "technology": "Teknologi",
+  "health": "Kesihatan",
+  "science": "Sains",
+  "sports": "Sukan"
 }

@@ -114,131 +114,137 @@ class _ReplyScreenState extends State<ReplyScreen> {
           height: double.infinity,
           child: Stack(
             children : [
-              Expanded(
-                child: SingleChildScrollView(
-                  child:
-                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        widget.post.title,
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+              Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child:
+                      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            widget.post.title,
+                            style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: CircleAvatar(
-                                    radius: 24.0,
-                                    backgroundImage: NetworkImage(
-                                      'https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg',
-                                    ),
-                                  ),
-                                ),
-                                // Username
-                                Container(
-                                  margin: EdgeInsets.only(right: 64.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        widget.post
-                                            .username, // Use post.username from the passed PostModel
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.0,
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                      child: CircleAvatar(
+                                        radius: 24.0,
+                                        backgroundImage: NetworkImage(
+                                          'https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg',
                                         ),
                                       ),
-                                      const SizedBox(
-                                        height: 6,
-                                      ),
-                                      Row(
+                                    ),
+                                    // Username
+                                    Container(
+                                      margin: EdgeInsets.only(right: 64.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
-                                          // Post Created Time
                                           Text(
-                                            widget.post.creationDate,
+                                            widget.post
+                                                .username, // Use post.username from the passed PostModel
                                             style: const TextStyle(
-                                              color: Colors.blue,
-                                              fontSize: 12.0,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16.0,
                                             ),
+                                          ),
+                                          const SizedBox(
+                                            height: 6,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: [
+                                              // Post Created Time
+                                              Text(
+                                                widget.post.creationDate,
+                                                style: const TextStyle(
+                                                  color: Colors.blue,
+                                                  fontSize: 12.0,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
+                                    ),
+                                  ],
+                                ),
+
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 16.0),
+                                  child: Text(
+                                     widget.post.content,
+                                    style: TextStyle(fontSize: 18),
                                   ),
                                 ),
+
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Divider(
+                                    color: Colors.black12,
+                                    thickness: 4), // Add a grey divider
+
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'All Comments : ' + replyController.mReplyList.length.toString(),
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8), // Add some spacing below the "All Comments" text
+
+                                      Container(
+                                        height: 350,
+                                        child: ListView.builder(
+                                          primary: false,
+                                          shrinkWrap: true, // Wrap the ListView with a limited height
+                                          itemCount: replyController.mReplyList.length, // Replace with the number of replies
+                                          itemBuilder: (context, index) {
+                                            // Use the data from your replyData list to create ReplyCard widgets
+                                            final reply = replyController.mReplyList[index]; // Replace replyData with your data source
+
+                                            return ReplyCard(
+                                              controller: replyController,
+                                              reply: reply,
+                                              username: replyController.mReplyList[index].username,
+                                              creationDate: replyController.mReplyList[index].creationDate,
+                                              content: replyController.mReplyList[index].content,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
                               ],
                             ),
-
-                            Padding(
-                              padding: const EdgeInsets.only(left: 16.0),
-                              child: Text(
-                                'Post Content: ${widget.post.content}',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                            ),
-
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Divider(
-                                color: Colors.black12,
-                                thickness: 4), // Add a grey divider
-
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'All Comments : ' + replyController.mReplyList.length.toString(),
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8), // Add some spacing below the "All Comments" text
-
-                                  Container(
-                                    height: 350,
-                                    child: ListView.builder(
-                                      primary: false,
-                                      shrinkWrap: true, // Wrap the ListView with a limited height
-                                      itemCount: replyController.mReplyList.length, // Replace with the number of replies
-                                      itemBuilder: (context, index) {
-                                        // Use the data from your replyData list to create ReplyCard widgets
-                                        final reply = replyController.mReplyList[index]; // Replace replyData with your data source
-
-                                        return ReplyCard(
-                                          username: replyController.mReplyList[index].username,
-                                          creationDate: replyController.mReplyList[index].creationDate,
-                                          content: replyController.mReplyList[index].content,
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ]),
-                  ]),
-                ),
+                          ),
+                        ]),
+                      ]),
+                    ),
+                  ),
+                ],
               ),
 
               Positioned(

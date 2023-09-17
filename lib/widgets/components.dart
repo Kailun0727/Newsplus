@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/controllers/postController.dart';
+import 'package:newsplus/controllers/replyController.dart';
 import 'package:newsplus/controllers/savedNewsController.dart';
 import 'package:newsplus/models/PostModel.dart';
 import 'package:newsplus/models/SavedNewsModel.dart';
@@ -567,19 +568,36 @@ class _NewsCardState extends State<NewsCard> {
 }
 
 
-class ReplyCard extends StatelessWidget {
+class ReplyCard extends StatefulWidget {
+  final ReplyModel reply;
   final String username;
   final String creationDate;
   final String content;
+  final ReplyController controller;
 
   const ReplyCard({
+    required this.reply,
     required this.username,
     required this.creationDate,
     required this.content,
+    required this.controller
   });
 
   @override
+  State<ReplyCard> createState() => _ReplyCardState();
+}
+
+class _ReplyCardState extends State<ReplyCard> {
+
+  bool isLiked = false;
+
+
+
+  @override
   Widget build(BuildContext context) {
+
+    final reply = widget.reply; // Access the post from the widget's properties
+
     return Card(
       elevation: 2.0,
       margin: const EdgeInsets.all(8.0),
@@ -605,7 +623,7 @@ class ReplyCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        username,
+                        widget.username,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16.0,
@@ -617,7 +635,7 @@ class ReplyCard extends StatelessWidget {
                         children: [
                           // Post Created Time
                           Text(
-                            creationDate,
+                            widget.creationDate,
                             style: const TextStyle(
                               color: Colors.blue,
                               fontSize: 12.0,
@@ -668,11 +686,41 @@ class ReplyCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  content,
+                  widget.content,
                   style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 6,),
-                // You can add more widgets for additional content or actions here
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        print("Likes count : " + widget.reply.likesCount.toString());
+
+                        await widget.controller.updateLikesCount(reply.replyId, reply.likesCount, isLiked);
+
+                        // Toggle the like status
+                        setState(() {
+                          isLiked = !isLiked;
+                        });
+
+                      },
+                      icon: Icon(
+                        isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                        // Change the icon to outline when not liked
+                      ),
+                      label: Text(
+                        widget.reply.likesCount.toString() +' Likes',
+                        style: const TextStyle(
+                          fontSize: 14.0,
+                        ),
+                      ),
+                    ),
+
+                  ],
+                ),
+
               ],
             ),
           ],
@@ -852,7 +900,6 @@ class _PostCardState extends State<PostCard> {
                     children: [
                       ElevatedButton.icon(
                         onPressed: () async {
-                          print("Likes count : " + widget.post.likesCount.toString());
 
                           await widget.controller.updateLikesCount(post.postId, post.likesCount, isLiked);
 

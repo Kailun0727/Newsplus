@@ -1,6 +1,22 @@
 {
   "home": "主页",
   "community": "社区",
-  "savedNews": "已保存新闻"
-
+  "savedNews": "已保存新闻",
+  "allCategory": "所有分类",
+  "totalResults": "总结果",
+  "filterResults": "筛选结果",
+  "apply": "应用",
+  "clear": "清除",
+  "noFilterToClear": "无筛选可清除",
+  "keywordFilter": "请输入关键词以筛选新闻",
+  "filterTitle": "新闻筛选",
+  "keywordSearch": "请输入关键词以搜索",
+  "searchHintText": "在此处搜索任何内容",
+  "general": "一般",
+  "entertainment": "娱乐",
+  "business": "商业",
+  "technology": "科技",
+  "health": "健康",
+  "science": "科学",
+  "sports": "体育"
 }

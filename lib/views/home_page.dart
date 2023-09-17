@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
-import 'package:newsplus/helper/categoryData.dart';
-import 'package:newsplus/helper/newsData.dart';
-import 'package:newsplus/models/ArticleModel.dart';
 import 'package:newsplus/models/CategoryModel.dart';
 import 'package:provider/provider.dart';
 import 'package:newsplus/widgets/components.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -53,6 +51,45 @@ class _HomePageState extends State<HomePage> {
 
 
 
+  List<CategoryModel> getCategories() {
+    List<CategoryModel> myCategories = [];
+
+    myCategories.add(CategoryModel(
+      imageUrl: "https://images.unsplash.com/photo-1432821596592-e2c18b78144f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80",
+      categoryTitle: AppLocalizations.of(context)!.general,
+    ));
+
+    myCategories.add(CategoryModel(
+      imageUrl: "https://plus.unsplash.com/premium_photo-1682401101972-5dc0756ece88?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80",
+      categoryTitle: AppLocalizations.of(context)!.entertainment
+    ));
+
+    myCategories.add(CategoryModel(
+      imageUrl: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1502&q=80",
+      categoryTitle: AppLocalizations.of(context)!.business
+    ));
+
+    myCategories.add(CategoryModel(
+      imageUrl: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80",
+      categoryTitle: AppLocalizations.of(context)!.technology
+    ));
+    myCategories.add(CategoryModel(
+      imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80",
+      categoryTitle: AppLocalizations.of(context)!.health
+    ));
+    myCategories.add(CategoryModel(
+      imageUrl: "https://plus.unsplash.com/premium_photo-1676325102583-0839e57d7a1f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80",
+      categoryTitle: AppLocalizations.of(context)!.science
+    ));
+
+    myCategories.add(CategoryModel(
+      imageUrl: "https://images.unsplash.com/photo-1517649763962-0c623066013b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80",
+      categoryTitle: AppLocalizations.of(context)!.sports
+    ));
+
+    return myCategories;
+
+  }
 
 
   void _scrollToTop() {
@@ -70,7 +107,7 @@ class _HomePageState extends State<HomePage> {
       builder: (context) {
         return AlertDialog(
           title: Text(
-            'Filter News',
+            AppLocalizations.of(context)!.filterTitle,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20.0,
@@ -82,7 +119,7 @@ class _HomePageState extends State<HomePage> {
               TextField(
                 controller: filterController,
                 decoration: InputDecoration(
-                  hintText: 'Enter keyword to filter news',
+                  hintText: AppLocalizations.of(context)!.keywordFilter,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20.0),
                   ),
@@ -100,7 +137,7 @@ class _HomePageState extends State<HomePage> {
                         // Show an error message if the text is empty
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Please enter a keyword to filter news.'),
+                            content: Text(AppLocalizations.of(context)!.keywordFilter,),
                           ),
                         );
                       } else {
@@ -113,7 +150,7 @@ class _HomePageState extends State<HomePage> {
                       primary: Colors.blue, // Change the button color
                       onPrimary: Colors.white, // Change the text color
                     ),
-                    child: Text('Apply'),
+                    child: Text(AppLocalizations.of(context)!.apply,),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -129,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                         // Show an error message if the filter is not applied
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('No filter to clear.'),
+                            content: Text(AppLocalizations.of(context)!.noFilterToClear,),
                           ),
                         );
                       }
@@ -138,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                       primary: Colors.red, // Change the button color
                       onPrimary: Colors.white, // Change the text color
                     ),
-                    child: Text('Clear'),
+                    child: Text(AppLocalizations.of(context)!.clear,),
                   ),
                 ],
               ),
@@ -194,7 +231,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    mCategoryList = getCategories();
 
     recommendNews();
 
@@ -248,7 +284,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
 
-
+    mCategoryList = getCategories(); // Initialize mCategoryList here
 
     return Scaffold(
       floatingActionButton: Visibility(
@@ -317,7 +353,7 @@ class _HomePageState extends State<HomePage> {
                             child: TextField(
                               controller: searchController,
                               decoration: InputDecoration(
-                                hintText: 'Search Anything here...',
+                                hintText: AppLocalizations.of(context)!.searchHintText,
                                 suffixIcon: IconButton(
                                   icon: const Icon(Icons.clear),
                                   onPressed: () => searchController.clear(),
@@ -333,10 +369,9 @@ class _HomePageState extends State<HomePage> {
                                     } else {
                                       // Show an error message if the keyword is empty
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
+                                          .showSnackBar(SnackBar(
                                           content: Text(
-                                              'Please enter a keyword to search.'),
+                                            AppLocalizations.of(context)!.keywordFilter,),
                                         ),
                                       );
                                     }
@@ -370,10 +405,10 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(
                       height: 20,
                     ),
-                    const Padding(
+                     Padding(
                       padding: EdgeInsets.only(left: 8.0),
                       child: Text(
-                        "All Category :",
+                        AppLocalizations.of(context)!.allCategory,
                         style: TextStyle(
                             fontSize: 18, color:Colors.black ,fontWeight: FontWeight.bold),
                       ),
@@ -401,9 +436,9 @@ class _HomePageState extends State<HomePage> {
                       padding: const EdgeInsets.only(left:8.0),
                       child: Text(
                         (isFilterApplied
-                            ? " Filter Results : "+ newsController.filteredNewsList.length
+                            ? AppLocalizations.of(context)!.filterResults + " : " + newsController.filteredNewsList.length
                             .toString()
-                            :  "Total Results : " + newsController.newsList.length.toString())
+                            : AppLocalizations.of(context)!.totalResults + " : "+ newsController.newsList.length.toString())
 
                            ,
                         style: TextStyle(
