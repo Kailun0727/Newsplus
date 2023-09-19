@@ -10,6 +10,59 @@ class ReplyController extends ChangeNotifier {
 
   List<ReplyModel> get mReplyList => _mReplyList;
 
+
+
+  Future<void> fetchRealTimeRepliesByPostId(String postId, Function onUpdate) {
+    // Define a reference to the Firebase Realtime Database for replies
+    DatabaseReference ref = FirebaseDatabase.instance.ref().child('reply');
+
+    // Create a query to filter replies by postId
+    Query query = ref.orderByChild('postId').equalTo(postId);
+
+    // Listen for real-time changes to the data
+    query.onValue.listen((event) {
+      // Clear the list before adding fetched replies
+      _mReplyList.clear();
+
+      // Get the value of the snapshot
+      final dynamic replyMap = event.snapshot!.value;
+
+      // Check if the retrieved data is a Map
+      if (replyMap is Map) {
+        replyMap.forEach((key, replyData) {
+          // Convert the data to a ReplyModel
+          ReplyModel reply = ReplyModel(
+            replyId: replyData['replyId'],
+            postId: replyData['postId'],
+            content: replyData['content'],
+            creationDate: replyData['creationDate'],
+            likesCount: replyData['likesCount'],
+            reportCount: replyData['reportCount'],
+            hidden: replyData['hidden'],
+            userId: replyData['userId'],
+            username: replyData['username'],
+          );
+
+          // Add the reply to the list
+          _mReplyList.insert(0, reply);
+        });
+
+        // Sort the list by likesCount in descending order (highest likesCount first)
+        _mReplyList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
+
+        // Notify listeners after adding and sorting all items to the list
+        notifyListeners();
+
+        // Call the onUpdate callback to signal that updates are complete
+        onUpdate();
+      }
+    });
+
+    // Return a completed Future since there are no asynchronous operations here.
+    return Future.value();
+  }
+
+
   // Fetch replies for a specific post by postId
   Future<void> fetchRepliesByPostId(String postId) async {
     // Clear the list before adding fetched items

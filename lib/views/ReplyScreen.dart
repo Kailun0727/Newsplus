@@ -23,7 +23,11 @@ class _ReplyScreenState extends State<ReplyScreen> {
   ReplyController replyController = ReplyController();
 
   getReply() async {
-    await replyController.fetchRepliesByPostId(widget.post.postId); // Use the replyController to fetch reply data
+
+
+    await replyController.fetchRealTimeRepliesByPostId(widget.post.postId, () {setState(() {});});
+
+    // await replyController.fetchRepliesByPostId(widget.post.postId); // Use the replyController to fetch reply data
 
 
     setState(() {
@@ -230,6 +234,9 @@ class _ReplyScreenState extends State<ReplyScreen> {
                                               username: replyController.mReplyList[index].username,
                                               creationDate: replyController.mReplyList[index].creationDate,
                                               content: replyController.mReplyList[index].content,
+                                              onUpdate: () {setState(() {
+
+                                              });},
                                             );
                                           },
                                         ),

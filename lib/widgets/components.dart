@@ -574,13 +574,15 @@ class ReplyCard extends StatefulWidget {
   final String creationDate;
   final String content;
   final ReplyController controller;
+  final Function()? onUpdate; // callback function
 
   const ReplyCard({
     required this.reply,
     required this.username,
     required this.creationDate,
     required this.content,
-    required this.controller
+    required this.controller,
+    required this.onUpdate
   });
 
   @override
@@ -590,8 +592,6 @@ class ReplyCard extends StatefulWidget {
 class _ReplyCardState extends State<ReplyCard> {
 
   bool isLiked = false;
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -696,7 +696,6 @@ class _ReplyCardState extends State<ReplyCard> {
                   children: [
                     ElevatedButton.icon(
                       onPressed: () async {
-                        print("Likes count : " + widget.reply.likesCount.toString());
 
                         await widget.controller.updateLikesCount(reply.replyId, reply.likesCount, isLiked);
 
@@ -704,6 +703,11 @@ class _ReplyCardState extends State<ReplyCard> {
                         setState(() {
                           isLiked = !isLiked;
                         });
+
+                        // Trigger the refresh callback after successful update
+                        if (widget.onUpdate != null) {
+                          widget.onUpdate!();
+                        }
 
                       },
                       icon: Icon(
@@ -736,7 +740,9 @@ class PostCard extends StatefulWidget {
 
   final PostController controller;
 
-  const PostCard({Key? key, required this.post, required this.controller}) : super(key: key);
+  final Function()? onUpdate; // callback function
+
+  const PostCard({Key? key, required this.post, required this.controller, required this.onUpdate}) : super(key: key);
 
   @override
   _PostCardState createState() => _PostCardState();
@@ -907,6 +913,11 @@ class _PostCardState extends State<PostCard> {
                           setState(() {
                             isLiked = !isLiked;
                           });
+
+                          // Trigger the refresh callback after successful update
+                          if (widget.onUpdate != null) {
+                            widget.onUpdate!();
+                          }
 
                         },
                         icon: Icon(

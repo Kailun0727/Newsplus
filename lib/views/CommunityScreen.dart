@@ -25,6 +25,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   final PostController postController = PostController();
 
+  bool loading = true;
+
   // selected index of the bottom navigation bar
   int selectedIndex = 0;
 
@@ -34,7 +36,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
     _scrollController.animateTo(
       0.0,
       duration:
-      const Duration(milliseconds: 500), // Adjust the duration as needed
+          const Duration(milliseconds: 500), // Adjust the duration as needed
       curve: Curves.easeInOut,
     );
   }
@@ -71,15 +73,18 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         border: OutlineInputBorder(),
                         // Customize the label text style
                         labelStyle: TextStyle(
-                          color: Colors.blue, // Change the label text color to your preference
+                          color: Colors
+                              .blue, // Change the label text color to your preference
                         ),
                       ),
                       // Customize the dropdown button style
-                      icon: Icon(Icons.arrow_drop_down), // Change the dropdown icon to your preference
+                      icon: Icon(Icons
+                          .arrow_drop_down), // Change the dropdown icon to your preference
                       iconSize: 24, // Adjust the icon size as needed
                       elevation: 16, // Adjust the elevation of the dropdown
                       style: TextStyle(
-                        color: Colors.black, // Change the text color of the selected item
+                        color: Colors
+                            .black, // Change the text color of the selected item
                       ),
                       items: const [
                         DropdownMenuItem(
@@ -149,13 +154,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         ElevatedButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              String postText = postTextController.text.toString();
+                              String postText =
+                                  postTextController.text.toString();
                               String title = titleController.text.toString();
 
                               final user = FirebaseAuth.instance.currentUser;
 
                               if (user != null) {
-                                final displayName = user.displayName ?? 'Unknown User';
+                                final displayName =
+                                    user.displayName ?? 'Unknown User';
                                 await postController.createPost(
                                   title,
                                   postText,
@@ -206,18 +213,19 @@ class _CommunityScreenState extends State<CommunityScreen> {
     );
   }
 
-
   initializePost() async {
-    await postController.fetchPosts();
 
+
+    //pass setState to force the page refresh every time when the value of firebase is changed
+    await postController.fetchRealtimePosts( () {setState(() {
+    });});
+    // await postController.fetchPosts();
   }
-
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
 
     initializePost();
 
@@ -236,11 +244,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
       }
     });
 
-    // Use await to get the result from the getCommunity function
+    // Use then to get the result from the getCommunity function
     getCommunity().then((result) {
       setState(() {
         communityList = result;
       });
+    });
+
+    setState(() {
+      loading = false;
     });
   }
 
@@ -265,8 +277,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
           ),
         ],
       ),
-
-
       appBar: AppBar(
         centerTitle: true,
         title: Row(
@@ -306,151 +316,145 @@ class _CommunityScreenState extends State<CommunityScreen> {
         elevation: 0.0,
       ),
       body: Consumer<PostController>(builder: (context, newsProvider, child) {
-        return SingleChildScrollView(
-          controller: _scrollController, // Add this line
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+        return loading
+            ? Center(child: Container(child: CircularProgressIndicator()))
+            : SingleChildScrollView(
+                controller: _scrollController, // Add this line
+                padding: const EdgeInsets.symmetric(horizontal: 8),
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Container(
-                          height: 60,
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextField(
-                            controller: searchPostController,
-                            decoration: InputDecoration(
-                              hintText: 'Search Post here...',
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () => searchPostController.clear(),
-                              ),
-                              prefixIcon: IconButton(
-                                icon: const Icon(Icons.search),
-                                onPressed: () async {
-                                  final keyword =
-                                  searchPostController.text.toString();
-                                  if (keyword.isNotEmpty) {
-                                    // Perform the search when the keyword is not empty
-
-
-
-                                  } else {
-                                    // Show an error message if the keyword is empty
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Please enter a keyword to search.'),
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                            child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Container(
+                            height: 60,
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: TextField(
+                              controller: searchPostController,
+                              decoration: InputDecoration(
+                                hintText: 'Search Post here...',
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () => searchPostController.clear(),
+                                ),
+                                prefixIcon: IconButton(
+                                  icon: const Icon(Icons.search),
+                                  onPressed: () async {
+                                    final keyword =
+                                        searchPostController.text.toString();
+                                    if (keyword.isNotEmpty) {
+                                      // Perform the search when the keyword is not empty
+                                    } else {
+                                      // Show an error message if the keyword is empty
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Please enter a keyword to search.'),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      )),
-
-
-
-
-                  Container(
-                    width: 40.0, // Set the width to your desired size
-                    height: 40.0, // Set the height to your desired size
-                    decoration: BoxDecoration(
-                      color: Colors.blue, // Set the background color to blue
-                      borderRadius: BorderRadius.circular(20), // Optional: Add rounded corners
+                        )),
+                        Container(
+                          width: 40.0, // Set the width to your desired size
+                          height: 40.0, // Set the height to your desired size
+                          decoration: BoxDecoration(
+                            color:
+                                Colors.blue, // Set the background color to blue
+                            borderRadius: BorderRadius.circular(
+                                20), // Optional: Add rounded corners
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.filter_list,
+                                color: Colors
+                                    .white), // Set the icon color to white
+                            onPressed: () {
+                              // Open a filter dialog or screen when the filter button is pressed
+                            },
+                          ),
+                        )
+                      ],
                     ),
-                    child: IconButton(
-                      icon: Icon(Icons.filter_list, color: Colors.white), // Set the icon color to white
-                      onPressed: () {
-                        // Open a filter dialog or screen when the filter button is pressed
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        "Choose Community :",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                      height: 100, // Set a fixed height for the horizontal list
+                      child: ListView.builder(
+                        itemCount: communityList.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          return CommunityCard(
+                            communityId: communityList[index].communityId,
+                            description: communityList[index].description,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        "Most Popular Post :",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      primary: false,
+                      itemCount: postController.mPostsList
+                          .length, // Replace with the actual number of posts
+                      itemBuilder: (context, index) {
+                        // Create and return a PostCard widget for this post
+                        return PostCard(
+                          post: postController.mPostsList[index],
+                          controller: postController,
+                          onUpdate: () {
+                            setState(() {
 
-
-
+                            });
+                          }
+                        );
                       },
-                    ),
-                  )
-                ],
-              ),
-
-              const SizedBox(
-                height: 20,
-              ),
-
-
-
-              const Padding(
-                padding: EdgeInsets.only(left: 8.0),
-                child: Text(
-                  "Choose Community :",
-                  style: TextStyle(
-                      fontSize: 18, color:Colors.black ,fontWeight: FontWeight.bold),
+                    )
+                  ],
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-
-
-              Container(
-                height: 100, // Set a fixed height for the horizontal list
-                child: ListView.builder(
-                  itemCount: communityList.length,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    return CommunityCard(
-                      communityId: communityList[index].communityId,
-                      description: communityList[index].description,
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(
-                height: 20,
-              ),
-
-              const Padding(
-                padding: EdgeInsets.only(left: 8.0),
-                child: Text(
-                  "Most Popular Post :",
-                  style: TextStyle(
-                      fontSize: 18, color:Colors.black ,fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-
-
-              ListView.builder(
-                shrinkWrap: true,
-                primary: false,
-                itemCount: postController.mPostsList.length, // Replace with the actual number of posts
-                itemBuilder: (context, index) {
-                  // Create and return a PostCard widget for this post
-                  return PostCard(post: postController.mPostsList[index], controller: postController,);
-                },
-              )
-
-            ],
-          ),
-
-
-
-        );
+              );
       }),
-
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: 1,
         onItemSelected: (index) {
@@ -461,6 +465,5 @@ class _CommunityScreenState extends State<CommunityScreen> {
         },
       ),
     );
-
   }
 }

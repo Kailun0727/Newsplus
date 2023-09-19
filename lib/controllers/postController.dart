@@ -7,64 +7,117 @@ import 'package:uuid/uuid.dart';
 class PostController extends ChangeNotifier {
   final List<PostModel> mPostsList = []; // Initialize an empty list to store posts
 
-  Future<void> fetchPosts() async {
-    // Clear the list before adding fetched items
-    mPostsList.clear();
 
+  Future<void> fetchRealtimePosts(Function onUpdate) {
     // Define a reference to the Firebase Realtime Database
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
 
-    try {
-      // Create a query to filter news items by userId
-      Query query = ref.orderByChild('hidden').equalTo(false);
+    // Create a query to filter news items by userId
+    Query query = ref.orderByChild('hidden').equalTo(false);
 
-      // Retrieve data once from the database
-      DatabaseEvent event = await query.once();
+    // Listen for real-time changes to the data
+    query.onValue.listen((event) {
+      // Clear the list before adding fetched items
+      mPostsList.clear();
 
-      // Check if the snapshot contains data
-      if (event.snapshot != null) {
-        // Get the value of the snapshot
-        final dynamic postMap = event.snapshot!.value;
+      // Get the value of the snapshot
+      final dynamic postMap = event.snapshot!.value;
 
-        // Check if the retrieved data is a Map
-        if (postMap is Map) {
-          postMap.forEach((key, postData) {
-            // Convert the data to a PostModel
-            PostModel post = PostModel(
-              postId: postData['postId'],
-              title: postData['title'],
-              content: postData['content'],
-              creationDate: postData['creationDate'],
-              likesCount: postData['likesCount'],
-              reportCount: postData['reportCount'],
-              hidden: postData['hidden'],
-              userId: postData['userId'],
-              username: postData['username'],
-              communityId: postData['communityId'],
-            );
+      // Check if the retrieved data is a Map
+      if (postMap is Map) {
+        postMap.forEach((key, postData) {
+          // Convert the data to a PostModel
+          PostModel post = PostModel(
+            postId: postData['postId'],
+            title: postData['title'],
+            content: postData['content'],
+            creationDate: postData['creationDate'],
+            likesCount: postData['likesCount'],
+            reportCount: postData['reportCount'],
+            hidden: postData['hidden'],
+            userId: postData['userId'],
+            username: postData['username'],
+            communityId: postData['communityId'],
+          );
 
-            // Add the post to the list
-            mPostsList.insert(0, post);
-          });
+          // Add the post to the list
+          mPostsList.insert(0, post);
+        });
 
+        // Sort the list by likesCount in descending order (highest likesCount first)
+        mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
 
-          // Sort the list by likesCount in descending order (highest likesCount first)
-          mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
+        // Notify listeners after adding and sorting all items to the list
+        notifyListeners();
 
-
-          // Notify listeners after adding and sorting all items to the list
-          notifyListeners();
-        }
+        onUpdate();
       }
-    } catch (error) {
-      // Handle any errors that occur during the fetching process
-      print('Error fetching posts: $error');
-      throw error;
-    }
+    });
+
+    // Return a completed Future since there are no asynchronous operations here.
+    return Future.value();
   }
 
-  Future<void> createPost(String title, String postText, String userId, String username,
-      String communityId) async {
+
+
+
+  Future<void> fetchPosts() async {
+      // Clear the list before adding fetched items
+      mPostsList.clear();
+
+      // Define a reference to the Firebase Realtime Database
+      DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
+
+      try {
+        // Create a query to filter news items by userId
+        Query query = ref.orderByChild('hidden').equalTo(false);
+
+        // Retrieve data once from the database
+        DatabaseEvent event = await query.once();
+
+        // Check if the snapshot contains data
+        if (event.snapshot != null) {
+          // Get the value of the snapshot
+          final dynamic postMap = event.snapshot!.value;
+
+          // Check if the retrieved data is a Map
+          if (postMap is Map) {
+            postMap.forEach((key, postData) {
+              // Convert the data to a PostModel
+              PostModel post = PostModel(
+                postId: postData['postId'],
+                title: postData['title'],
+                content: postData['content'],
+                creationDate: postData['creationDate'],
+                likesCount: postData['likesCount'],
+                reportCount: postData['reportCount'],
+                hidden: postData['hidden'],
+                userId: postData['userId'],
+                username: postData['username'],
+                communityId: postData['communityId'],
+              );
+
+              // Add the post to the list
+              mPostsList.insert(0, post);
+            });
+
+
+            // Sort the list by likesCount in descending order (highest likesCount first)
+            mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
+
+
+            // Notify listeners after adding and sorting all items to the list
+            notifyListeners();
+          }
+        }
+      } catch (error) {
+        // Handle any errors that occur during the fetching process
+        print('Error fetching posts: $error');
+        throw error;
+      }
+    }
+
+  Future<void> createPost(String title, String postText, String userId, String username,String communityId) async {
 
     // Generate a unique ID for the post
     final uuid = Uuid();
@@ -116,8 +169,7 @@ class PostController extends ChangeNotifier {
     }
   }
 
-  Future<void> updateLikesCount(String postId, int likesCount,
-      bool isLiked) async {
+  Future<void> updateLikesCount(String postId, int likesCount, bool isLiked) async {
     // Define a reference to the Firebase Realtime Database
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('post').child(postId);
 
