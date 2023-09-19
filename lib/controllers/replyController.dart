@@ -11,7 +11,7 @@ class ReplyController extends ChangeNotifier {
   List<ReplyModel> get mReplyList => _mReplyList;
 
 
-
+  // Fetch replies for a specific post by postId
   Future<void> fetchRealTimeRepliesByPostId(String postId, Function onUpdate) {
     // Define a reference to the Firebase Realtime Database for replies
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('reply');
@@ -63,63 +63,63 @@ class ReplyController extends ChangeNotifier {
   }
 
 
-  // Fetch replies for a specific post by postId
-  Future<void> fetchRepliesByPostId(String postId) async {
-    // Clear the list before adding fetched items
-    _mReplyList.clear();
 
-    // Define a reference to the Firebase Realtime Database
-    DatabaseReference ref = FirebaseDatabase.instance.ref().child('reply');
-
-    try {
-      Query query = ref.orderByChild('postId').equalTo(postId);
-
-      // Retrieve data once from the database
-      DatabaseEvent event = await query.once();
-
-      // Check if the snapshot contains data
-      if (event.snapshot != null) {
-        // Get the value of the snapshot
-        final dynamic replyMap = event.snapshot!.value;
-
-        // Check if the retrieved data is a Map
-        if (replyMap is Map) {
-          replyMap.forEach((key, replyData) {
-            // Convert the data to a ReplyModel
-            ReplyModel reply = ReplyModel(
-              replyId: replyData['replyId'],
-              postId: replyData['postId'],
-              content: replyData['content'],
-              creationDate: replyData['creationDate'],
-              likesCount: replyData['likesCount'],
-              reportCount: replyData['reportCount'],
-              hidden: replyData['hidden'],
-              userId: replyData['userId'],
-              username: replyData['username']
-            );
-
-            // Add the reply to the list
-            _mReplyList.insert(0, reply);
-          });
-
-          for (var reply in _mReplyList) {
-            print('replyId: ${reply.replyId}');
-          }
-
-
-          // Sort the list by likesCount in descending order (highest likesCount first)
-          _mReplyList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
-
-          // Notify listeners after adding and sorting all items to the list
-          notifyListeners();
-        }
-      }
-    } catch (error) {
-      // Handle any errors that occur during the fetching process
-      print('Error fetching reply:: $error');
-      throw error;
-    }
-  }
+  // Future<void> fetchRepliesByPostId(String postId) async {
+  //   // Clear the list before adding fetched items
+  //   _mReplyList.clear();
+  //
+  //   // Define a reference to the Firebase Realtime Database
+  //   DatabaseReference ref = FirebaseDatabase.instance.ref().child('reply');
+  //
+  //   try {
+  //     Query query = ref.orderByChild('postId').equalTo(postId);
+  //
+  //     // Retrieve data once from the database
+  //     DatabaseEvent event = await query.once();
+  //
+  //     // Check if the snapshot contains data
+  //     if (event.snapshot != null) {
+  //       // Get the value of the snapshot
+  //       final dynamic replyMap = event.snapshot!.value;
+  //
+  //       // Check if the retrieved data is a Map
+  //       if (replyMap is Map) {
+  //         replyMap.forEach((key, replyData) {
+  //           // Convert the data to a ReplyModel
+  //           ReplyModel reply = ReplyModel(
+  //             replyId: replyData['replyId'],
+  //             postId: replyData['postId'],
+  //             content: replyData['content'],
+  //             creationDate: replyData['creationDate'],
+  //             likesCount: replyData['likesCount'],
+  //             reportCount: replyData['reportCount'],
+  //             hidden: replyData['hidden'],
+  //             userId: replyData['userId'],
+  //             username: replyData['username']
+  //           );
+  //
+  //           // Add the reply to the list
+  //           _mReplyList.insert(0, reply);
+  //         });
+  //
+  //         for (var reply in _mReplyList) {
+  //           print('replyId: ${reply.replyId}');
+  //         }
+  //
+  //
+  //         // Sort the list by likesCount in descending order (highest likesCount first)
+  //         _mReplyList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
+  //
+  //         // Notify listeners after adding and sorting all items to the list
+  //         notifyListeners();
+  //       }
+  //     }
+  //   } catch (error) {
+  //     // Handle any errors that occur during the fetching process
+  //     print('Error fetching reply:: $error');
+  //     throw error;
+  //   }
+  // }
 
   // Add a new reply
   Future<void> addReply(String postId, String userId, String username, String content) async {

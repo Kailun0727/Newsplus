@@ -10,6 +10,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class SavedNewsController extends ChangeNotifier {
 
@@ -153,8 +155,8 @@ class SavedNewsController extends ChangeNotifier {
           }
 
           // Removal successful, show a success message
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('News removed successfully'),
+          ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+            content: Text(AppLocalizations.of(context)!.removeNewsSuccess),
             duration: Duration(seconds: 2), // You can adjust the duration as needed
           ));
 

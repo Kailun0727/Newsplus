@@ -5,10 +5,62 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 class PostController extends ChangeNotifier {
-  final List<PostModel> mPostsList = []; // Initialize an empty list to store posts
 
+  List<PostModel> mPopularList = [];
+  List<PostModel> mPostsList = []; // Initialize an empty list to store posts
+  List<PostModel> mFilterPostsList = []; // Initialize an empty list to store filter posts
+
+  String _filterKeyword = ""; // Store the filter keyword
+
+  String _searchKeyword = "";
+
+  Future<void> searchPost(String keyword) async {
+    _searchKeyword = keyword.toLowerCase();
+
+    mFilterPostsList.clear();
+
+    mPostsList = mPostsList
+        .where((post) =>
+    (post.title?.toLowerCase()?.contains(_searchKeyword) ?? false) ||
+        (post.content?.toLowerCase()?.contains(_searchKeyword) ??
+            false))
+        .toList();
+
+    notifyListeners();
+  }
+
+  // Apply filter based on keyword
+  void applyFilter(String keyword) {
+    _filterKeyword = keyword
+        .toLowerCase(); // Convert to lowercase for case-insensitive filtering
+
+    // Clear the filtered list first to avoid duplicates
+    mFilterPostsList.clear();
+
+    // Filter the post list based on the keyword
+    mFilterPostsList = mPostsList
+        .where((post) =>
+    (post.title?.toLowerCase()?.contains(_filterKeyword) ?? false) ||
+        (post.content?.toLowerCase()?.contains(_filterKeyword) ??
+            false))
+        .toList();
+
+    notifyListeners();
+  }
+
+  // Clear the filter
+  void clearFilter() {
+    _filterKeyword = "";
+    mFilterPostsList.clear(); // Clear the filtered list
+    notifyListeners();
+  }
 
   Future<void> fetchRealtimePosts(Function onUpdate) {
+
+    mPopularList.clear();
+
+    mPostsList.clear();
+
     // Define a reference to the Firebase Realtime Database
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
 
@@ -47,6 +99,14 @@ class PostController extends ChangeNotifier {
         // Sort the list by likesCount in descending order (highest likesCount first)
         mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
 
+
+        // Loop through the first 10 items in mPostsList or all items if there are fewer than 10
+        for (int i = 0; i < mPostsList.length; i++) {
+          mPopularList.add(mPostsList[i]);
+        }
+
+        print('Length of popular list:'+ mPopularList.length.toString());
+
         // Notify listeners after adding and sorting all items to the list
         notifyListeners();
 
@@ -58,64 +118,66 @@ class PostController extends ChangeNotifier {
     return Future.value();
   }
 
-
-
-
-  Future<void> fetchPosts() async {
-      // Clear the list before adding fetched items
-      mPostsList.clear();
-
-      // Define a reference to the Firebase Realtime Database
-      DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
-
-      try {
-        // Create a query to filter news items by userId
-        Query query = ref.orderByChild('hidden').equalTo(false);
-
-        // Retrieve data once from the database
-        DatabaseEvent event = await query.once();
-
-        // Check if the snapshot contains data
-        if (event.snapshot != null) {
-          // Get the value of the snapshot
-          final dynamic postMap = event.snapshot!.value;
-
-          // Check if the retrieved data is a Map
-          if (postMap is Map) {
-            postMap.forEach((key, postData) {
-              // Convert the data to a PostModel
-              PostModel post = PostModel(
-                postId: postData['postId'],
-                title: postData['title'],
-                content: postData['content'],
-                creationDate: postData['creationDate'],
-                likesCount: postData['likesCount'],
-                reportCount: postData['reportCount'],
-                hidden: postData['hidden'],
-                userId: postData['userId'],
-                username: postData['username'],
-                communityId: postData['communityId'],
-              );
-
-              // Add the post to the list
-              mPostsList.insert(0, post);
-            });
-
-
-            // Sort the list by likesCount in descending order (highest likesCount first)
-            mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
-
-
-            // Notify listeners after adding and sorting all items to the list
-            notifyListeners();
-          }
-        }
-      } catch (error) {
-        // Handle any errors that occur during the fetching process
-        print('Error fetching posts: $error');
-        throw error;
-      }
-    }
+  // Future<void> fetchPosts() async {
+  //     // Clear the list before adding fetched items
+  //     mPostsList.clear();
+  //
+  //     mPopularList.clear();
+  //
+  //     // Define a reference to the Firebase Realtime Database
+  //     DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
+  //
+  //     try {
+  //       // Create a query to filter news items by userId
+  //       Query query = ref.orderByChild('hidden').equalTo(false);
+  //
+  //       // Retrieve data once from the database
+  //       DatabaseEvent event = await query.once();
+  //
+  //       // Check if the snapshot contains data
+  //       if (event.snapshot != null) {
+  //         // Get the value of the snapshot
+  //         final dynamic postMap = event.snapshot!.value;
+  //
+  //         // Check if the retrieved data is a Map
+  //         if (postMap is Map) {
+  //           postMap.forEach((key, postData) {
+  //             // Convert the data to a PostModel
+  //             PostModel post = PostModel(
+  //               postId: postData['postId'],
+  //               title: postData['title'],
+  //               content: postData['content'],
+  //               creationDate: postData['creationDate'],
+  //               likesCount: postData['likesCount'],
+  //               reportCount: postData['reportCount'],
+  //               hidden: postData['hidden'],
+  //               userId: postData['userId'],
+  //               username: postData['username'],
+  //               communityId: postData['communityId'],
+  //             );
+  //
+  //             // Add the post to the list
+  //             mPostsList.insert(0, post);
+  //           });
+  //
+  //           // Sort the list by likesCount in descending order (highest likesCount first)
+  //           mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
+  //
+  //           // Define the maximum number of items to add
+  //
+  //
+  //
+  //
+  //           // Notify listeners after adding and sorting all items to the list
+  //           notifyListeners();
+  //         }
+  //       }
+  //     } catch (error) {
+  //       // Handle any errors that occur during the fetching process
+  //       print('Error fetching posts: $error');
+  //       throw error;
+  //     }
+  //   }
 
   Future<void> createPost(String title, String postText, String userId, String username,String communityId) async {
 

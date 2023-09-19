@@ -5,6 +5,8 @@ import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:newsplus/widgets/components.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class SavedNewsScreen extends StatefulWidget {
 
@@ -90,7 +92,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
       builder: (context) {
         return AlertDialog(
           title: Text(
-            'Filter News',
+            AppLocalizations.of(context)!.filterTitle,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20.0,
@@ -102,7 +104,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
               TextField(
                 controller: filterController,
                 decoration: InputDecoration(
-                  hintText: 'Enter keyword to filter news',
+                  hintText: AppLocalizations.of(context)!.keywordFilter,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20.0),
                   ),
@@ -120,7 +122,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                         // Show an error message if the text is empty
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Please enter a keyword to filter news.'),
+                            content: Text(AppLocalizations.of(context)!.keywordFilter),
                           ),
                         );
                       } else {
@@ -133,7 +135,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                       primary: Colors.blue, // Change the button color
                       onPrimary: Colors.white, // Change the text color
                     ),
-                    child: Text('Apply'),
+                    child: Text(AppLocalizations.of(context)!.apply),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -149,7 +151,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                         // Show an error message if the filter is not applied
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('No filter to clear.'),
+                            content: Text(AppLocalizations.of(context)!.noFilterToClear),
                           ),
                         );
                       }
@@ -158,7 +160,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                       primary: Colors.red, // Change the button color
                       onPrimary: Colors.white, // Change the text color
                     ),
-                    child: Text('Clear'),
+                    child: Text(AppLocalizations.of(context)!.clear),
                   ),
                 ],
               ),
@@ -278,9 +280,9 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       (isFilterApplied
-                          ? " Filter Results : " +
+                          ? AppLocalizations.of(context)!.filterResults +  " "+
                           savedNewsController.filterSavedNewsList.length.toString()
-                          : "Total Saved News : " +
+                          : AppLocalizations.of(context)!.totalSavedNews +  " " +
                           savedNewsController.savedNewsList.length.toString()),
                       style: TextStyle(
                           fontSize: 18,

@@ -211,8 +211,8 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                                   const Icon(Icons.share,
                                       color: Colors.blue), // Share icon
                                   const SizedBox(width: 8.0),
-                                  const Text(
-                                    'Share',
+                                  Text(
+                                    AppLocalizations.of(context)!.share,
                                     style: TextStyle(
                                       color: Colors.blue,
                                     ),
@@ -224,12 +224,12 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                             PopupMenuItem<String>(
                               value: 'Remove',
                               child: Row(
-                                children: const [
+                                children: [
                                   Icon(Icons.remove,
                                       color: Colors.blue), // Share icon
                                   SizedBox(width: 8.0),
                                   Text(
-                                    'Remove',
+                                    AppLocalizations.of(context)!.remove,
                                     style: TextStyle(
                                       color: Colors.blue,
                                     ),
@@ -399,8 +399,8 @@ class _NewsCardState extends State<NewsCard> {
                                   const Icon(Icons.share,
                                       color: Colors.blue), // Share icon
                                   const SizedBox(width: 8.0),
-                                  const Text(
-                                    'Share',
+                                  Text(
+                                    AppLocalizations.of(context)!.share,
                                     style: TextStyle(
                                       color: Colors.blue,
                                     ),
@@ -418,7 +418,7 @@ class _NewsCardState extends State<NewsCard> {
                                           : Colors.green)), // Save icon
                                   const SizedBox(width: 8.0),
                                   Text(
-                                    isSavedToLater ? 'Saved' : 'Save to Later',
+                                    isSavedToLater ? AppLocalizations.of(context)!.saved : AppLocalizations.of(context)!.saveToLater,
                                     style: TextStyle(
                                       color: isSavedToLater
                                           ? Colors.grey
@@ -431,12 +431,12 @@ class _NewsCardState extends State<NewsCard> {
                             PopupMenuItem<String>(
                               value: 'Like',
                               child: Row(
-                                children: const [
+                                children: [
                                   Icon(Icons.thumb_up,
                                       color: Colors.orange), // Thumb up icon
                                   SizedBox(width: 8.0),
                                   Text(
-                                    'More Stories Like This',
+                                    AppLocalizations.of(context)!.moreStories,
                                     style: TextStyle(
                                       color: Colors.orange,
                                     ),
@@ -447,12 +447,12 @@ class _NewsCardState extends State<NewsCard> {
                             PopupMenuItem<String>(
                               value: 'Dislike',
                               child: Row(
-                                children: const [
+                                children: [
                                   Icon(Icons.thumb_down,
                                       color: Colors.red), // Thumb down icon
                                   SizedBox(width: 8.0),
                                   Text(
-                                    'Fewer Stories Like This',
+                                    AppLocalizations.of(context)!.fewerStories,
                                     style: TextStyle(
                                       color: Colors.red,
                                     ),
@@ -489,8 +489,8 @@ class _NewsCardState extends State<NewsCard> {
                                       isSavedToLater = true;
                                     });
                                     
-                                    const snackBar = SnackBar(
-                                      content: Text('News saved successfully'),
+                                    final snackBar = SnackBar(
+                                      content: Text(AppLocalizations.of(context)!.saveNewsSuccess),
                                       duration: Duration(seconds: 2),
                                     );
 
@@ -508,8 +508,8 @@ class _NewsCardState extends State<NewsCard> {
                                   }
                                 }
                               } else {
-                                const snackBar = SnackBar(
-                                  content: Text('This news is already saved'),
+                                final snackBar = SnackBar(
+                                  content: Text(AppLocalizations.of(context)!.searchPostHintText),
                                   duration: Duration(seconds: 2),
                                 );
 
@@ -525,7 +525,7 @@ class _NewsCardState extends State<NewsCard> {
                               print('Prefer Category changed to '+ widget.category);
 
                               final snackBar = SnackBar(
-                                content: Text("You'll see more stories like"),
+                                content: Text(AppLocalizations.of(context)!.moreStoriesClicked),
                                 duration: Duration(seconds: 2),
                               );
 

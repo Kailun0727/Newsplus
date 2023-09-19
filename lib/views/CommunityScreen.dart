@@ -5,6 +5,8 @@ import 'package:newsplus/helper/communityData.dart';
 import 'package:newsplus/models/CommunityModel.dart';
 import 'package:newsplus/widgets/components.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({Key? key}) : super(key: key);
@@ -31,6 +33,136 @@ class _CommunityScreenState extends State<CommunityScreen> {
   int selectedIndex = 0;
 
   bool isFABVisible = false;
+
+  bool isFilterApplied = false;
+
+  bool isSearchApplied = false;
+
+
+  void _openFilterDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            AppLocalizations.of(context)!.filterPostTitle,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20.0,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: filterPostController,
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.keywordFilter,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0), // Add some spacing
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Apply the filter based on the keyword entered
+                      String keyword = filterPostController.text;
+                      if (keyword.isEmpty) {
+                        // Show an error message if the text is empty
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!.keywordFilter,),
+                          ),
+                        );
+                      } else {
+                        // Call a method to apply the filter based on the keyword
+                        _applyFilter(keyword);
+                        Navigator.pop(context);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blue, // Change the button color
+                      onPrimary: Colors.white, // Change the text color
+                    ),
+                    child: Text(AppLocalizations.of(context)!.apply,),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (isFilterApplied) {
+                        // Clear the filter only if isFiltered is true
+                        filterPostController.clear();
+                        _clearFilter();
+                        setState(() {
+                          isFilterApplied = false; // Set isFiltered to false
+                        });
+                        Navigator.pop(context);
+                      } else {
+                        // Show an error message if the filter is not applied
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!.noFilterToClear,),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red, // Change the button color
+                      onPrimary: Colors.white, // Change the text color
+                    ),
+                    child: Text(AppLocalizations.of(context)!.clear,),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _applyFilter(String keyword) {
+    // Call the applyFilter method of NewsController
+    postController.applyFilter(keyword);
+
+    setState(() {
+      // Update loadingNews to false only if a filter is not applied
+      if (!isFilterApplied) {
+        loading = false;
+      }
+      isFilterApplied = true; // Set the filter applied flag
+    });
+  }
+
+  void _clearFilter() {
+    // Call the clearFilter method of NewsController
+    postController.clearFilter();
+
+    setState(() {
+      // Update loadingNews to true only if a filter is not applied
+      if (!isFilterApplied) {
+        loading = true;
+      }
+      isFilterApplied = false; // Clear the filter applied flag
+    });
+  }
+
+  void _searchPost(String keyword) async {
+    setState(() {
+      loading = true; // Set loadingNews to true while fetching search results
+    });
+
+    // Perform the search
+    await postController.searchPost(keyword);
+
+    setState(() {
+      loading = false; // Set loadingNews to false when the search results are available
+      isSearchApplied = true;
+    });
+  }
 
   void _scrollToTop() {
     _scrollController.animateTo(
@@ -215,12 +347,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   initializePost() async {
 
-
     //pass setState to force the page refresh every time when the value of firebase is changed
     await postController.fetchRealtimePosts( () {setState(() {
     });});
     // await postController.fetchPosts();
   }
+
 
   @override
   void initState() {
@@ -337,7 +469,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             child: TextField(
                               controller: searchPostController,
                               decoration: InputDecoration(
-                                hintText: 'Search Post here...',
+                                hintText: AppLocalizations.of(context)!.searchPostHintText,
                                 suffixIcon: IconButton(
                                   icon: const Icon(Icons.clear),
                                   onPressed: () => searchPostController.clear(),
@@ -349,13 +481,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                         searchPostController.text.toString();
                                     if (keyword.isNotEmpty) {
                                       // Perform the search when the keyword is not empty
+                                      _searchPost(keyword);
+
                                     } else {
                                       // Show an error message if the keyword is empty
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
-                                        const SnackBar(
+                                        SnackBar(
                                           content: Text(
-                                              'Please enter a keyword to search.'),
+                                              AppLocalizations.of(context)!.keywordSearch),
                                         ),
                                       );
                                     }
@@ -383,6 +517,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                     .white), // Set the icon color to white
                             onPressed: () {
                               // Open a filter dialog or screen when the filter button is pressed
+                              _openFilterDialog(context);
                             },
                           ),
                         )
@@ -391,10 +526,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     const SizedBox(
                       height: 20,
                     ),
-                    const Padding(
+                     Padding(
                       padding: EdgeInsets.only(left: 8.0),
                       child: Text(
-                        "Choose Community :",
+                        AppLocalizations.of(context)!.chooseCommunity ,
                         style: TextStyle(
                             fontSize: 18,
                             color: Colors.black,
@@ -420,10 +555,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     const SizedBox(
                       height: 20,
                     ),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(left: 8.0),
-                      child: Text(
-                        "Most Popular Post :",
+                      child: Text(isFilterApplied ?
+
+                      AppLocalizations.of(context)!.filterResults + " : " + postController.mFilterPostsList.length.toString() :
+
+                      (isSearchApplied ?  AppLocalizations.of(context)!.totalResults : AppLocalizations.of(context)!.popularPost ),
+
                         style: TextStyle(
                             fontSize: 18,
                             color: Colors.black,
@@ -436,16 +575,27 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     ListView.builder(
                       shrinkWrap: true,
                       primary: false,
-                      itemCount: postController.mPostsList
-                          .length, // Replace with the actual number of posts
+                      itemCount: (isFilterApplied ?
+                      postController.mFilterPostsList.length :
+                      postController.mPostsList.length)
+
+
+                  , // Replace with the actual number of posts
                       itemBuilder: (context, index) {
                         // Create and return a PostCard widget for this post
                         return PostCard(
-                          post: postController.mPostsList[index],
+                          post: (
+                              isFilterApplied
+                                  ? postController.mFilterPostsList[index] // If a filter is applied, display posts from the filtered list
+                                  : (isSearchApplied
+                                        ? postController.mPostsList[index] // If a search is applied, display posts from the search results list
+                                        : postController.mPopularList[index] // Otherwise, display posts from the popular list
+                                    )
+                                )
+                           ,
                           controller: postController,
                           onUpdate: () {
                             setState(() {
-
                             });
                           }
                         );
