@@ -348,7 +348,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   initializePost() async {
 
     //pass setState to force the page refresh every time when the value of firebase is changed
-    await postController.fetchRealtimePosts( () {setState(() {
+    await postController.fetchRealtimePopularPosts( () {setState(() {
     });});
     // await postController.fetchPosts();
   }
@@ -359,7 +359,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
     // TODO: implement initState
     super.initState();
 
+    setState(() {
+      loading = true;
+    });
+
     initializePost();
+
+    setState(() {
+      loading = false;
+    });
 
     _scrollController.addListener(() {
       // Check if the user has scrolled to the top
@@ -546,6 +554,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (context, index) {
                           return CommunityCard(
+                            context: context,
                             communityId: communityList[index].communityId,
                             description: communityList[index].description,
                           );

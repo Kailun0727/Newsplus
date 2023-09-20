@@ -34,5 +34,22 @@
   "saveNewsSuccess": "新闻已成功保存",
   "removeNewsSuccess": "成功移除新闻",
   "newsIsSaved": "此新闻已经被保存",
-  "moreStoriesClicked": "您将看到更多类似的故事"
+  "moreStoriesClicked": "您将看到更多类似的故事",
+  "reportTitle": "举报",
+  "reportHintText": "您确定要举报此帖吗？",
+  "reportYes": "是",
+  "reportNo": "否",
+  "cannotReportAgain": "您不能再次举报此帖子!",
+  "reachReportLimit": "此帖子已达到举报限制并将被隐藏",
+  "reachReplyReportLimit": "此回复已达到举报限制并将被隐藏",
+  "generalDescription": "这是一般社区，请尝试在此发布内容！",
+  "entertainmentDescription": "这是娱乐社区，涵盖所有有趣的事情！",
+  "businessDescription": "这是商业社区，用于专业讨论。",
+  "technologyDescription": "这是技术社区，面向技术爱好者。",
+  "healthDescription": "这是健康社区，讨论健康和健身话题。",
+  "scienceDescription": "这是科学社区，用于科学讨论。",
+  "sportsDescription": "这是体育社区，面向体育迷。",
+  "reply" : "回复",
+  "likes" : "赞",
+  "replyHintText" : "写下你的回复..."
 }

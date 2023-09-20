@@ -9,6 +9,7 @@ import 'package:newsplus/models/PostModel.dart';
 import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:newsplus/views/ArticleScreen.dart';
 import 'package:newsplus/views/CategoryNewsScreen.dart';
+import 'package:newsplus/views/CommunityPostScreen.dart';
 import 'package:newsplus/views/ReplyScreen.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -659,14 +660,14 @@ class _ReplyCardState extends State<ReplyCard> {
                       PopupMenuItem<String>(
                         value: 'report',
                         child: Row(
-                          children: const [
+                          children: [
                             Icon(
                               Icons.report,
                               color: Colors.red, // Set the icon color to red
                             ),
                             SizedBox(width: 8.0),
                             Text(
-                              'Report',
+                              AppLocalizations.of(context)!.reportTitle,
                               style: TextStyle(
                                 color: Colors.red, // Set the text color to red
                               ),
@@ -715,7 +716,7 @@ class _ReplyCardState extends State<ReplyCard> {
                         // Change the icon to outline when not liked
                       ),
                       label: Text(
-                        widget.reply.likesCount.toString() +' Likes',
+                        widget.reply.likesCount.toString() +' '+ AppLocalizations.of(context)!.likes,
                         style: const TextStyle(
                           fontSize: 14.0,
                         ),
@@ -750,7 +751,7 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   bool isLiked = false;
-
+  bool isReported = false;
 
   // map communityId values to category names
   String mapCommunityIdToCategory(String communityId) {
@@ -777,6 +778,47 @@ class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
     final post = widget.post; // Access the post from the widget's properties
+
+    void showReportConfirmationDialog(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(AppLocalizations.of(context)!.reportTitle),
+            content: Text(AppLocalizations.of(context)!.reportHintText),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false); // User chose not to report
+                },
+                child: Text(AppLocalizations.of(context)!.reportNo),
+              ),
+              TextButton(
+                onPressed: () async {
+
+                  await widget.controller.updateReportCount(context,post.postId, post.reportCount, isReported);
+
+                  // Toggle the like status
+                  setState(() {
+                    isReported = !isReported;
+                  });
+
+                  // Trigger the refresh callback after successful update
+                  if (widget.onUpdate != null) {
+                    widget.onUpdate!();
+                  }
+
+                  Navigator.of(context).pop(true); // User chose to report
+
+                },
+                child: Text(AppLocalizations.of(context)!.reportYes),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
 
     return Card(
       elevation: 2.0,
@@ -853,6 +895,22 @@ class _PostCardState extends State<PostCard> {
                           // Handle menu item selection
                           if (value == 'report') {
                             // Handle report action
+
+                              if (!isReported) {
+                                showReportConfirmationDialog(context);
+                              }else{
+                                // Show a SnackBar message to inform the user
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)!.cannotReportAgain),
+                                    duration: Duration(seconds: 2), // Adjust the duration as needed
+                                  ),
+                                );
+                              }
+
+
+
+
                           }
                         },
                         itemBuilder: (BuildContext context) {
@@ -860,14 +918,15 @@ class _PostCardState extends State<PostCard> {
                             PopupMenuItem<String>(
                               value: 'report',
                               child: Row(
-                                children: const [
+                                children: [
                                   Icon(
                                     Icons.report,
-                                    color: Colors.red, // Set the icon color to red
+                                    color:
+                                    isReported ? Colors.grey : Colors.red , // Set the icon color to red
                                   ),
                                   SizedBox(width: 8.0),
                                   Text(
-                                    'Report',
+                                    AppLocalizations.of(context)!.reportTitle,
                                     style: TextStyle(
                                       color: Colors.red, // Set the text color to red
                                     ),
@@ -925,7 +984,7 @@ class _PostCardState extends State<PostCard> {
                           // Change the icon to outline when not liked
                         ),
                         label: Text(
-                          widget.post.likesCount.toString() +' Likes',
+                          widget.post.likesCount.toString() + " "+ AppLocalizations.of(context)!.likes,
                           style: const TextStyle(
                             fontSize: 14.0,
                           ),
@@ -944,7 +1003,7 @@ class _PostCardState extends State<PostCard> {
                           );
                         },
                         icon: Icon(Icons.reply),
-                        label: Text('Reply'),
+                        label: Text(AppLocalizations.of(context)!.reply),
                       ),
                     ],
                   ),
@@ -963,29 +1022,52 @@ class _PostCardState extends State<PostCard> {
 class CommunityCard extends StatelessWidget {
   final String communityId;
   final String description;
+  final BuildContext context;
 
   const CommunityCard({
     Key? key,
     required this.communityId,
     required this.description,
+    required this.context
   }) : super(key: key);
 
   String mapCommunityIdToTitle(String communityId) {
     switch (communityId) {
       case '1':
-        return 'General';
+        return AppLocalizations.of(context)!.general;
       case '2':
-        return 'Entertainment';
+        return AppLocalizations.of(context)!.entertainment;
       case '3':
-        return 'Business';
+        return AppLocalizations.of(context)!.business;
       case '4':
-        return 'Technology';
+        return AppLocalizations.of(context)!.technology;
       case '5':
-        return 'Health';
+        return AppLocalizations.of(context)!.health;
       case '6':
-        return 'Science';
+        return AppLocalizations.of(context)!.science;
       case '7':
-        return 'Sports';
+        return AppLocalizations.of(context)!.sports;
+      default:
+        return 'Unknown'; // Default category for unknown communityId
+    }
+  }
+
+  String mapCommunityIdToDesciption(String communityId) {
+    switch (communityId) {
+      case '1':
+        return AppLocalizations.of(context)!.generalDescription;
+      case '2':
+        return AppLocalizations.of(context)!.entertainmentDescription;
+      case '3':
+        return AppLocalizations.of(context)!.businessDescription;
+      case '4':
+        return AppLocalizations.of(context)!.technologyDescription;
+      case '5':
+        return AppLocalizations.of(context)!.healthDescription;
+      case '6':
+        return AppLocalizations.of(context)!.scienceDescription;
+      case '7':
+        return AppLocalizations.of(context)!.sportsDescription;
       default:
         return 'Unknown'; // Default category for unknown communityId
     }
@@ -1018,7 +1100,13 @@ class CommunityCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        // Handle the tap action for the community card here
+        // Handle the tap action for the community card
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  CommunityPostScreen(communityTitle: communityTitle, communityId: communityId,)),
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(right: 12, left: 6),
@@ -1069,7 +1157,7 @@ class CommunityCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6), // Add spacing between title and description
                     Text(
-                      description, // Use the provided description here
+                      mapCommunityIdToDesciption(communityId), // Use the provided description here
                       style: const TextStyle(
                         fontSize: 14, // Increase font size
                         color: Colors.white,

@@ -34,5 +34,22 @@
   "saveNewsSuccess" : "News saved successfully",
   "newsIsSaved" : "This news is already saved",
   "removeNewsSuccess" : "Remove news successfully",
-  "moreStoriesClicked" : "You'll see more stories like"
+  "moreStoriesClicked" : "You'll see more stories like",
+  "reportTitle" : "Report",
+  "reportHintText" : "Are you sure you want to report this post?",
+  "reportYes" : "Yes",
+  "reportNo" : "No",
+  "cannotReportAgain" : "You cannot report this post again.",
+  "reachReportLimit" : "This post has reached the report limit and will be hidden",
+  "reachReplyReportLimit" : "This reply has reached the report limit and will be hidden",
+  "generalDescription" : "This is a General Community, Try to post content here!",
+  "entertainmentDescription" :"This is the Entertainment Community for all things fun!",
+  "businessDescription":"This is the Business Community for professional discussions.",
+  "technologyDescription":"This is the Technology Community for tech enthusiasts.",
+  "healthDescription":"This is the Health Community for health and wellness topics.",
+  "scienceDescription":"This is the Science Community for scientific discussions.",
+  "sportsDescription":"This is the Sports Community for sports fans.",
+  "reply" : "Reply",
+  "likes" : "Likes",
+  "replyHintText" : "Write your reply..."
 }

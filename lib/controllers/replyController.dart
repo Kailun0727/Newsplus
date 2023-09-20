@@ -1,8 +1,11 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:newsplus/models/ReplyModel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class ReplyController extends ChangeNotifier {
 
@@ -62,8 +65,6 @@ class ReplyController extends ChangeNotifier {
     return Future.value();
   }
 
-
-
   // Future<void> fetchRepliesByPostId(String postId) async {
   //   // Clear the list before adding fetched items
   //   _mReplyList.clear();
@@ -122,6 +123,7 @@ class ReplyController extends ChangeNotifier {
   // }
 
   // Add a new reply
+
   Future<void> addReply(String postId, String userId, String username, String content) async {
 
     // Generate a unique ID for the reply
@@ -200,8 +202,41 @@ class ReplyController extends ChangeNotifier {
     }
   }
 
+  Future<void> updateReplyReportCount(BuildContext context, String postId, String replyId, int reportCount, bool isReported) async {
+    // Define a reference to the Firebase Realtime Database for replies
+    DatabaseReference ref = FirebaseDatabase.instance.ref().child('post').child(postId).child('replies').child(replyId);
 
-  void dispose() {
-    // You can add cleanup logic here if needed
+    int updatedReportCount = ++reportCount;
+
+    try {
+      // Update the reply reportCount in Firebase
+      await ref.update({'reportCount': updatedReportCount});
+
+      // Find the reply in mRepliesList and update its reportCount
+      final updatedReplyIndex = _mReplyList.indexWhere((reply) => reply.replyId == replyId);
+      if (updatedReplyIndex != -1) {
+        final updatedReply = _mReplyList[updatedReplyIndex];
+        updatedReply.reportCount = updatedReportCount;
+        _mReplyList[updatedReplyIndex] = updatedReply;
+
+        // Check if reportCount is equal to 5 and set hidden to true
+        if (updatedReportCount == 5) {
+          await ref.update({'hidden': true});
+
+          // Show a Snackbar to inform that this reply has reached the report limit
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.reachReplyReportLimit),
+            ),
+          );
+        }
+      }
+    } catch (error) {
+      // Handle any errors that occur during the update process
+      print('Error updating reply report count: $error');
+      throw error;
+    }
   }
+
+
 }

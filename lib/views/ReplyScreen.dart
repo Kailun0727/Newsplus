@@ -6,6 +6,8 @@ import 'package:newsplus/models/PostModel.dart';
 import 'package:newsplus/models/ReplyModel.dart';
 import 'package:newsplus/widgets/components.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class ReplyScreen extends StatefulWidget {
   final PostModel post;
@@ -268,7 +270,7 @@ class _ReplyScreenState extends State<ReplyScreen> {
                         child: TextField(
                           controller: replyTextController,
                           decoration: InputDecoration(
-                            hintText: 'Write your reply...',
+                            hintText: AppLocalizations.of(context)!.replyHintText,
                           ),
                         ),
                       ),
@@ -294,7 +296,7 @@ class _ReplyScreenState extends State<ReplyScreen> {
                           // Clear the text field
                           replyTextController.clear();
                         },
-                        child: Text('Reply'),
+                        child: Text(AppLocalizations.of(context)!.reply),
                       ),
                     ],
                   ),
