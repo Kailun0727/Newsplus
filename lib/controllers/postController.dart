@@ -167,10 +167,12 @@ class PostController extends ChangeNotifier {
         // Sort the list by likesCount in descending order (highest likesCount first)
         mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
 
+        onUpdate();
+
         // Notify listeners after adding and sorting all items to the list
         notifyListeners();
 
-        onUpdate();
+
       }
     });
 

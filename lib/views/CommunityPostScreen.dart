@@ -8,7 +8,8 @@ class CommunityPostScreen extends StatefulWidget {
   final String communityTitle;
   final String communityId;
 
-  const CommunityPostScreen({Key? key, required this.communityTitle, required this.communityId})
+  const CommunityPostScreen(
+      {Key? key, required this.communityTitle, required this.communityId})
       : super(key: key);
 
   @override
@@ -38,16 +39,15 @@ class _CommunityPostScreenState extends State<CommunityPostScreen> {
   }
 
   initializePost() async {
-
-
-
-    //pass setState to force the page refresh every time when the value of firebase is changed
-    await postController.fetchRealtimeCommunityPosts( widget.communityId,  () {setState(() {
-    });});
-
-    // await postController.fetchPosts();
+    if (mounted) { // Check if the widget is still mounted
+      //pass setState to force the page refresh every time when the value of firebase is changed
+      await postController.fetchRealtimeCommunityPosts(widget.communityId, () {
+        if (mounted) { // Check again in case it was disposed while awaiting
+          setState(() {});
+        }
+      });
+    }
   }
-
 
   @override
   void initState() {
@@ -129,20 +129,29 @@ class _CommunityPostScreenState extends State<CommunityPostScreen> {
       body: Consumer<PostController>(builder: (context, newsProvider, child) {
         return loading
             ? Center(child: Container(child: CircularProgressIndicator()))
-            : ListView.builder(
-                shrinkWrap: true,
-                primary: false,
-                itemCount: postController.mPostsList.length, // Replace with the actual number of posts
-                itemBuilder: (context, index) {
-                  // Create and return a PostCard widget for this post
-                  return PostCard(
-                      post: postController.mPostsList[index] ,
-                      controller: postController,
-                      onUpdate: () {
-                        setState(() {});
-                      });
-                },
-              );
+            : postController.mPostsList.isEmpty && !isFilterApplied
+                ? Container(
+                    height: 500,
+                    child: Center(
+                      child:
+                          Text(AppLocalizations.of(context)!.noDataAvailable),
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    primary: false,
+                    itemCount: postController.mPostsList
+                        .length, // Replace with the actual number of posts
+                    itemBuilder: (context, index) {
+                      // Create and return a PostCard widget for this post
+                      return PostCard(
+                          post: postController.mPostsList[index],
+                          controller: postController,
+                          onUpdate: () {
+                            setState(() {});
+                          });
+                    },
+                  );
       }),
     );
   }

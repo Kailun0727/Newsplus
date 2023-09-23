@@ -51,5 +51,15 @@
   "sportsDescription":"This is the Sports Community for sports fans.",
   "reply" : "Reply",
   "likes" : "Likes",
-  "replyHintText" : "Write your reply..."
+  "replyHintText" : "Write your reply...",
+  "noDataAvailable" : "No data available",
+  "createPost" : "Create Post",
+  "selectCategory" : "Select Category",
+  "postTitleHintText" : "Enter a descriptive title...",
+  "titleEmpty" : "Title cannot be empty",
+  "contentHintText" : "What's on your mind?",
+  "contentEmpty" : "Content cannot be empty",
+  "createButtonText" : "Create",
+  "cancelButtonText" : "Cancel"
+
 }

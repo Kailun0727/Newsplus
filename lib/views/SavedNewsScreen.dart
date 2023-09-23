@@ -7,19 +7,14 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class SavedNewsScreen extends StatefulWidget {
-
-
-  const SavedNewsScreen({Key? key})
-      : super(key: key);
+  const SavedNewsScreen({Key? key}) : super(key: key);
 
   @override
   State<SavedNewsScreen> createState() => _SavedNewsScreenState();
 }
 
 class _SavedNewsScreenState extends State<SavedNewsScreen> {
-
   // Initialize Firebase Analytics
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
@@ -37,7 +32,6 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
 
   bool isFilterApplied = false;
 
-
   bool isFABVisible = false;
   final ScrollController _scrollController = ScrollController();
 
@@ -48,13 +42,13 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
   // selected index of the bottom navigation bar
   int selectedIndex = 0;
 
-
   final TextEditingController filterController = TextEditingController();
 
   void _scrollToTop() {
     _scrollController.animateTo(
       0.0,
-      duration: const Duration(milliseconds: 500), // Adjust the duration as needed
+      duration:
+          const Duration(milliseconds: 500), // Adjust the duration as needed
       curve: Curves.easeInOut,
     );
   }
@@ -82,9 +76,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
         });
       }
     });
-
   }
-
 
   void _openFilterDialog(BuildContext context) {
     showDialog(
@@ -122,7 +114,8 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                         // Show an error message if the text is empty
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(AppLocalizations.of(context)!.keywordFilter),
+                            content: Text(
+                                AppLocalizations.of(context)!.keywordFilter),
                           ),
                         );
                       } else {
@@ -151,7 +144,8 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                         // Show an error message if the filter is not applied
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(AppLocalizations.of(context)!.noFilterToClear),
+                            content: Text(
+                                AppLocalizations.of(context)!.noFilterToClear),
                           ),
                         );
                       }
@@ -197,14 +191,13 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
     });
   }
 
-
   getSavedNews() async {
-
     // News defaultNews = News();
     // await defaultNews.getNewsData();
     // mArticleList = defaultNews.newsList;
 
-    await savedNewsController.fetchSavedNews(); // Use the NewsController to fetch news data
+    await savedNewsController
+        .fetchSavedNews(); // Use the NewsController to fetch news data
 
     savedNewsList = savedNewsController.savedNewsList;
 
@@ -223,7 +216,6 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
           child: const Icon(Icons.arrow_upward),
         ),
       ),
-
       appBar: AppBar(
         centerTitle: true,
         title: Row(
@@ -262,99 +254,122 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
       ),
-
-      body: Consumer<SavedNewsController>(builder: (context, savedNewsProvider, child) {
-
+      body: Consumer<SavedNewsController>(
+          builder: (context, savedNewsProvider, child) {
         return loadingNews
             ? Center(child: Container(child: CircularProgressIndicator()))
             : SingleChildScrollView(
-          controller: _scrollController, // Add this line
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      (isFilterApplied
-                          ? AppLocalizations.of(context)!.filterResults +  " "+
-                          savedNewsController.filterSavedNewsList.length.toString()
-                          : AppLocalizations.of(context)!.totalSavedNews +  " " +
-                          savedNewsController.savedNewsList.length.toString()),
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold),
+                controller: _scrollController, // Add this line
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            (isFilterApplied
+                                ? AppLocalizations.of(context)!.filterResults +
+                                    " " +
+                                    savedNewsController
+                                        .filterSavedNewsList.length
+                                        .toString()
+                                : AppLocalizations.of(context)!.totalSavedNews +
+                                    " " +
+                                    savedNewsController.savedNewsList.length
+                                        .toString()),
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Spacer(), // This will push the Container to the right
+                        Container(
+                          width: 40.0,
+                          height: 40.0,
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.filter_list, color: Colors.white),
+                            onPressed: () {
+                              // Open a filter dialog or screen when the filter button is pressed
+                              _openFilterDialog(context);
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  Spacer(), // This will push the Container to the right
-                  Container(
-                    width: 40.0,
-                    height: 40.0,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: IconButton(
-                      icon: Icon(Icons.filter_list, color: Colors.white),
-                      onPressed: () {
-                        // Open a filter dialog or screen when the filter button is pressed
-                        _openFilterDialog(context);
-                      },
-                    ),
-                  ),
-                ],
-              ),
 
-
-              //News Card
-              Container(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  primary: false,
-
-                  itemCount: isFilterApplied
-                      ? savedNewsController.filterSavedNewsList.length
-                      : savedNewsController.savedNewsList.length, // Use filteredNewsList if a filter is applied
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (context, index) {
-                      return SavedNewsCard(
-                        controller: savedNewsController,
-                          imageUrl: isFilterApplied
-                              ? savedNewsController.filterSavedNewsList[index].imageUrl
-                              : savedNewsController.savedNewsList[index].imageUrl,
-                          title: isFilterApplied
-                              ? savedNewsController.filterSavedNewsList[index].title
-                              : savedNewsController.savedNewsList[index].title,
-                          description: isFilterApplied
-                              ? savedNewsController.filterSavedNewsList[index].description
-                              : savedNewsController.savedNewsList[index].description,
-                          creationDate:  isFilterApplied
-                              ? "Saved Date : " + DateFormat('yyyy-MM-dd HH:mm').format(savedNewsController.filterSavedNewsList[index].creationDate)
-                              : "Saved Date : " + DateFormat('yyyy-MM-dd HH:mm').format(savedNewsController.savedNewsList[index].creationDate),
-                          url:  isFilterApplied
-                              ? savedNewsController.filterSavedNewsList[index].url
-                              : savedNewsController.savedNewsList[index].url,
-
-                        onRemove: () {
-                          // callback to refresh the screen
-                          setState(() {
-                          });
-                        },
-
-                      );
-                  },
+                    //News Card
+                    Container(
+                      child: savedNewsController.savedNewsList.isEmpty &&
+                              !isFilterApplied
+                          ? Container(
+                              height: 500,
+                              child: Center(
+                                child: Text(AppLocalizations.of(context)!
+                                    .noDataAvailable),
+                              ),
+                            )
+                          : ListView.builder(
+                              shrinkWrap: true,
+                              primary: false,
+                              itemCount: isFilterApplied
+                                  ? savedNewsController
+                                      .filterSavedNewsList.length
+                                  : savedNewsController.savedNewsList.length,
+                              scrollDirection: Axis.vertical,
+                              itemBuilder: (context, index) {
+                                return SavedNewsCard(
+                                  controller: savedNewsController,
+                                  imageUrl: isFilterApplied
+                                      ? savedNewsController
+                                          .filterSavedNewsList[index].imageUrl
+                                      : savedNewsController
+                                          .savedNewsList[index].imageUrl,
+                                  title: isFilterApplied
+                                      ? savedNewsController
+                                          .filterSavedNewsList[index].title
+                                      : savedNewsController
+                                          .savedNewsList[index].title,
+                                  description: isFilterApplied
+                                      ? savedNewsController
+                                          .filterSavedNewsList[index]
+                                          .description
+                                      : savedNewsController
+                                          .savedNewsList[index].description,
+                                  creationDate: isFilterApplied
+                                      ? "Saved Date : " +
+                                          DateFormat('yyyy-MM-dd HH:mm').format(
+                                              savedNewsController
+                                                  .filterSavedNewsList[index]
+                                                  .creationDate)
+                                      : "Saved Date : " +
+                                          DateFormat('yyyy-MM-dd HH:mm').format(
+                                              savedNewsController
+                                                  .savedNewsList[index]
+                                                  .creationDate),
+                                  url: isFilterApplied
+                                      ? savedNewsController
+                                          .filterSavedNewsList[index].url
+                                      : savedNewsController
+                                          .savedNewsList[index].url,
+                                  onRemove: () {
+                                    // callback to refresh the screen
+                                    setState(() {});
+                                  },
+                                );
+                              },
+                            ),
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
-        );
+              );
       }),
-
-
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: 2,
         onItemSelected: (index) {
@@ -364,7 +379,6 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
           });
         },
       ),
-
     );
   }
 }

@@ -7,7 +7,6 @@ import 'package:newsplus/widgets/components.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({Key? key}) : super(key: key);
 
@@ -37,7 +36,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
   bool isFilterApplied = false;
 
   bool isSearchApplied = false;
-
 
   void _openFilterDialog(BuildContext context) {
     showDialog(
@@ -75,7 +73,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         // Show an error message if the text is empty
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(AppLocalizations.of(context)!.keywordFilter,),
+                            content: Text(
+                              AppLocalizations.of(context)!.keywordFilter,
+                            ),
                           ),
                         );
                       } else {
@@ -88,7 +88,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       primary: Colors.blue, // Change the button color
                       onPrimary: Colors.white, // Change the text color
                     ),
-                    child: Text(AppLocalizations.of(context)!.apply,),
+                    child: Text(
+                      AppLocalizations.of(context)!.apply,
+                    ),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -104,7 +106,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         // Show an error message if the filter is not applied
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(AppLocalizations.of(context)!.noFilterToClear,),
+                            content: Text(
+                              AppLocalizations.of(context)!.noFilterToClear,
+                            ),
                           ),
                         );
                       }
@@ -113,7 +117,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       primary: Colors.red, // Change the button color
                       onPrimary: Colors.white, // Change the text color
                     ),
-                    child: Text(AppLocalizations.of(context)!.clear,),
+                    child: Text(
+                      AppLocalizations.of(context)!.clear,
+                    ),
                   ),
                 ],
               ),
@@ -159,7 +165,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
     await postController.searchPost(keyword);
 
     setState(() {
-      loading = false; // Set loadingNews to false when the search results are available
+      loading =
+          false; // Set loadingNews to false when the search results are available
       isSearchApplied = true;
     });
   }
@@ -184,7 +191,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Create Post'),
+          title: Text(AppLocalizations.of(context)!.createPost),
           content: SingleChildScrollView(
             child: Container(
               width: double.maxFinite,
@@ -201,7 +208,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         });
                       },
                       decoration: InputDecoration(
-                        labelText: 'Select Category',
+                        labelText:AppLocalizations.of(context)!.selectCategory,
                         border: OutlineInputBorder(),
                         // Customize the label text style
                         labelStyle: TextStyle(
@@ -211,41 +218,41 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       ),
                       // Customize the dropdown button style
                       icon: Icon(Icons
-                          .arrow_drop_down), // Change the dropdown icon to your preference
-                      iconSize: 24, // Adjust the icon size as needed
-                      elevation: 16, // Adjust the elevation of the dropdown
+                          .arrow_drop_down),
+                      iconSize: 24,
+                      elevation: 16,
                       style: TextStyle(
                         color: Colors
-                            .black, // Change the text color of the selected item
+                            .black,
                       ),
-                      items: const [
+                      items: [
                         DropdownMenuItem(
                           value: '1',
-                          child: Text('General'),
+                          child: Text(AppLocalizations.of(context)!.general),
                         ),
                         DropdownMenuItem(
                           value: '2',
-                          child: Text('Entertainment'),
+                          child: Text(AppLocalizations.of(context)!.entertainment),
                         ),
                         DropdownMenuItem(
                           value: '3',
-                          child: Text('Business'),
+                          child: Text(AppLocalizations.of(context)!.business),
                         ),
                         DropdownMenuItem(
                           value: '4',
-                          child: Text('Technology'),
+                          child: Text(AppLocalizations.of(context)!.technology),
                         ),
                         DropdownMenuItem(
                           value: '5',
-                          child: Text('Health'),
+                          child: Text(AppLocalizations.of(context)!.health),
                         ),
                         DropdownMenuItem(
                           value: '6',
-                          child: Text('Science'),
+                          child: Text(AppLocalizations.of(context)!.science),
                         ),
                         DropdownMenuItem(
                           value: '7',
-                          child: Text('Sports'),
+                          child: Text(AppLocalizations.of(context)!.sports),
                         ),
                       ],
                     ),
@@ -253,13 +260,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     TextFormField(
                       controller: titleController,
                       maxLines: 1,
-                      decoration: const InputDecoration(
-                        hintText: 'Enter a descriptive title...',
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.postTitleHintText,
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Title cannot be empty';
+                          return AppLocalizations.of(context)!.titleEmpty;
                         }
                         return null;
                       },
@@ -268,13 +275,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     TextFormField(
                       controller: postTextController,
                       maxLines: 4,
-                      decoration: const InputDecoration(
-                        hintText: 'What\'s on your mind?',
+                      decoration: InputDecoration(
+                        hintText:  AppLocalizations.of(context)!.contentHintText,
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Post text cannot be empty';
+                          return AppLocalizations.of(context)!.contentEmpty;
                         }
                         return null;
                       },
@@ -315,7 +322,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             padding: EdgeInsets.symmetric(horizontal: 20.0),
                           ),
                           child: Text(
-                            'Create',
+                            AppLocalizations.of(context)!.createButtonText,
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -327,7 +334,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             Navigator.pop(context);
                           },
                           child: Text(
-                            'Cancel',
+                            AppLocalizations.of(context)!.cancelButtonText,
                             style: TextStyle(
                               color: Colors.grey,
                             ),
@@ -346,13 +353,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 
   initializePost() async {
-
     //pass setState to force the page refresh every time when the value of firebase is changed
-    await postController.fetchRealtimePopularPosts( () {setState(() {
-    });});
+    await postController.fetchRealtimePopularPosts(() {
+      setState(() {});
+    });
     // await postController.fetchPosts();
   }
-
 
   @override
   void initState() {
@@ -410,6 +416,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
               child: Icon(Icons.arrow_upward),
             ),
           ),
+          SizedBox(height: 20,),
+
           FloatingActionButton(
             heroTag: "btn_create",
             onPressed: _showCreatePostDialog,
@@ -477,7 +485,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             child: TextField(
                               controller: searchPostController,
                               decoration: InputDecoration(
-                                hintText: AppLocalizations.of(context)!.searchPostHintText,
+                                hintText: AppLocalizations.of(context)!
+                                    .searchPostHintText,
                                 suffixIcon: IconButton(
                                   icon: const Icon(Icons.clear),
                                   onPressed: () => searchPostController.clear(),
@@ -490,14 +499,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                     if (keyword.isNotEmpty) {
                                       // Perform the search when the keyword is not empty
                                       _searchPost(keyword);
-
                                     } else {
                                       // Show an error message if the keyword is empty
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                              AppLocalizations.of(context)!.keywordSearch),
+                                              AppLocalizations.of(context)!
+                                                  .keywordSearch),
                                         ),
                                       );
                                     }
@@ -534,10 +543,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     const SizedBox(
                       height: 20,
                     ),
-                     Padding(
+                    Padding(
                       padding: EdgeInsets.only(left: 8.0),
                       child: Text(
-                        AppLocalizations.of(context)!.chooseCommunity ,
+                        AppLocalizations.of(context)!.chooseCommunity,
                         style: TextStyle(
                             fontSize: 18,
                             color: Colors.black,
@@ -566,12 +575,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8.0),
-                      child: Text(isFilterApplied ?
-
-                      AppLocalizations.of(context)!.filterResults + " : " + postController.mFilterPostsList.length.toString() :
-
-                      (isSearchApplied ?  AppLocalizations.of(context)!.totalResults : AppLocalizations.of(context)!.popularPost ),
-
+                      child: Text(
+                        isFilterApplied
+                            ? AppLocalizations.of(context)!.filterResults +
+                                " : " +
+                                postController.mFilterPostsList.length
+                                    .toString()
+                            : (isSearchApplied
+                                ? AppLocalizations.of(context)!.totalResults +" " +postController.mPostsList.length.toString()
+                                : AppLocalizations.of(context)!.popularPost),
                         style: TextStyle(
                             fontSize: 18,
                             color: Colors.black,
@@ -581,35 +593,40 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     const SizedBox(
                       height: 20,
                     ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      primary: false,
-                      itemCount: (isFilterApplied ?
-                      postController.mFilterPostsList.length :
-                      postController.mPostsList.length)
 
-
-                  , // Replace with the actual number of posts
-                      itemBuilder: (context, index) {
-                        // Create and return a PostCard widget for this post
-                        return PostCard(
-                          post: (
-                              isFilterApplied
-                                  ? postController.mFilterPostsList[index] // If a filter is applied, display posts from the filtered list
-                                  : (isSearchApplied
-                                        ? postController.mPostsList[index] // If a search is applied, display posts from the search results list
-                                        : postController.mPopularList[index] // Otherwise, display posts from the popular list
-                                    )
-                                )
-                           ,
-                          controller: postController,
-                          onUpdate: () {
-                            setState(() {
-                            });
-                          }
-                        );
-                      },
-                    )
+                    postController.mPopularList.isEmpty && !isFilterApplied
+                        ? Container(
+                            height: 500,
+                            child: Center(
+                              child: Text(AppLocalizations.of(context)!
+                                  .noDataAvailable),
+                            ),
+                          )
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            primary: false,
+                            itemCount: (isFilterApplied
+                                ? postController.mFilterPostsList.length
+                                : postController.mPostsList
+                                    .length), // Replace with the actual number of posts
+                            itemBuilder: (context, index) {
+                              // Create and return a PostCard widget for this post
+                              return PostCard(
+                                  post: (isFilterApplied
+                                      ? postController.mFilterPostsList[
+                                          index] // If a filter is applied, display posts from the filtered list
+                                      : (isSearchApplied
+                                          ? postController.mPostsList[
+                                              index] // If a search is applied, display posts from the search results list
+                                          : postController.mPopularList[
+                                              index] // Otherwise, display posts from the popular list
+                                      )),
+                                  controller: postController,
+                                  onUpdate: () {
+                                    setState(() {});
+                                  });
+                            },
+                          )
                   ],
                 ),
               );

@@ -51,5 +51,14 @@
   "sportsDescription": "这是体育社区，面向体育迷。",
   "reply" : "回复",
   "likes" : "赞",
-  "replyHintText" : "写下你的回复..."
+  "replyHintText" : "写下你的回复...",
+  "noDataAvailable": "暂无数据",
+  "createPost": "创建帖子",
+  "selectCategory": "选择分类",
+  "postTitleHintText": "输入描述性标题...",
+  "titleEmpty": "标题不能为空",
+  "contentHintText": "你有什么想说的？",
+  "contentEmpty": "内容不能为空",
+  "createButtonText": "创建",
+  "cancelButtonText": "取消"
 }

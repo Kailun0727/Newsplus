@@ -142,12 +142,13 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
       child: Padding(
         padding: const EdgeInsets.only(top:8.0, bottom: 8),
         child: Card(
-          elevation: 3, // Adds a shadow to the card
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          elevation: 1.5, // Adds a shadow to the card
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0), // Customizes the card's shape
+            borderRadius: BorderRadius.circular(8.0), // Customizes the card's shape
             side: BorderSide( // Customize the border
               color: Colors.black12, // Border color
-              width: 2.0, // Border width
+              width: 1.0, // Border width
             ),
           ),
 
@@ -156,7 +157,7 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
               margin: const EdgeInsets.only(bottom: 14),
               child: Container(
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(1.0),
                   child: Stack(
                     children: [
                       Column(
@@ -175,27 +176,36 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                           const SizedBox(
                             height: 6,
                           ),
-                          Text(
-                            widget.creationDate,
-                            style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue),
+                          Padding(
+                            padding: const EdgeInsets.only(left:8.0, right: 8),
+                            child: Text(
+                              widget.creationDate,
+                              style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue),
+                            ),
                           ),
                           const SizedBox(
                             height: 6,
                           ),
-                          Text(
-                            widget.title,
-                            style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                          Padding(
+                            padding: const EdgeInsets.only(left:8.0, right: 8),
+                            child: Text(
+                              widget.title,
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
                           ),
                           const SizedBox(
                             height: 6,
                           ),
-                          Text(
-                            widget.description,
-                            style: const TextStyle(color: Colors.black54),
+                          Padding(
+                            padding: const EdgeInsets.only(left:8.0, right: 8),
+                            child: Text(
+                              widget.description,
+                              style: const TextStyle(color: Colors.black54),
+                            ),
                           ),
                         ],
                       ),
@@ -322,12 +332,13 @@ class _NewsCardState extends State<NewsCard> {
       child: Padding(
         padding: const EdgeInsets.only(top:8.0,bottom: 8),
         child: Card(
-          elevation: 3, // Adds a shadow to the card
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          elevation: 1.5, // Adds a shadow to the card
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0), // Customizes the card's shape
+            borderRadius: BorderRadius.circular(8.0), // Customizes the card's shape
             side: BorderSide( // Customize the border
               color: Colors.black12, // Border color
-              width: 2.0, // Border width
+              width: 1.0, // Border width
             ),
           ),
 
@@ -336,7 +347,7 @@ class _NewsCardState extends State<NewsCard> {
               margin: const EdgeInsets.only(bottom: 14),
               child: Container(
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(1.0),
                   child: Stack(
                     children: [
                       Column(
@@ -688,7 +699,7 @@ class _ReplyCardState extends State<ReplyCard> {
               children: [
                 Text(
                   widget.content,
-                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16.0, ),
                 ),
                 SizedBox(height: 6,),
 
@@ -757,19 +768,19 @@ class _PostCardState extends State<PostCard> {
   String mapCommunityIdToCategory(String communityId) {
     switch (communityId) {
       case '1':
-        return 'General';
+        return AppLocalizations.of(context)!.general;
       case '2':
-        return 'Entertainment';
+        return AppLocalizations.of(context)!.entertainment;
       case '3':
-        return 'Business';
+        return AppLocalizations.of(context)!.business;
       case '4':
-        return 'Technology';
+        return AppLocalizations.of(context)!.technology;
       case '5':
-        return 'Health';
+        return AppLocalizations.of(context)!.health;
       case '6':
-        return 'Science';
+        return AppLocalizations.of(context)!.science;
       case '7':
-        return 'Sports';
+        return AppLocalizations.of(context)!.sports;
       default:
         return 'Unknown'; // Default category for unknown communityId
     }
@@ -821,7 +832,7 @@ class _PostCardState extends State<PostCard> {
 
 
     return Card(
-      elevation: 2.0,
+      elevation: 1.5,
       margin: const EdgeInsets.all(8.0),
       child: Container(
         padding: const EdgeInsets.all(16.0),
@@ -842,104 +853,100 @@ class _PostCardState extends State<PostCard> {
                         ),
                       ),
                       // Username
-                      Container(
-                        margin: EdgeInsets.only(right: 64.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              post.username, // Use post.username from the passed PostModel
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16.0,
+                      Expanded(
+                        child: Container(
+                          // Adjust margin or padding as needed
+                          padding: EdgeInsets.only(right: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                post.username,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
                               ),
-                            ),
-
-                            const SizedBox(height: 6,),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                // Post Created Time
-                                Text(
-                                  post.creationDate,
-                                  style: const TextStyle(
-                                    color: Colors.blue,
-                                    fontSize: 12.0,
-                                  ),
-                                ),
-                                const SizedBox(width: 6.0), // Add a small gap between date and icon
-                                const Icon(
-                                  Icons.circle, // You can replace this with your desired icon
-                                  size: 4.0, // Adjust the size of the icon as needed
-                                  color: Colors.blue, // Set the color of the icon
-                                ),
-                                const SizedBox(width: 6.0), // Add a small gap between icon and category
-                                // Category
-                                Text(
-                                  mapCommunityIdToCategory(post.communityId),
-                                  style: const TextStyle(
-                                    color: Colors.blue, // Set the text color to blue or your desired color
-                                    fontSize: 12.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Kebab Menu
-                      PopupMenuButton<String>(
-                        onSelected: (value) {
-                          // Handle menu item selection
-                          if (value == 'report') {
-                            // Handle report action
-
-                              if (!isReported) {
-                                showReportConfirmationDialog(context);
-                              }else{
-                                // Show a SnackBar message to inform the user
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(AppLocalizations.of(context)!.cannotReportAgain),
-                                    duration: Duration(seconds: 2), // Adjust the duration as needed
-                                  ),
-                                );
-                              }
-
-
-
-
-                          }
-                        },
-                        itemBuilder: (BuildContext context) {
-                          return [
-                            PopupMenuItem<String>(
-                              value: 'report',
-                              child: Row(
+                              const SizedBox(height: 6,),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.report,
-                                    color:
-                                    isReported ? Colors.grey : Colors.red , // Set the icon color to red
-                                  ),
-                                  SizedBox(width: 8.0),
+                                  // Post Created Time
                                   Text(
-                                    AppLocalizations.of(context)!.reportTitle,
-                                    style: TextStyle(
-                                      color: Colors.red, // Set the text color to red
+                                    post.creationDate,
+                                    style: const TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 3.0),
+                                  const Icon(
+                                    Icons.circle,
+                                    size: 4.0,
+                                    color: Colors.blue,
+                                  ),
+                                  const SizedBox(width: 3.0),
+                                  // Category
+                                  Text(
+                                    mapCommunityIdToCategory(post.communityId),
+                                    style: const TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 14.0,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ];
-                        },
+                            ],
+                          ),
+                        ),
                       ),
+                      // Kebab Menu
+                      PopupMenuButton<String>(
+                          onSelected: (value) {
+                            // Handle menu item selection
+                            if (value == 'report') {
+                              // Handle report action
+                              if (!isReported) {
+                                showReportConfirmationDialog(context);
+                              } else {
+                                // Show a SnackBar message to inform the user
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)!.cannotReportAgain),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          itemBuilder: (BuildContext context) {
+                            return [
+                              PopupMenuItem<String>(
+                                value: 'report',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.report,
+                                      color: isReported ? Colors.grey : Colors.red,
+                                    ),
+                                    SizedBox(width: 8.0),
+                                    Text(
+                                      AppLocalizations.of(context)!.reportTitle,
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ];
+                          },
+                        ),
 
                     ],
                   ),
+
 
                   const SizedBox(height: 8.0),
                   // Content
