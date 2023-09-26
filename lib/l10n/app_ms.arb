@@ -60,5 +60,10 @@
   "contentHintText": "Apa yang ada dalam fikiran anda?",
   "contentEmpty": "Kandungan tidak boleh kosong",
   "createButtonText": "Cipta",
-  "cancelButtonText": "Batal"
+  "cancelButtonText": "Batal",
+  "profile": "Profil",
+  "username": "Nama Pengguna",
+  "email": "Emel"
+
+
 }

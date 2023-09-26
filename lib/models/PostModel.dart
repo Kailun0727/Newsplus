@@ -8,6 +8,7 @@ class PostModel {
   bool hidden;
   final String userId;
   final String username;
+  final String photoUrl;
   final String communityId;
 
   PostModel({
@@ -20,6 +21,7 @@ class PostModel {
     required this.hidden,
     required this.userId,
     required this.username,
+    required this.photoUrl,
     required this.communityId
   });
 

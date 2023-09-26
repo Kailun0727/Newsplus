@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -45,16 +46,6 @@ class _ReplyScreenState extends State<ReplyScreen> {
     // TODO: implement initState
     super.initState();
     getReply();
-
-    for (var reply in replyController.mReplyList) {
-      print('postId: ${reply.postId}');
-      print('content: ${reply.content}');
-      print('creationDate: ${reply.creationDate}');
-      print('likesCount: ${reply.likesCount}');
-      print('userId: ${reply.userId}');
-      print('username: ${reply.username}');
-      print('---------------'); // Add a separator for clarity
-    }
 
   }
 
@@ -144,12 +135,12 @@ class _ReplyScreenState extends State<ReplyScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    const Padding(
+                                    Padding(
                                       padding: EdgeInsets.all(16.0),
                                       child: CircleAvatar(
                                         radius: 24.0,
-                                        backgroundImage: NetworkImage(
-                                          'https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg',
+                                        backgroundImage: CachedNetworkImageProvider(
+                                          widget.post.photoUrl
                                         ),
                                       ),
                                     ),
@@ -236,6 +227,7 @@ class _ReplyScreenState extends State<ReplyScreen> {
                                               username: replyController.mReplyList[index].username,
                                               creationDate: replyController.mReplyList[index].creationDate,
                                               content: replyController.mReplyList[index].content,
+                                              photoUrl :  replyController.mReplyList[index].photoUrl,
                                               onUpdate: () {setState(() {
 
                                               });},
@@ -285,14 +277,14 @@ class _ReplyScreenState extends State<ReplyScreen> {
 
                           if (user != null) {
                             final displayName = user.displayName ?? 'Unknown User';
+                            final photoUrl = user.photoURL ?? "https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg";
 
-                            await replyController.addReply(widget.post.postId, user.uid, displayName, replyContent);
+                            await replyController.addReply(widget.post.postId, user.uid, displayName, replyContent,photoUrl);
                           }
 
                           // Force to refresh page after creating a post
                           setState(() {});
 
-                          print('Posted reply: $replyContent');
                           // Clear the text field
                           replyTextController.clear();
                         },

@@ -67,7 +67,6 @@ class SavedNewsController extends ChangeNotifier {
                 userId: newsData['userId'],
               );
 
-              print(newsData['creationDate']);
 
               // Add the converted SavedNewsModel to the _savedNewsList
               _savedNewsList.insert(0, savedNews);
@@ -114,14 +113,6 @@ class SavedNewsController extends ChangeNotifier {
   }
 
 
-  void updateList(int index)
-  {
-    _savedNewsList.removeAt(index);
-    notifyListeners();
-    print("Updated UI");
-
-  }
-
   Future<void> removeSavedNews(BuildContext context, String title) async {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -131,12 +122,11 @@ class SavedNewsController extends ChangeNotifier {
 
       try {
         // Find the index of the item to remove in _savedNewsList
-        int index = _savedNewsList.indexWhere((item) => item.title == title);
+        int savedNewsListIndex = _savedNewsList.indexWhere((item) => item.title == title);
+        int filterSavedNewsListIndex = _filterSavedNewsList.indexWhere((item) => item.title == title);
 
-        updateList(index);
 
-
-        if (index != -1) {
+        if (savedNewsListIndex != -1) {
           // Find and remove the news item from Firebase using userId and title
           Query query = newsRef.orderByChild("userId").equalTo(userId);
           DatabaseEvent event = await query.once();
@@ -159,6 +149,16 @@ class SavedNewsController extends ChangeNotifier {
             content: Text(AppLocalizations.of(context)!.removeNewsSuccess),
             duration: Duration(seconds: 2), // You can adjust the duration as needed
           ));
+
+          // Remove the item from both lists
+          _savedNewsList.removeAt(savedNewsListIndex);
+
+          if (filterSavedNewsListIndex != -1) {
+            _filterSavedNewsList.removeAt(filterSavedNewsListIndex);
+          }
+
+          notifyListeners();
+          print("Updated UI");
 
         } else {
           // No matching item found in _savedNewsList

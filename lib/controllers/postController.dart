@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -93,6 +94,7 @@ class PostController extends ChangeNotifier {
             hidden: postData['hidden'],
             userId: postData['userId'],
             username: postData['username'],
+            photoUrl: postData['photoUrl'],
             communityId: postData['communityId'],
           );
 
@@ -155,6 +157,7 @@ class PostController extends ChangeNotifier {
               hidden: postData['hidden'],
               userId: postData['userId'],
               username: postData['username'],
+              photoUrl: postData['photoUrl'],
               communityId: postData['communityId'],
             );
 
@@ -244,53 +247,63 @@ class PostController extends ChangeNotifier {
 
   Future<void> createPost(String title, String postText, String userId, String username,String communityId) async {
 
-    // Generate a unique ID for the post
-    final uuid = Uuid();
-    final postId = uuid.v4();
+    final user = FirebaseAuth.instance.currentUser;
 
-    // Create a new post model with initial values
-    final post = PostModel(
-        postId: postId,
-        title: title,
-        content: postText,
-        creationDate: DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now().add(Duration(hours: 8))),
-        likesCount: 0,
-        reportCount: 0,
-        hidden: false,
-        userId: userId,
-        username: username,
-        communityId: communityId
-    );
+    String? photoUrl = "";
 
-    // Convert the post model to a map
-    final data = {
-      'postId': post.postId,
-      'title' : post.title,
-      'content': post.content,
-      'creationDate': post.creationDate,
-      'likesCount': post.likesCount,
-      'reportCount': post.reportCount,
-      'hidden': post.hidden,
-      'userId': post.userId,
-      'username': post.username,
-      'communityId': post.communityId
-    };
+    if (user != null) {
+      photoUrl = user.photoURL;
 
-    DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
+      // Generate a unique ID for the post
+      final uuid = Uuid();
+      final postId = uuid.v4();
 
-    try {
-      // Add the post to the list
-      mPostsList.insert(0,post);
+      // Create a new post model with initial values
+      final post = PostModel(
+          postId: postId,
+          title: title,
+          content: postText,
+          creationDate: DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now().add(Duration(hours: 8))),
+          likesCount: 0,
+          reportCount: 0,
+          hidden: false,
+          userId: userId,
+          username: username,
+          photoUrl: photoUrl?? "https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg",
+          communityId: communityId
+      );
 
-      // Save the post data to Firebase with the generated ID
-      await ref.child(postId).set(data);
+      // Convert the post model to a map
+      final data = {
+        'postId': post.postId,
+        'title' : post.title,
+        'content': post.content,
+        'creationDate': post.creationDate,
+        'likesCount': post.likesCount,
+        'reportCount': post.reportCount,
+        'hidden': post.hidden,
+        'userId': post.userId,
+        'username': post.username,
+        'photoUrl' : post.photoUrl,
+        'communityId': post.communityId
+      };
 
-      // Notify listeners after adding all items to the list
-      notifyListeners();
-    } catch (error) {
-      // Handle any errors that occur during the saving process
-      print('Error saving news: $error');
-      throw error;
+      DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
+
+      try {
+        // Add the post to the list
+        mPostsList.insert(0,post);
+
+        // Save the post data to Firebase with the generated ID
+        await ref.child(postId).set(data);
+
+        // Notify listeners after adding all items to the list
+        notifyListeners();
+      } catch (error) {
+        // Handle any errors that occur during the saving process
+        print('Error saving news: $error');
+        throw error;
+      }
     }
   }
 

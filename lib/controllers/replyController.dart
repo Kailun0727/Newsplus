@@ -44,6 +44,7 @@ class ReplyController extends ChangeNotifier {
             hidden: replyData['hidden'],
             userId: replyData['userId'],
             username: replyData['username'],
+            photoUrl:  replyData['photoUrl'],
           );
 
           // Add the reply to the list
@@ -124,7 +125,7 @@ class ReplyController extends ChangeNotifier {
 
   // Add a new reply
 
-  Future<void> addReply(String postId, String userId, String username, String content) async {
+  Future<void> addReply(String postId, String userId, String username, String content, String photoUrl) async {
 
     // Generate a unique ID for the reply
     final uuid = Uuid();
@@ -141,6 +142,7 @@ class ReplyController extends ChangeNotifier {
         hidden: false,
         userId: userId,
         username: username,
+        photoUrl: photoUrl
     );
 
     // Convert the reply model to a map
@@ -154,6 +156,7 @@ class ReplyController extends ChangeNotifier {
       'hidden' : reply.hidden,
       'userId': reply.userId,
       'username': reply.username,
+      "photoUrl" : reply.photoUrl
     };
 
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('reply');

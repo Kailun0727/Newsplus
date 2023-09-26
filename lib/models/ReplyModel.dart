@@ -8,6 +8,7 @@ class ReplyModel {
   bool hidden;
   final String userId;
   final String username;
+  final String photoUrl;
 
   ReplyModel({
     required this.replyId,
@@ -19,6 +20,7 @@ class ReplyModel {
     required this.hidden,
     required this.userId,
     required this.username,
+    required this.photoUrl
   });
 
 

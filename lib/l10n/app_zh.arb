@@ -60,5 +60,8 @@
   "contentHintText": "你有什么想说的？",
   "contentEmpty": "内容不能为空",
   "createButtonText": "创建",
-  "cancelButtonText": "取消"
+  "cancelButtonText": "取消",
+  "profile": "个人资料",
+  "username": "用户名",
+  "email": "电子邮件"
 }

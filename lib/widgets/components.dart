@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/controllers/postController.dart';
 import 'package:newsplus/controllers/replyController.dart';
@@ -79,6 +82,59 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
     );
   }
 }
+
+class CustomImagePickerDialog extends StatelessWidget {
+  final Function(String)? onImageSelected;
+
+  CustomImagePickerDialog({Key? key, this.onImageSelected}) : super(key: key);
+
+  final List<String> avatarUrls = [
+    'https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-512.png',
+    'https://w7.pngwing.com/pngs/129/292/png-transparent-female-avatar-girl-face-woman-user-flat-classy-users-icon.png',
+    'https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg',
+    // Add more avatar URLs as needed
+  ];
+
+  Future<void> _selectAvatar(String avatarUrl) async {
+    if (onImageSelected != null) {
+      onImageSelected!(avatarUrl);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Center(child: Text('Select Avatar',style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),)),
+      content: SingleChildScrollView(
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: 300, // Set a minimum height for the AlertDialog
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (String avatarUrl in avatarUrls)
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      _selectAvatar(avatarUrl);
+                      Navigator.of(context).pop();
+                    },
+                    child: CircleAvatar(
+                      radius: 60, // Adjust the radius to make the avatars larger
+                      backgroundImage: CachedNetworkImageProvider(avatarUrl),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 
 class SavedNewsCard extends StatefulWidget {
   final imageUrl;
@@ -585,6 +641,7 @@ class ReplyCard extends StatefulWidget {
   final String username;
   final String creationDate;
   final String content;
+  final String photoUrl;
   final ReplyController controller;
   final Function()? onUpdate; // callback function
 
@@ -593,6 +650,7 @@ class ReplyCard extends StatefulWidget {
     required this.username,
     required this.creationDate,
     required this.content,
+    required this.photoUrl,
     required this.controller,
     required this.onUpdate
   });
@@ -621,10 +679,10 @@ class _ReplyCardState extends State<ReplyCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 24.0,
-                  backgroundImage: NetworkImage(
-                    'https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg',
+                  backgroundImage: CachedNetworkImageProvider(
+                    reply.photoUrl,
                   ),
                 ),
                 // Username
@@ -846,10 +904,10 @@ class _PostCardState extends State<PostCard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 24.0,
-                        backgroundImage: NetworkImage(
-                          'https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg',
+                        backgroundImage: CachedNetworkImageProvider(
+                         post.photoUrl,
                         ),
                       ),
                       // Username

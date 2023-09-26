@@ -60,6 +60,10 @@
   "contentHintText" : "What's on your mind?",
   "contentEmpty" : "Content cannot be empty",
   "createButtonText" : "Create",
-  "cancelButtonText" : "Cancel"
+  "cancelButtonText" : "Cancel",
+
+  "profile" : "Profile",
+  "username": "Username",
+  "email" : "Email"
 
 }
