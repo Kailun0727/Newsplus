@@ -63,7 +63,17 @@
   "cancelButtonText": "Batal",
   "profile": "Profil",
   "username": "Nama Pengguna",
-  "email": "Emel"
+  "email": "Emel",
+  "password": "Kata Laluan",
+  "translateNewsTo": "Terjemahkan Berita Ke",
+  "displayLanguage": "Bahasa Paparan",
+  "signOut": "Log Keluar",
+  "usernameHintText": "Masukkan nama pengguna baru anda",
+  "passwordHintText": "Masukkan kata laluan baru anda",
+  "emailHintText": "Masukkan emel baru anda",
+  "updateSuccess": "Kemaskini berjaya",
+  "updateFailed": "Kemaskini gagal"
+
 
 
 }

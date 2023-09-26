@@ -1,5 +1,7 @@
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -30,7 +32,6 @@ import 'package:provider/provider.dart';
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
-
   await Firebase.initializeApp(
       name: 'newsplus',
       options: DefaultFirebaseOptions.currentPlatform
@@ -54,15 +55,38 @@ Future<void> main() async{
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+
+  const MyApp({Key? key});
+
+  static void setLocale(BuildContext context, Locale newLocale) async {
+    _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
+    state?.changeLanguage(newLocale);
+  }
+
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  Locale _locale = Locale('en');
+
+  changeLanguage(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final providers = [EmailAuthProvider()];
 
     return MaterialApp(
 
-      locale: Locale('en'),
-      localizationsDelegates: [
+      locale: _locale,
+      localizationsDelegates: const [
         AppLocalizations.delegate, // Add this line
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -83,14 +107,29 @@ class MyApp extends StatelessWidget {
                 providers: providers,
                 actions: [
                   AuthStateChangeAction<SignedIn>((context, state) async {
-                    await FirebaseAnalytics.instance.logEvent(
-                      name: "login",
-                      parameters: {
-                        "userId": 'id',
-                      },
-                    );
+                    try {
+                      // Your login logic here
 
-                    Navigator.pushReplacementNamed(context, '/home');
+                      await FirebaseAnalytics.instance.logEvent(
+                        name: "login",
+                        parameters: {
+                          "userId": 'id',
+                        },
+                      );
+
+                      print("Successfully signed in");
+
+                      Navigator.pushReplacementNamed(context, '/home');
+                    } catch (e) {
+                      // Handle login error and display a message to the user
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Invalid email or password"), // Customize the message as needed
+                        ),
+                      );
+
+                      print("Login error: $e");
+                    }
                   }),
 
                   AuthStateChangeAction<UserCreated>((context, state) async{
@@ -124,13 +163,6 @@ class MyApp extends StatelessWidget {
                         print("Added user to database");
                       }
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Registration successful! You can now sign in.'),
-                      ),
-                    );
-
-
 
                     // Navigate to the home page
                     Navigator.pushReplacementNamed(context, '/home');
@@ -140,7 +172,13 @@ class MyApp extends StatelessWidget {
               );
             } else {
               // User is authenticated, navigate to home
-              return const HomePage();
+              return Builder(
+                builder: (BuildContext context) {
+                  // Use Builder to create a new context
+                  return const HomePage();
+                },
+              );
+
             }
           }
           return CircularProgressIndicator(); // Loading state
@@ -180,16 +218,30 @@ class MyApp extends StatelessWidget {
             providers: providers,
             actions: [
               AuthStateChangeAction<SignedIn>((context, state) async {
-                await FirebaseAnalytics.instance.logEvent(
-                  name: "login",
-                  parameters: {
-                    "userId": 'id',
-                  },
-                );
+                try {
+                  // Your login logic here
 
-                Navigator.pushReplacementNamed(context, '/home');
+                  await FirebaseAnalytics.instance.logEvent(
+                    name: "login",
+                    parameters: {
+                      "userId": 'id',
+                    },
+                  );
+
+                  print("Successfully signed in");
+
+                  Navigator.pushReplacementNamed(context, '/home');
+                } catch (e) {
+                  // Handle login error and display a message to the user
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Invalid email or password"), // Customize the message as needed
+                    ),
+                  );
+
+                  print("Login error: $e");
+                }
               }),
-
               AuthStateChangeAction<UserCreated>((context, state) async{
                 // User registration is successful
                 print("Register is success, below");
@@ -198,8 +250,6 @@ class MyApp extends StatelessWidget {
 
                 if (user != null) {
                   print("User is not null");
-
-
 
                   String name = user.email!.split("@")[0];
 
@@ -223,11 +273,6 @@ class MyApp extends StatelessWidget {
                   print("Added user to database");
                 }
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Registration successful! You can now sign in.'),
-                  ),
-                );
                 // Navigate to the home page
                 Navigator.pushReplacementNamed(context, '/home');
               }),

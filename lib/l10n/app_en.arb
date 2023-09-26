@@ -64,6 +64,15 @@
 
   "profile" : "Profile",
   "username": "Username",
-  "email" : "Email"
+  "email" : "Email",
 
+  "password" : "Password",
+  "translateNewsTo" : "Translate News To",
+  "displayLanguage" :"Display Language",
+  "signOut":"Sign Out",
+  "usernameHintText": "Enter your new username",
+  "passwordHintText": "Enter your new password",
+  "emailHintText": "Enter your new email",
+  "updateSuccess": "Update successful",
+  "updateFailed": "Update failed"
 }

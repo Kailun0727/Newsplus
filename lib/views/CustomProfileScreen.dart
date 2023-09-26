@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:newsplus/controllers/profileController.dart';
+import 'package:newsplus/main.dart';
 import 'package:newsplus/widgets/components.dart';
 
 class CustomProfileScreen extends StatefulWidget {
@@ -15,59 +17,27 @@ class CustomProfileScreen extends StatefulWidget {
 }
 
 class _CustomProfileScreenState extends State<CustomProfileScreen> {
-
   File? selectedImage;
 
-  bool isEditing = false; // Track if the user is in edit mode
+  bool isEditingUsername = false;
+  bool isEditingPassword = false;
+  bool isEditingEmail = false;
 
-  // Declare TextEditingController variables for username and email editing
+
+  final ProfileController profileController = ProfileController();
+
+  // Declare TextEditingController variables for username, password, and email editing
   final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
 
 // Create lists for dropdown menus (preferred language and country/region)
-  final List<String> supportedLanguages = ['English', 'Spanish', 'French'];
-  final List<String> countries = ['USA', 'Canada', 'UK'];
+  final List<String> supportedLanguages = ['English', 'Chinese', 'Malay'];
+  final List<String> displayLanguages = ['English', 'Chinese', 'Malay'];
 
 // Initialize variables to store user preferences for language and country
   String selectedLanguage = 'English';
-  String selectedCountry = 'USA';
-
-// Function to update user profile
-  Future<void> updateUserProfile(String username, String email) async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        // Update username and email
-        await user?.updateDisplayName(username);
-        await user?.updateEmail(email);
-
-        setState(() {
-
-        });
-        // Update preferred language and country/region
-        // You can save these preferences in Firebase or your app's storage
-      }
-    } catch (error) {
-      // Handle any errors
-      print('Error updating profile: $error');
-    }
-  }
-
-// Function to delete the user's account
-  Future<void> deleteUserAccount() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        // Delete the user's account
-        await user.delete();
-        // After deleting the account, you can navigate to a sign-in or registration screen
-        Navigator.pushReplacementNamed(context, '/sign-in');
-      }
-    } catch (error) {
-      // Handle any errors
-      print('Error deleting account: $error');
-    }
-  }
+  String selectedDisplayLanguage = 'English';
 
   @override
   void initState() {
@@ -75,9 +45,10 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
 
   }
 
-
   @override
   Widget build(BuildContext context) {
+
+
 
     final user = FirebaseAuth.instance.currentUser;
     String? name;
@@ -92,26 +63,20 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
       usernameController.text = name ?? "";
       emailController.text = email ?? "";
 
-      print("Profile screen Username:"+ name.toString());
-      print("Profile screen Email:"+ email.toString());
-
     }
-
-
-
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text(
           AppLocalizations.of(context)!.profile,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.blue,
             fontWeight: FontWeight.w600,
           ),
         ),
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back, // Use the back arrow icon
             color: Colors.blue, // Set the color to blue
           ),
@@ -123,250 +88,515 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return CustomImagePickerDialog(
-                        onImageSelected: (image) async {
-                          try {
-                            final user = FirebaseAuth.instance.currentUser;
-                            if (user != null) {
-                              await user.updatePhotoURL(image);
-                              // Refresh the user object to reflect the changes
-                              await user.reload();
-                              final updatedUser = FirebaseAuth.instance.currentUser;
-                              if (updatedUser != null) {
-                                setState(() {
-                                  // Update the UI to reflect the new photoURL
-                                  // You can also update the user's photoURL variable here if you're using a state management solution like Provider.
-                                });
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return CustomImagePickerDialog(
+                          onImageSelected: (image) async {
+                            try {
+                              final user = FirebaseAuth.instance.currentUser;
+                              if (user != null) {
+                                await user.updatePhotoURL(image);
+                                // Refresh the user object to reflect the changes
+                                await user.reload();
+                                final updatedUser =
+                                    FirebaseAuth.instance.currentUser;
+                                if (updatedUser != null) {
+                                  setState(() {
+                                    // Update the UI to reflect the new photoURL
+                                    // You can also update the user's photoURL variable here if you're using a state management solution like Provider.
+                                  });
+                                }
                               }
+                            } catch (error) {
+                              // Handle any errors that occur during the update
+                              print('Error updating photoURL: $error');
                             }
-                          } catch (error) {
-                            // Handle any errors that occur during the update
-                            print('Error updating photoURL: $error');
-                          }
-                        },
-                      );
-                    },
-                  );
-                },
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundImage: CachedNetworkImageProvider(
-                    user?.photoURL ?? 'https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg', // Add a user profile image if available
-                  // Add a user profile image if available
-                  ),
-                ),
-              ),
-
-              // Display Username (Editable)
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0), // Add padding
-                child: ListTile(
-                  title: Text(
-                    AppLocalizations.of(context)!.username,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: isEditing
-                      ? TextField(
-                    controller: usernameController,
-                    decoration: InputDecoration(
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.blue, // Color when not editing
-                        ),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.green, // Color when editing
-                        ),
-                      ),
-                    ),
-                  )
-                      : Text(
-                    isEditing ? '' : (name ?? ''),
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  trailing: isEditing
-                      ? IconButton(
-                    icon: Icon(
-                      Icons.check, // Checkmark icon
-                      color: Colors.green, // Color for the checkmark icon
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        updateUserProfile(
-                            usernameController.text.toString(),
-                            emailController.text.toString());
-                        // Save changes
-                        isEditing = false; // Disable edit mode
-                      });
-                    },
-                  )
-                      : IconButton(
-                    icon: Icon(
-                      Icons.edit, // Edit icon
-                      color: Colors.blue, // Color for the edit icon
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        isEditing = true; // Enable edit mode
-                      });
-                    },
-                  ),
-                ),
-              ),
-
-// Display Email (Editable)
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0), // Add padding
-                child: ListTile(
-                  title: Text(
-                    AppLocalizations.of(context)!.email,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: isEditing
-                      ? TextField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.blue, // Color when not editing
-                        ),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.green, // Color when editing
-                        ),
-                      ),
-                    ),
-                  )
-                      : Text(
-                    isEditing ? '' : (email ?? ''),
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  trailing: isEditing
-                      ? IconButton(
-                    icon: Icon(
-                      Icons.check, // Checkmark icon
-                      color: Colors.green, // Color for the checkmark icon
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        updateUserProfile(
-                            usernameController.text.toString(),
-                            emailController.text.toString());
-                        // Save changes
-                        isEditing = false; // Disable edit mode
-                      });
-                    },
-                  )
-                      : IconButton(
-                    icon: Icon(
-                      Icons.edit, // Edit icon
-                      color: Colors.blue, // Color for the edit icon
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        isEditing = true; // Enable edit mode
-                      });
-                    },
-                  ),
-                ),
-              ),
-
-// Preferred Language Dropdown
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Preferred Translate Language',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  DropdownButton<String>(
-                    value: selectedLanguage, // The selected value
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedLanguage = newValue!;
-                      });
-                    },
-                    items: supportedLanguages.map<DropdownMenuItem<String>>((String language) {
-                      return DropdownMenuItem<String>(
-                        value: language,
-                        child: Text(language),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-
-// Country/Region Dropdown
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Country',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  DropdownButton<String>(
-                    value: selectedCountry, // The selected value
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedCountry = newValue!;
-                      });
-                    },
-                    items: countries.map<DropdownMenuItem<String>>((String country) {
-                      return DropdownMenuItem<String>(
-                        value: country,
-                        child: Text(country),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-
-
-
-
-              Container(
-                width: double.infinity, // Makes the button as wide as the parent container
-                child: ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      await FirebaseAuth.instance.signOut();
-                      Navigator.pushReplacementNamed(context, '/sign-in');
-                    } catch (e) {
-                      // Handle sign-out error if necessary
-                    }
+                          },
+                        );
+                      },
+                    );
                   },
-                  child: Text('Sign Out'),
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundImage: CachedNetworkImageProvider(
+                      user?.photoURL ??
+                          'https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg', // Add a user profile image if available
+                      // Add a user profile image if available
+                    ),
+                  ),
                 ),
-              )
 
-            ],
+
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                  children: [
+                    // Display Username (Editable)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 8.0), // Add padding
+                      child: ListTile(
+                        title: Text(
+                          AppLocalizations.of(context)!.username,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: isEditingUsername
+                            ? Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: TextField(
+                            controller: usernameController,
+                            decoration: InputDecoration(
+                              enabledBorder: const UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.blue, // Color when not editing
+                                ),
+                              ),
+                              focusedBorder: const UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green, // Color when editing
+                                ),
+                              ),
+                              hintText: AppLocalizations.of(context)!.usernameHintText, // Add hint text
+                            ),
+                          ),
+                        )
+                            : Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Text(
+                            isEditingUsername ? '' : (name ?? ''),
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+                        trailing: isEditingUsername
+                            ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.check, // Checkmark icon
+                                color: Colors.green, // Color for the checkmark icon
+                              ),
+                              onPressed: () async {
+
+                                bool updateSuccess = await profileController.updateUsername(usernameController.text.toString());
+
+                                if (updateSuccess) {
+                                  // Email update was successful
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(AppLocalizations.of(context)!.updateSuccess),
+                                      // You can customize the appearance and duration of the SnackBar as needed
+                                    ),
+                                  );
+                                } else {
+                                  // Email update failed
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(AppLocalizations.of(context)!.updateFailed),
+                                      // You can customize the appearance and duration of the SnackBar as needed
+                                    ),
+                                  );
+                                }
+
+                                setState(() {
+                                  isEditingUsername = false; // Disable edit mode
+                                });
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.close, // Close icon
+                                color: Colors.red, // Color for the close icon
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  isEditingUsername = false; // Disable edit mode
+                                });
+                              },
+                            ),
+                          ],
+                        )
+                            : IconButton(
+                          icon: const Icon(
+                            Icons.edit, // Edit icon
+                            color: Colors.blue, // Color for the edit icon
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isEditingUsername = true; // Enable edit mode
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 8.0), // Add padding
+                      child: ListTile(
+                        title: Text(
+                          AppLocalizations.of(context)!.password,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: isEditingPassword
+                            ? Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: TextField(
+                            controller: passwordController,
+                            decoration: InputDecoration(
+                              enabledBorder: const UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.blue, // Color when not editing
+                                ),
+                              ),
+                              focusedBorder: const UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green, // Color when editing
+                                ),
+                              ),
+
+                              hintText: AppLocalizations.of(context)!.passwordHintText, // Add hint text
+                            ),
+                          ),
+                        )
+                            : Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Text(
+                            isEditingPassword ? '' : ("********"),
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+                        trailing: isEditingPassword
+                            ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.check, // Checkmark icon
+                                color: Colors.green, // Color for the checkmark icon
+                              ),
+                              onPressed: () async {
+
+                                bool updateSuccess = await profileController.updatePassword(passwordController.text.toString());
+
+                                if (updateSuccess) {
+                                  // Email update was successful
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(AppLocalizations.of(context)!.updateSuccess),
+                                      // You can customize the appearance and duration of the SnackBar as needed
+                                    ),
+                                  );
+                                } else {
+                                  // Email update failed
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(AppLocalizations.of(context)!.updateFailed),
+                                      // You can customize the appearance and duration of the SnackBar as needed
+                                    ),
+                                  );
+                                }
+
+                                setState(() {
+                                  isEditingPassword = false; // Disable edit mode
+                                });
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.close, // Close icon
+                                color: Colors.red, // Color for the close icon
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  isEditingPassword = false; // Disable edit mode
+                                });
+                              },
+                            ),
+                          ],
+                        )
+                            : IconButton(
+                          icon: const Icon(
+                            Icons.edit, // Edit icon
+                            color: Colors.blue, // Color for the edit icon
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isEditingPassword = true; // Enable edit mode
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+
+                    // Display Email (Editable)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 8.0),
+                      child: ListTile(
+                        title: Text(
+                          AppLocalizations.of(context)!.email,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: isEditingEmail
+                            ? Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: TextField(
+                            controller: emailController,
+                            decoration: InputDecoration(
+                              enabledBorder: const UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.blue, // Color when not editing
+                                ),
+                              ),
+                              focusedBorder: const UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.green, // Color when editing
+                                ),
+                              ),
+                              hintText: AppLocalizations.of(context)!.emailHintText, // Add hint text
+                            ),
+                          ),
+                        )
+                            : Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Text(
+                            isEditingEmail ? '' : (email ?? ''),
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+                        trailing: isEditingEmail
+                            ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.check, // Checkmark icon
+                                color: Colors.green, // Color for the checkmark icon
+                              ),
+                              onPressed: () async {
+                                // Save changes
+                                bool updateSuccess = await profileController.updateEmail(emailController.text.toString());
+
+                                if (updateSuccess) {
+                                  // Email update was successful
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(AppLocalizations.of(context)!.updateSuccess),
+                                      // You can customize the appearance and duration of the SnackBar as needed
+                                    ),
+                                  );
+                                } else {
+                                  // Email update failed
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(AppLocalizations.of(context)!.updateFailed),
+                                      // You can customize the appearance and duration of the SnackBar as needed
+                                    ),
+                                  );
+                                }
+
+
+                                setState(() {
+                                  isEditingEmail = false; // Disable edit mode
+                                });
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.close, // Close icon
+                                color: Colors.red, // Color for the close icon
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  isEditingEmail = false; // Disable edit mode
+                                });
+                              },
+                            ),
+                          ],
+                        )
+                            : IconButton(
+                          icon: const Icon(
+                            Icons.edit, // Edit icon
+                            color: Colors.blue, // Color for the edit icon
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isEditingEmail = true; // Enable edit mode
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+
+                    // Preferred Language Dropdown
+                    Padding(
+                      padding: const EdgeInsets.only(left: 28.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.translateNewsTo,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 10,),
+
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.grey,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left:8.0),
+                              child: DropdownButton<String>(
+
+                                value: selectedLanguage,
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    selectedLanguage = newValue!;
+                                  });
+                                },
+                                items: supportedLanguages
+                                    .map<DropdownMenuItem<String>>((String language) {
+                                  return DropdownMenuItem<String>(
+                                    value: language,
+                                    child: Text(language, style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),),
+
+                                  );
+                                }).toList(),
+                                icon: const Icon(Icons.arrow_drop_down),
+                                underline: const SizedBox(), // Remove the default underline
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 10,),
+
+                    // Country Dropdown
+                    Padding(
+                      padding: const EdgeInsets.only(left: 28.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.displayLanguage,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 10,),
+
+
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.grey,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left:8.0),
+                              child: DropdownButton<String>(
+
+                                value: selectedDisplayLanguage,
+                                onChanged: (String? newValue) async{
+                                  setState(() {
+                                    selectedDisplayLanguage = newValue!;
+                                  });
+
+                                  profileController.setAppLocale(context, selectedDisplayLanguage);
+
+
+                                },
+                                items: displayLanguages
+                                    .map<DropdownMenuItem<String>>((String country) {
+                                  return DropdownMenuItem<String>(
+                                    value: country,
+                                    child: Text(country, style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),),
+
+                                  );
+                                }).toList(),
+                                icon: const Icon(Icons.arrow_drop_down),
+                                underline: const SizedBox(), // Remove the default underline
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+
+
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        width: double
+                            .infinity, // Makes the button as wide as the parent container
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            try {
+                              await FirebaseAuth.instance.signOut();
+
+                              print("Successfully sign out");
+                              Navigator.pushReplacementNamed(context, '/sign-in');
+                            } catch (e) {
+                              // Handle sign-out error if necessary
+                            }
+                          },
+                          child: Text(AppLocalizations.of(context)!.signOut),
+                        ),
+                      ),
+                    )
+
+                ],)
+
+
+
+              ],
+            ),
           ),
         ),
       ),

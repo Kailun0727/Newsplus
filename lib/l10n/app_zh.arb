@@ -63,5 +63,14 @@
   "cancelButtonText": "取消",
   "profile": "个人资料",
   "username": "用户名",
-  "email": "电子邮件"
+  "email": "电子邮件",
+  "password": "密码",
+  "translateNewsTo": "翻译新闻至",
+  "displayLanguage": "显示语言",
+  "signOut": "登出",
+  "usernameHintText": "输入您的新用户名",
+  "passwordHintText": "输入您的新密码",
+  "emailHintText": "输入您的新电子邮件",
+  "updateSuccess": "更新成功",
+  "updateFailed": "更新失败"
 }
