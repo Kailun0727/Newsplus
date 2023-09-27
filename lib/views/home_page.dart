@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
+import 'package:newsplus/controllers/profileController.dart';
 import 'package:newsplus/models/CategoryModel.dart';
 import 'package:provider/provider.dart';
 import 'package:newsplus/widgets/components.dart';
@@ -32,11 +33,15 @@ class _HomePageState extends State<HomePage> {
 
   final TextEditingController filterController = TextEditingController();
 
+  final ProfileController profileController = ProfileController();
+
   // selected index of the bottom navigation bar
   int selectedIndex = 0;
 
   //prefer category to recommend news
   String category='';
+
+  bool _isInitialized = false;
 
   Future<String> getPreferCategory() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -48,7 +53,6 @@ class _HomePageState extends State<HomePage> {
     category = await getPreferCategory();
     print("getCategory call first : " + category);
   }
-
 
 
   List<CategoryModel> getCategories() {
@@ -229,6 +233,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
 
@@ -258,7 +268,7 @@ class _HomePageState extends State<HomePage> {
     print("In Recommend News function , category :"+category.toString());
 
     // Now you can call initializeNews with the category obtained from getCategory
-    initializeNews(category.toString());
+    await initializeNews(category.toString());
   }
 
 
@@ -285,6 +295,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
 
     mCategoryList = getCategories(); // Initialize mCategoryList here
+
+
 
     return Scaffold(
       floatingActionButton: Visibility(
@@ -454,7 +466,6 @@ class _HomePageState extends State<HomePage> {
                       child: ListView.builder(
                         shrinkWrap: true,
                         primary: false,
-
                         itemCount: isFilterApplied
                             ? newsController.filteredNewsList.length
                             : newsController.newsList

@@ -8,6 +8,7 @@ import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/controllers/postController.dart';
 import 'package:newsplus/controllers/replyController.dart';
 import 'package:newsplus/controllers/savedNewsController.dart';
+import 'package:newsplus/helper/languageMapper.dart';
 import 'package:newsplus/models/PostModel.dart';
 import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:newsplus/views/ArticleScreen.dart';
@@ -52,15 +53,15 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       currentIndex: widget.selectedIndex,
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: Icon(Icons.home),
+          icon: const Icon(Icons.home),
           label: AppLocalizations.of(context)!.home,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.people),
+          icon: const Icon(Icons.people),
           label:  AppLocalizations.of(context)!.community,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.bookmark),
+          icon: const Icon(Icons.bookmark),
           label:  AppLocalizations.of(context)!.savedNews,
         ),
       ],
@@ -104,10 +105,10 @@ class CustomImagePickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Center(child: Text('Select Avatar',style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),)),
+      title: const Center(child: Text('Select Avatar',style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),)),
       content: SingleChildScrollView(
         child: Container(
-          constraints: BoxConstraints(
+          constraints: const BoxConstraints(
             minHeight: 300, // Set a minimum height for the AlertDialog
           ),
           child: Column(
@@ -186,12 +187,19 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? preferLanguage = prefs.getString('prefer_language');
+        String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
+
+        print("On tap :"+languageCode.toString());
+
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) =>
-                ArticleScreen(url: widget.url), // Pass the URL to ArticleScreen
+                ArticleScreen(url: widget.url, languageCode: languageCode.toString(),), // Pass the URL to ArticleScreen
           ),
         );
       },
@@ -202,7 +210,7 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
           elevation: 1.5, // Adds a shadow to the card
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0), // Customizes the card's shape
-            side: BorderSide( // Customize the border
+            side: const BorderSide( // Customize the border
               color: Colors.black12, // Border color
               width: 1.0, // Border width
             ),
@@ -280,7 +288,7 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                                   const SizedBox(width: 8.0),
                                   Text(
                                     AppLocalizations.of(context)!.share,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.blue,
                                     ),
                                   ),
@@ -292,12 +300,12 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                               value: 'Remove',
                               child: Row(
                                 children: [
-                                  Icon(Icons.remove,
+                                  const Icon(Icons.remove,
                                       color: Colors.blue), // Share icon
-                                  SizedBox(width: 8.0),
+                                  const SizedBox(width: 8.0),
                                   Text(
                                     AppLocalizations.of(context)!.remove,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.blue,
                                     ),
                                   ),
@@ -376,12 +384,20 @@ class _NewsCardState extends State<NewsCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? preferLanguage = prefs.getString('prefer_language');
+        String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
+
+        print("On tap :"+languageCode.toString());
+
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) =>
-                ArticleScreen(url: widget.url), // Pass the URL to ArticleScreen
+                ArticleScreen(url: widget.url,languageCode: languageCode.toString(),), // Pass the URL to ArticleScreen
           ),
         );
       },
@@ -392,18 +408,16 @@ class _NewsCardState extends State<NewsCard> {
           elevation: 1.5, // Adds a shadow to the card
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0), // Customizes the card's shape
-            side: BorderSide( // Customize the border
+            side: const BorderSide( // Customize the border
               color: Colors.black12, // Border color
               width: 1.0, // Border width
             ),
           ),
 
+
           child: Container(
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              child: Container(
                 child: Padding(
-                  padding: const EdgeInsets.all(1.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Stack(
                     children: [
                       Column(
@@ -414,9 +428,12 @@ class _NewsCardState extends State<NewsCard> {
                             borderRadius: BorderRadius.circular(6),
                             child: CachedNetworkImage(
                               imageUrl: widget.imageUrl,
+                              placeholder: (context, url) => CircularProgressIndicator(),
+                              errorWidget: (context, url, error) => Icon(Icons.error),
                               width: 500,
                               height: 200,
                               fit: BoxFit.cover,
+                              fadeInDuration: Duration(milliseconds: 500), // Adjust the duration as needed
                             ),
                           ),
                           const SizedBox(
@@ -469,7 +486,7 @@ class _NewsCardState extends State<NewsCard> {
                                   const SizedBox(width: 8.0),
                                   Text(
                                     AppLocalizations.of(context)!.share,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.blue,
                                     ),
                                   ),
@@ -500,12 +517,12 @@ class _NewsCardState extends State<NewsCard> {
                               value: 'Like',
                               child: Row(
                                 children: [
-                                  Icon(Icons.thumb_up,
+                                  const Icon(Icons.thumb_up,
                                       color: Colors.orange), // Thumb up icon
-                                  SizedBox(width: 8.0),
+                                  const SizedBox(width: 8.0),
                                   Text(
                                     AppLocalizations.of(context)!.moreStories,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.orange,
                                     ),
                                   ),
@@ -516,12 +533,12 @@ class _NewsCardState extends State<NewsCard> {
                               value: 'Dislike',
                               child: Row(
                                 children: [
-                                  Icon(Icons.thumb_down,
+                                  const Icon(Icons.thumb_down,
                                       color: Colors.red), // Thumb down icon
-                                  SizedBox(width: 8.0),
+                                  const SizedBox(width: 8.0),
                                   Text(
                                     AppLocalizations.of(context)!.fewerStories,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.red,
                                     ),
                                   ),
@@ -546,7 +563,7 @@ class _NewsCardState extends State<NewsCard> {
                                     description: widget.description,
                                     url : widget.url,
                                     imageUrl: widget.imageUrl,
-                                    creationDate: DateTime.now().add(Duration(hours: 8)),
+                                    creationDate: DateTime.now().add(const Duration(hours: 8)),
                                     userId: userId,
                                   );
 
@@ -556,10 +573,10 @@ class _NewsCardState extends State<NewsCard> {
                                     setState(() {
                                       isSavedToLater = true;
                                     });
-                                    
+
                                     final snackBar = SnackBar(
                                       content: Text(AppLocalizations.of(context)!.saveNewsSuccess),
-                                      duration: Duration(seconds: 2),
+                                      duration: const Duration(seconds: 2),
                                     );
 
                                     ScaffoldMessenger.of(context)
@@ -578,7 +595,7 @@ class _NewsCardState extends State<NewsCard> {
                               } else {
                                 final snackBar = SnackBar(
                                   content: Text(AppLocalizations.of(context)!.searchPostHintText),
-                                  duration: Duration(seconds: 2),
+                                  duration: const Duration(seconds: 2),
                                 );
 
                                 ScaffoldMessenger.of(context)
@@ -594,7 +611,7 @@ class _NewsCardState extends State<NewsCard> {
 
                               final snackBar = SnackBar(
                                 content: Text(AppLocalizations.of(context)!.moreStoriesClicked),
-                                duration: Duration(seconds: 2),
+                                duration: const Duration(seconds: 2),
                               );
 
                               ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -627,8 +644,8 @@ class _NewsCardState extends State<NewsCard> {
                   ),
                 ),
               ),
-            ),
-          ),
+
+
         ),
       ),
     );
@@ -687,7 +704,7 @@ class _ReplyCardState extends State<ReplyCard> {
                 ),
                 // Username
                 Container(
-                  margin: EdgeInsets.only(right: 64.0),
+                  margin: const EdgeInsets.only(right: 64.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -730,14 +747,14 @@ class _ReplyCardState extends State<ReplyCard> {
                         value: 'report',
                         child: Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.report,
                               color: Colors.red, // Set the icon color to red
                             ),
-                            SizedBox(width: 8.0),
+                            const SizedBox(width: 8.0),
                             Text(
                               AppLocalizations.of(context)!.reportTitle,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.red, // Set the text color to red
                               ),
                             ),
@@ -757,9 +774,9 @@ class _ReplyCardState extends State<ReplyCard> {
               children: [
                 Text(
                   widget.content,
-                  style: TextStyle(fontSize: 16.0, ),
+                  style: const TextStyle(fontSize: 16.0, ),
                 ),
-                SizedBox(height: 6,),
+                const SizedBox(height: 6,),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -914,7 +931,7 @@ class _PostCardState extends State<PostCard> {
                       Expanded(
                         child: Container(
                           // Adjust margin or padding as needed
-                          padding: EdgeInsets.only(right: 16.0),
+                          padding: const EdgeInsets.only(right: 16.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -972,7 +989,7 @@ class _PostCardState extends State<PostCard> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(AppLocalizations.of(context)!.cannotReportAgain),
-                                    duration: Duration(seconds: 2),
+                                    duration: const Duration(seconds: 2),
                                   ),
                                 );
                               }
@@ -988,10 +1005,10 @@ class _PostCardState extends State<PostCard> {
                                       Icons.report,
                                       color: isReported ? Colors.grey : Colors.red,
                                     ),
-                                    SizedBox(width: 8.0),
+                                    const SizedBox(width: 8.0),
                                     Text(
                                       AppLocalizations.of(context)!.reportTitle,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.red,
                                       ),
                                     ),
@@ -1014,12 +1031,12 @@ class _PostCardState extends State<PostCard> {
                     children: [
                       Text(
                         post.title, // Use post.content from the passed PostModel
-                        style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 6,),
+                      const SizedBox(height: 6,),
                       Text(
                         post.content, // Use post.content from the passed PostModel
-                        style: TextStyle(fontSize: 14.0, color: Colors.black54),
+                        style: const TextStyle(fontSize: 14.0, color: Colors.black54),
                       ),
                     ],
                   ),
@@ -1067,7 +1084,7 @@ class _PostCardState extends State<PostCard> {
                             ),
                           );
                         },
-                        icon: Icon(Icons.reply),
+                        icon: const Icon(Icons.reply),
                         label: Text(AppLocalizations.of(context)!.reply),
                       ),
                     ],

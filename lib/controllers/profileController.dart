@@ -73,9 +73,7 @@ class ProfileController extends ChangeNotifier {
     // Map the display language to the corresponding Locale
     switch (displayLanguage) {
       case 'English':
-
         MyApp.setLocale(context, Locale('en'));
-
         break;
       case 'Chinese':
         MyApp.setLocale(context, Locale('zh'));

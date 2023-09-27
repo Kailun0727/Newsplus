@@ -28,6 +28,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,6 +74,34 @@ class _MyAppState extends State<MyApp> {
 
   Locale _locale = Locale('en');
 
+
+  // Define a method to load the initial language from SharedPreferences.
+  Future<void> loadInitialLanguage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? initialLanguage = prefs.getString('display_language');
+
+    if (initialLanguage != null) {
+
+
+      switch (initialLanguage) {
+        case 'English':
+          changeLanguage(Locale('en'));
+          break;
+        case 'Chinese':
+          changeLanguage(Locale('zh'));
+          break;
+        case 'Malay':
+          changeLanguage(Locale('ms'));
+          break;
+        default:
+          changeLanguage(Locale('en'));
+          break;
+      }
+
+
+    }
+  }
+
   changeLanguage(Locale locale) {
     setState(() {
       _locale = locale;
@@ -80,8 +109,18 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    loadInitialLanguage();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final providers = [EmailAuthProvider()];
+
+
 
     return MaterialApp(
 

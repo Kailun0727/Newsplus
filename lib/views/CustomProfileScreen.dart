@@ -8,6 +8,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:newsplus/controllers/profileController.dart';
 import 'package:newsplus/main.dart';
 import 'package:newsplus/widgets/components.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomProfileScreen extends StatefulWidget {
   const CustomProfileScreen({Key? key});
@@ -39,16 +40,25 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
   String selectedLanguage = 'English';
   String selectedDisplayLanguage = 'English';
 
+  // Define a method to load the initial language values from SharedPreferences.
+  Future<void> loadInitialLanguage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedLanguage = prefs.getString('prefer_language') ?? 'English';
+      selectedDisplayLanguage = prefs.getString('display_language') ?? 'English';
+    });
+  }
+
+
+
   @override
   void initState() {
     super.initState();
-
+    loadInitialLanguage();
   }
 
   @override
   Widget build(BuildContext context) {
-
-
 
     final user = FirebaseAuth.instance.currentUser;
     String? name;
@@ -481,11 +491,17 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                               padding: const EdgeInsets.only(left:8.0),
                               child: DropdownButton<String>(
 
+
+
                                 value: selectedLanguage,
-                                onChanged: (String? newValue) {
+                                onChanged: (String? newValue) async {
+
                                   setState(() {
                                     selectedLanguage = newValue!;
                                   });
+
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  await prefs.setString('prefer_language', selectedLanguage.toString());
                                 },
                                 items: supportedLanguages
                                     .map<DropdownMenuItem<String>>((String language) {
@@ -546,7 +562,8 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
 
                                   profileController.setAppLocale(context, selectedDisplayLanguage);
 
-
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  await prefs.setString('display_language', selectedDisplayLanguage.toString());
                                 },
                                 items: displayLanguages
                                     .map<DropdownMenuItem<String>>((String country) {

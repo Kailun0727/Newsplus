@@ -3,12 +3,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:newsplus/helper/languageMapper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ArticleScreen extends StatefulWidget {
+
+  final String languageCode;
+
   final String url;
 
   // Named constructor that takes a parameter
-  const ArticleScreen({Key? key, required this.url}) : super(key: key);
+  const ArticleScreen({Key? key, required this.url, required this.languageCode}) : super(key: key);
 
   @override
   _ArticleScreenState createState() => _ArticleScreenState();
@@ -19,7 +24,11 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   bool _isLoading = true; // Add this variable
 
-  String transformUrl(String inputUrl) {
+
+
+
+
+  String transformUrl(String inputUrl){
     // Split the input URL by '/'
     List<String> urlParts = inputUrl.split('/');
 
@@ -36,14 +45,15 @@ class _ArticleScreenState extends State<ArticleScreen> {
       }
 
 
+
       if (transformedUrl.contains('?')) {
         // The transformedUrl contains the '?' symbol
         return transformedUrl +
-            '&_x_tr_sl=auto&_x_tr_tl=zh-CN&_x_tr_hl=en-US&_x_tr_pto=wapp';
+            '&_x_tr_sl=auto&_x_tr_tl='+ widget.languageCode  +'&_x_tr_hl=en-US&_x_tr_pto=wapp';
       } else {
         // The transformedUrl does not contain the '?' symbol
         return transformedUrl +
-            '?_x_tr_sl=auto&_x_tr_tl=zh-CN&_x_tr_hl=en-US&_x_tr_pto=wapp';
+            '?_x_tr_sl=auto&_x_tr_tl='+ widget.languageCode  +'&_x_tr_hl=en-US&_x_tr_pto=wapp';
       }
 
 
