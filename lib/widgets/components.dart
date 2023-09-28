@@ -821,6 +821,406 @@ class _ReplyCardState extends State<ReplyCard> {
   }
 }
 
+class EditPostCard extends StatefulWidget {
+  final PostModel post;
+
+  final PostController controller;
+
+  final Function()? onUpdate; // callback function
+
+  const EditPostCard({Key? key, required this.post, required this.controller, required this.onUpdate}) : super(key: key);
+
+  @override
+  _EditPostCardState createState() => _EditPostCardState();
+}
+
+class _EditPostCardState extends State<EditPostCard> {
+  bool isLiked = false;
+  bool isReported = false;
+
+
+
+
+  // map communityId values to category names
+  String mapCommunityIdToCategory(String communityId) {
+    switch (communityId) {
+      case '1':
+        return AppLocalizations.of(context)!.general;
+      case '2':
+        return AppLocalizations.of(context)!.entertainment;
+      case '3':
+        return AppLocalizations.of(context)!.business;
+      case '4':
+        return AppLocalizations.of(context)!.technology;
+      case '5':
+        return AppLocalizations.of(context)!.health;
+      case '6':
+        return AppLocalizations.of(context)!.science;
+      case '7':
+        return AppLocalizations.of(context)!.sports;
+      default:
+        return 'Unknown'; // Default category for unknown communityId
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final post = widget.post; // Access the post from the widget's properties
+
+    void _showEditPostDialog() {
+      TextEditingController postTextController = TextEditingController();
+      TextEditingController titleController = TextEditingController();
+      String selectedCategory = widget.post.communityId;
+
+      final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(AppLocalizations.of(context)!.editPost),
+            content: SingleChildScrollView(
+              child: Container(
+                width: double.maxFinite,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      DropdownButtonFormField<String>(
+                        value: selectedCategory,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedCategory = value!;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText:AppLocalizations.of(context)!.selectCategory,
+                          border: OutlineInputBorder(),
+                          // Customize the label text style
+                          labelStyle: TextStyle(
+                            color: Colors
+                                .blue, // Change the label text color to your preference
+                          ),
+                        ),
+                        // Customize the dropdown button style
+                        icon: Icon(Icons
+                            .arrow_drop_down),
+                        iconSize: 24,
+                        elevation: 16,
+                        style: TextStyle(
+                          color: Colors
+                              .black,
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: '1',
+                            child: Text(AppLocalizations.of(context)!.general),
+                          ),
+                          DropdownMenuItem(
+                            value: '2',
+                            child: Text(AppLocalizations.of(context)!.entertainment),
+                          ),
+                          DropdownMenuItem(
+                            value: '3',
+                            child: Text(AppLocalizations.of(context)!.business),
+                          ),
+                          DropdownMenuItem(
+                            value: '4',
+                            child: Text(AppLocalizations.of(context)!.technology),
+                          ),
+                          DropdownMenuItem(
+                            value: '5',
+                            child: Text(AppLocalizations.of(context)!.health),
+                          ),
+                          DropdownMenuItem(
+                            value: '6',
+                            child: Text(AppLocalizations.of(context)!.science),
+                          ),
+                          DropdownMenuItem(
+                            value: '7',
+                            child: Text(AppLocalizations.of(context)!.sports),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8.0),
+                      TextFormField(
+                        controller: titleController,
+                        maxLines: 1,
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)!.postTitleHintText,
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return AppLocalizations.of(context)!.titleEmpty;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 8.0),
+                      TextFormField(
+                        controller: postTextController,
+                        maxLines: 4,
+                        decoration: InputDecoration(
+                          hintText:  AppLocalizations.of(context)!.contentHintText,
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return AppLocalizations.of(context)!.contentEmpty;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 8.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                String postText = postTextController.text.toString();
+                                String title = titleController.text.toString();
+
+                                final user = FirebaseAuth.instance.currentUser;
+
+                                if (user != null) {
+                                  await widget.controller.editPost(widget.post.postId, title, postText, selectedCategory);
+                                }
+
+                                Navigator.pop(context);
+
+                                // Force to refresh page after creating a post
+                                setState(() {});
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              elevation: 0,
+                              padding: EdgeInsets.symmetric(horizontal: 20.0),
+                            ),
+                            child: Text(
+                              AppLocalizations.of(context)!.editButtonText,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              AppLocalizations.of(context)!.cancelButtonText,
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    void _showDeletePostConfirmationDialog() {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(AppLocalizations.of(context)!.confirmDeleteTitle),
+            content: Text(AppLocalizations.of(context)!.confirmDeleteHintText),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  // Close the dialog
+                  Navigator.pop(context);
+
+                  await widget.controller.deletePost(widget.post.postId);
+
+                  // Force to refresh page after deleting a post
+                  setState(() {});
+                },
+                child: Text(AppLocalizations.of(context)!.delete),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Close the dialog without deleting the post
+                  Navigator.pop(context);
+                },
+                child: Text(AppLocalizations.of(context)!.cancelButtonText),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+
+    return Card(
+      elevation: 1.5,
+
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right:8.0),
+                        child: CircleAvatar(
+                          radius: 24.0,
+                          backgroundImage: CachedNetworkImageProvider(
+                            post.photoUrl,
+                          ),
+                        ),
+                      ),
+                      // Username
+                      Expanded(
+                        child: Container(
+                          // Adjust margin or padding as needed
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                post.username,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                              const SizedBox(height: 6,),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  // Post Created Time
+                                  Text(
+                                    post.creationDate,
+                                    style: const TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 3.0),
+                                  const Icon(
+                                    Icons.circle,
+                                    size: 4.0,
+                                    color: Colors.blue,
+                                  ),
+                                  const SizedBox(width: 3.0),
+                                  // Category
+                                  Text(
+                                    mapCommunityIdToCategory(post.communityId),
+                                    style: const TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Kebab Menu
+                      PopupMenuButton<String>(
+                        onSelected: (value) {
+                          // Handle menu item selection
+                          if (value == 'edit') {
+                            // Handle edit action
+                            _showEditPostDialog();
+                          } else if (value == 'delete') {
+                            // Handle delete action
+                            _showDeletePostConfirmationDialog();
+                          }
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return [
+                            PopupMenuItem<String>(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.edit,
+                                    color: Colors.blue, // Change the icon color for edit
+                                  ),
+                                  SizedBox(width: 8.0),
+                                  Text(
+                                    AppLocalizations.of(context)!.edit,
+                                    style: TextStyle(
+                                      color: Colors.blue, // Change the text color for edit
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.red, // Change the icon color for delete
+                                  ),
+                                  SizedBox(width: 8.0),
+                                  Text(
+                                    AppLocalizations.of(context)!.delete,
+                                    style: TextStyle(
+                                      color: Colors.red, // Change the text color for delete
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ];
+                        },
+                      )
+                    ],
+                  ),
+
+
+                  const SizedBox(height: 8.0),
+                  // Content
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        post.title, // Use post.content from the passed PostModel
+                        style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 6,),
+                      Text(
+                        post.content, // Use post.content from the passed PostModel
+                        style: const TextStyle(fontSize: 14.0, color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class PostCard extends StatefulWidget {
   final PostModel post;
@@ -908,7 +1308,6 @@ class _PostCardState extends State<PostCard> {
 
     return Card(
       elevation: 1.5,
-      margin: const EdgeInsets.all(8.0),
       child: Container(
         padding: const EdgeInsets.all(16.0),
         child: Row(
@@ -921,10 +1320,13 @@ class _PostCardState extends State<PostCard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      CircleAvatar(
-                        radius: 24.0,
-                        backgroundImage: CachedNetworkImageProvider(
-                         post.photoUrl,
+                      Padding(
+                        padding: const EdgeInsets.only(right:8.0),
+                        child: CircleAvatar(
+                          radius: 24.0,
+                          backgroundImage: CachedNetworkImageProvider(
+                           post.photoUrl,
+                          ),
                         ),
                       ),
                       // Username

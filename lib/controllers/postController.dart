@@ -59,6 +59,63 @@ class PostController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> fetchRealtimeUserPosts(Function onUpdate, String userId) {
+
+    // Define a reference to the Firebase Realtime Database
+    DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
+
+    // Create a query to filter news items by userId
+    Query query = ref.orderByChild('hidden').equalTo(false);
+
+    // Listen for real-time changes to the data
+    query.onValue.listen((event) {
+      // Clear the list before adding fetched items
+      mPostsList.clear();
+
+      // Get the value of the snapshot
+      final dynamic postMap = event.snapshot!.value;
+
+      // Check if the retrieved data is a Map
+      if (postMap is Map) {
+        postMap.forEach((key, postData) {
+          // Convert the data to a PostModel
+
+
+          // Check if the post's userId matches the specified userId
+          if (postData['userId'] == userId) {
+            PostModel post = PostModel(
+              postId: postData['postId'],
+              title: postData['title'],
+              content: postData['content'],
+              creationDate: postData['creationDate'],
+              likesCount: postData['likesCount'],
+              reportCount: postData['reportCount'],
+              hidden: postData['hidden'],
+              userId: postData['userId'],
+              username: postData['username'],
+              photoUrl: postData['photoUrl'],
+              communityId: postData['communityId'],
+            );
+
+            // Add the post to the list
+            mPostsList.insert(0, post);
+          }
+        });
+
+        // Sort the list by likesCount in descending order (highest likesCount first)
+        mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
+
+        // Notify listeners after adding and sorting all items to the list
+        notifyListeners();
+
+        onUpdate();
+      }
+    });
+
+    // Return a completed Future since there are no asynchronous operations here.
+    return Future.value();
+  }
+
   Future<void> fetchRealtimePopularPosts(Function onUpdate) {
 
     mPopularList.clear();
@@ -183,68 +240,6 @@ class PostController extends ChangeNotifier {
     return Future.value();
   }
 
-
-  // Future<void> fetchPosts() async {
-  //     // Clear the list before adding fetched items
-  //     mPostsList.clear();
-  //
-  //     mPopularList.clear();
-  //
-  //     // Define a reference to the Firebase Realtime Database
-  //     DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
-  //
-  //     try {
-  //       // Create a query to filter news items by userId
-  //       Query query = ref.orderByChild('hidden').equalTo(false);
-  //
-  //       // Retrieve data once from the database
-  //       DatabaseEvent event = await query.once();
-  //
-  //       // Check if the snapshot contains data
-  //       if (event.snapshot != null) {
-  //         // Get the value of the snapshot
-  //         final dynamic postMap = event.snapshot!.value;
-  //
-  //         // Check if the retrieved data is a Map
-  //         if (postMap is Map) {
-  //           postMap.forEach((key, postData) {
-  //             // Convert the data to a PostModel
-  //             PostModel post = PostModel(
-  //               postId: postData['postId'],
-  //               title: postData['title'],
-  //               content: postData['content'],
-  //               creationDate: postData['creationDate'],
-  //               likesCount: postData['likesCount'],
-  //               reportCount: postData['reportCount'],
-  //               hidden: postData['hidden'],
-  //               userId: postData['userId'],
-  //               username: postData['username'],
-  //               communityId: postData['communityId'],
-  //             );
-  //
-  //             // Add the post to the list
-  //             mPostsList.insert(0, post);
-  //           });
-  //
-  //           // Sort the list by likesCount in descending order (highest likesCount first)
-  //           mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
-  //
-  //           // Define the maximum number of items to add
-  //
-  //
-  //
-  //
-  //           // Notify listeners after adding and sorting all items to the list
-  //           notifyListeners();
-  //         }
-  //       }
-  //     } catch (error) {
-  //       // Handle any errors that occur during the fetching process
-  //       print('Error fetching posts: $error');
-  //       throw error;
-  //     }
-  //   }
-
   Future<void> createPost(String title, String postText, String userId, String username,String communityId) async {
 
     final user = FirebaseAuth.instance.currentUser;
@@ -368,6 +363,62 @@ class PostController extends ChangeNotifier {
     } catch (error) {
       // Handle any errors that occur during the update process
       print('Error updating report count: $error');
+      throw error;
+    }
+  }
+
+  Future<void> editPost(String postId, String newTitle, String newContent, String newCommunityId) async {
+    // Define a reference to the Firebase Realtime Database
+    DatabaseReference ref = FirebaseDatabase.instance.ref().child('post').child(postId);
+
+    try {
+      // Create a map with the updated title and content
+      Map<String, dynamic> updatedData = {
+        'title': newTitle,
+        'content': newContent,
+        'communityId': newCommunityId
+      };
+
+      // Update the post in Firebase
+      await ref.update(updatedData);
+
+      // Find the post in mPostsList and update its title and content
+      final updatedPostIndex = mPostsList.indexWhere((post) => post.postId == postId);
+      if (updatedPostIndex != -1) {
+        final updatedPost = mPostsList[updatedPostIndex];
+        updatedPost.title = newTitle;
+        updatedPost.content = newContent;
+        updatedPost.communityId = newCommunityId;
+        mPostsList[updatedPostIndex] = updatedPost;
+      }
+
+      notifyListeners();
+    } catch (error) {
+      // Handle any errors that occur during the editing process
+      print('Error editing post: $error');
+      throw error;
+    }
+  }
+
+  Future<void> deletePost(String postId) async {
+    // Define a reference to the Firebase Realtime Database
+    DatabaseReference ref = FirebaseDatabase.instance.ref().child('post').child(postId);
+
+    try {
+      // Delete the post from Firebase
+      await ref.remove();
+
+      // Find and remove the post from mPostsList
+      final deletedPostIndex = mPostsList.indexWhere((post) => post.postId == postId);
+      if (deletedPostIndex != -1) {
+        mPostsList.removeAt(deletedPostIndex);
+      }
+
+      notifyListeners();
+
+    } catch (error) {
+      // Handle any errors that occur during the deletion process
+      print('Error deleting post: $error');
       throw error;
     }
   }

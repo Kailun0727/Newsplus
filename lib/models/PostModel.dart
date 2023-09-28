@@ -1,7 +1,7 @@
 class PostModel {
   final String postId;
-  final String title;
-  final String content;
+  String title;
+  String content;
   final String creationDate;
   int likesCount;
   int reportCount;
@@ -9,7 +9,7 @@ class PostModel {
   final String userId;
   final String username;
   final String photoUrl;
-  final String communityId;
+  String communityId;
 
   PostModel({
     required this.postId,

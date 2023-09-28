@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:newsplus/controllers/profileController.dart';
 import 'package:newsplus/main.dart';
+import 'package:newsplus/views/UserPost.dart';
 import 'package:newsplus/widgets/components.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -106,7 +107,7 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 GestureDetector(
                   onTap: () {
                     showDialog(
@@ -477,7 +478,7 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                             ),
                           ),
 
-                          const SizedBox(height: 10,),
+                          const SizedBox(height: 8,),
 
                           Container(
                             decoration: BoxDecoration(
@@ -523,7 +524,7 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 10,),
+                    const SizedBox(height: 8,),
 
                     // Country Dropdown
                     Padding(
@@ -539,7 +540,7 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                             ),
                           ),
 
-                          const SizedBox(height: 10,),
+                          const SizedBox(height: 8,),
 
 
                           Container(
@@ -585,30 +586,81 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                       ),
                     ),
 
-
-
                     Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.only(top : 16, left:16,right:16),
                       child: Container(
                         width: double
                             .infinity, // Makes the button as wide as the parent container
                         child: ElevatedButton(
-                          onPressed: () async {
-                            try {
-                              await FirebaseAuth.instance.signOut();
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      UserPost()),
+                            );
+                          },
+                          child: Text(AppLocalizations.of(context)!.managePost),
+                        ),
+                      ),
+                    ),
 
-                              print("Successfully sign out");
-                              Navigator.pushReplacementNamed(context, '/sign-in');
-                            } catch (e) {
-                              // Handle sign-out error if necessary
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 16),
+                      child: Container(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            // Show an alert dialog for confirmation
+                            bool confirmSignOut = await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text(AppLocalizations.of(context)!.confirmSignOutTitle),
+                                  content: Text(AppLocalizations.of(context)!.confirmSignOutHintText),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text(AppLocalizations.of(context)!.cancelButtonText),
+                                      onPressed: () {
+                                        Navigator.of(context).pop(false); // Return false to cancel
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text(AppLocalizations.of(context)!.signOut),
+                                      onPressed: () {
+                                        Navigator.of(context).pop(true); // Return true to confirm
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+
+                            // If the user confirmed, sign out
+                            if (confirmSignOut == true) {
+                              try {
+                                await FirebaseAuth.instance.signOut();
+                                print("Successfully sign out");
+                                Navigator.pushReplacementNamed(context, '/sign-in');
+                              } catch (e) {
+                                // Handle sign-out error
+                              }
                             }
                           },
-                          child: Text(AppLocalizations.of(context)!.signOut),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red, // Set the background color to red
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context)!.signOut,
+                            style: TextStyle(color: Colors.white), // Set the text color to white
+                          ),
                         ),
                       ),
                     )
 
-                ],)
+
+
+                  ],)
 
 
 

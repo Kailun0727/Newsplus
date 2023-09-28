@@ -72,5 +72,15 @@
   "passwordHintText": "输入您的新密码",
   "emailHintText": "输入您的新电子邮件",
   "updateSuccess": "更新成功",
-  "updateFailed": "更新失败"
+  "updateFailed": "更新失败",
+  "managePost": "管理我的帖子",
+  "myPost": "我的帖子",
+  "edit": "编辑",
+  "delete": "删除",
+  "editPost": "编辑帖子",
+  "editButtonText": "编辑",
+  "confirmSignOutTitle": "确认登出",
+  "confirmSignOutHintText": "您确定要退出登录吗？",
+  "confirmDeleteTitle" : "确认删除",
+  "confirmDeleteHintText" : "您确定要删除此帖子吗？"
 }

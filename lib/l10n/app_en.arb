@@ -74,5 +74,16 @@
   "passwordHintText": "Enter your new password",
   "emailHintText": "Enter your new email",
   "updateSuccess": "Update successful",
-  "updateFailed": "Update failed"
+  "updateFailed": "Update failed",
+
+  "managePost" : "Manage My Post",
+  "myPost" : "My Post",
+  "edit" : "Edit",
+  "delete" : "Delete",
+  "editPost": "Edit Post",
+  "editButtonText" : "Edit",
+  "confirmSignOutTitle" : "Confirm Sign Out",
+  "confirmSignOutHintText" : "Are you sure you want to sign out?",
+  "confirmDeleteTitle" : "Confirm Delete",
+  "confirmDeleteHintText" : "Are you sure you want to delete this post?"
 }
