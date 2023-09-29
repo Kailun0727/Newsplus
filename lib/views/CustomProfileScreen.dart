@@ -216,10 +216,12 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                                     ),
                                   );
                                 } else {
+
+
                                   // Email update failed
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(AppLocalizations.of(context)!.updateFailed),
+                                      content: Text(AppLocalizations.of(context)!.usernameUpdateFailed),
                                       // You can customize the appearance and duration of the SnackBar as needed
                                     ),
                                   );
@@ -322,7 +324,7 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                                   // Email update failed
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(AppLocalizations.of(context)!.updateFailed),
+                                      content: Text(AppLocalizations.of(context)!.passwordUpdateFailed),
                                       // You can customize the appearance and duration of the SnackBar as needed
                                     ),
                                   );
@@ -424,7 +426,7 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                                   // Email update failed
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(AppLocalizations.of(context)!.updateFailed),
+                                      content: Text(AppLocalizations.of(context)!.emailUpdateFailed),
                                       // You can customize the appearance and duration of the SnackBar as needed
                                     ),
                                   );

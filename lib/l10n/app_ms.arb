@@ -72,7 +72,11 @@
   "passwordHintText": "Masukkan kata laluan baru anda",
   "emailHintText": "Masukkan emel baru anda",
   "updateSuccess": "Kemaskini berjaya",
-  "updateFailed": "Kemaskini gagal",
+
+  "usernameUpdateFailed": "Username perlu mengandungi sekurang-kurangnya 3 hingga 20 aksara",
+  "passwordUpdateFailed": "Kata laluan perlu mengandungi sekurang-kurangnya 6 aksara",
+  "emailUpdateFailed": "Format emel tidak betul",
+
   "managePost": "Uruskan Catatan Saya",
   "myPost": "Catatan Saya",
   "edit": "Edit",

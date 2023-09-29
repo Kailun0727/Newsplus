@@ -463,16 +463,19 @@ class _CommunityScreenState extends State<CommunityScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
       ),
-      body: Consumer<PostController>(builder: (context, newsProvider, child) {
+      body: Consumer<PostController>(builder: (context, postProvider, child) {
         return loading
             ? Center(child: Container(child: CircularProgressIndicator()))
             : SingleChildScrollView(
-                controller: _scrollController, // Add this line
+                controller: _scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
+
+
 
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+
                     Row(
                       children: [
                         Expanded(

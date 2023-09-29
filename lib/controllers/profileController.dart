@@ -14,9 +14,14 @@ class ProfileController extends ChangeNotifier {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        await user.updatePassword(password);
-        // Password update was successful
-        return true;
+        if (password.isNotEmpty && isValidPassword(password)) {
+          await user.updatePassword(password);
+          // Password update was successful
+          return true;
+        } else {
+          // Invalid password format or empty
+          return false;
+        }
       } else {
         // User is null, meaning no user is signed in
         return false;
@@ -34,9 +39,14 @@ class ProfileController extends ChangeNotifier {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        await user.updateDisplayName(username);
-        // Username update was successful
-        return true;
+        if (username.isNotEmpty && isValidUsername(username)) {
+          await user.updateDisplayName(username);
+          // Username update was successful
+          return true;
+        } else {
+          // Invalid username format or empty
+          return false;
+        }
       } else {
         // User is null, meaning no user is signed in
         return false;
@@ -54,9 +64,14 @@ class ProfileController extends ChangeNotifier {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        await user.updateEmail(email);
-        // Email update was successful
-        return true;
+        if (email.isNotEmpty && isValidEmail(email)) {
+          await user.updateEmail(email);
+          // Email update was successful
+          return true;
+        } else {
+          // Invalid email format or empty
+          return false;
+        }
       } else {
         // User is null, meaning no user is signed in
         return false;
@@ -67,6 +82,21 @@ class ProfileController extends ChangeNotifier {
       // Email update failed
       return false;
     }
+  }
+
+  bool isValidUsername(String username) {
+    // Minimum length of 3 characters, maximum length of 20 characters
+    return username.length >= 3 && username.length <= 20;
+  }
+
+  bool isValidPassword(String password) {
+    return password.length >= 6; //Minimum length of 6 characters
+  }
+
+  bool isValidEmail(String email) {
+    // Regular expression to match a valid email format
+    final emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+    return emailRegex.hasMatch(email);
   }
 
   void setAppLocale(BuildContext context,String displayLanguage) {

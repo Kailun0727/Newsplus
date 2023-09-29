@@ -826,9 +826,9 @@ class EditPostCard extends StatefulWidget {
 
   final PostController controller;
 
-  final Function()? onUpdate; // callback function
+  final Function()? onRemove; // callback function
 
-  const EditPostCard({Key? key, required this.post, required this.controller, required this.onUpdate}) : super(key: key);
+  const EditPostCard({Key? key, required this.post, required this.controller, required this.onRemove}) : super(key: key);
 
   @override
   _EditPostCardState createState() => _EditPostCardState();
@@ -837,9 +837,6 @@ class EditPostCard extends StatefulWidget {
 class _EditPostCardState extends State<EditPostCard> {
   bool isLiked = false;
   bool isReported = false;
-
-
-
 
   // map communityId values to category names
   String mapCommunityIdToCategory(String communityId) {
@@ -1041,13 +1038,13 @@ class _EditPostCardState extends State<EditPostCard> {
             actions: [
               TextButton(
                 onPressed: () async {
-                  // Close the dialog
-                  Navigator.pop(context);
 
                   await widget.controller.deletePost(widget.post.postId);
 
-                  // Force to refresh page after deleting a post
+                  Navigator.pop(context);
+
                   setState(() {});
+
                 },
                 child: Text(AppLocalizations.of(context)!.delete),
               ),

@@ -313,15 +313,27 @@ class PostController extends ChangeNotifier {
       // Update the likesCount in Firebase
       await ref.update({'likesCount': updatedLikesCount});
 
+
+      //Need to update filtered post first, otherwise cannot update ui
+      // Find the post in mPostsList and update its likesCount
+      final updatedFilteredPostIndex = mFilterPostsList.indexWhere((post) => post.postId == postId);
+
+      if (updatedFilteredPostIndex != -1) {
+        final updatedPost = mFilterPostsList[updatedFilteredPostIndex];
+        updatedPost.likesCount = updatedLikesCount;
+        mFilterPostsList[updatedFilteredPostIndex] = updatedPost;
+      }
+
       // Find the post in mPostsList and update its likesCount
       final updatedPostIndex = mPostsList.indexWhere((post) => post.postId == postId);
+
       if (updatedPostIndex != -1) {
         final updatedPost = mPostsList[updatedPostIndex];
         updatedPost.likesCount = updatedLikesCount;
         mPostsList[updatedPostIndex] = updatedPost;
-
       }
 
+      notifyListeners();
 
     } catch (error) {
       // Handle any errors that occur during the fetching process
@@ -339,6 +351,29 @@ class PostController extends ChangeNotifier {
     try {
       // Update the reportCount in Firebase
       await ref.update({'reportCount': updatedReportCount});
+
+
+      //Need to update filtered post first, otherwise cannot update ui
+      // Find the post in mPostsList and update its likesCount
+      final updatedFilteredPostIndex = mFilterPostsList.indexWhere((post) => post.postId == postId);
+      if (updatedFilteredPostIndex != -1) {
+        final updatedPost = mFilterPostsList[updatedFilteredPostIndex];
+        updatedPost.reportCount = updatedReportCount;
+        mFilterPostsList[updatedFilteredPostIndex] = updatedPost;
+
+        // Check if reportCount is equal to 5 and set hidden to true
+        if (updatedReportCount == 5) {
+          await ref.update({'hidden': true});
+
+          // Show a Snackbar to inform that this post has reached the report limit
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.reachReportLimit),
+            ),
+          );
+        }
+
+      }
 
       // Find the post in mPostsList and update its reportCount
       final updatedPostIndex = mPostsList.indexWhere((post) => post.postId == postId);
@@ -384,12 +419,23 @@ class PostController extends ChangeNotifier {
 
       // Find the post in mPostsList and update its title and content
       final updatedPostIndex = mPostsList.indexWhere((post) => post.postId == postId);
+
+      final updatedFilteredPostIndex = mFilterPostsList.indexWhere((post) => post.postId == postId);
+
       if (updatedPostIndex != -1) {
         final updatedPost = mPostsList[updatedPostIndex];
         updatedPost.title = newTitle;
         updatedPost.content = newContent;
         updatedPost.communityId = newCommunityId;
         mPostsList[updatedPostIndex] = updatedPost;
+      }
+
+      if (updatedFilteredPostIndex != -1) {
+        final updatedPost = mFilterPostsList[updatedFilteredPostIndex];
+        updatedPost.title = newTitle;
+        updatedPost.content = newContent;
+        updatedPost.communityId = newCommunityId;
+        mFilterPostsList[updatedFilteredPostIndex] = updatedPost;
       }
 
       notifyListeners();
@@ -408,8 +454,19 @@ class PostController extends ChangeNotifier {
       // Delete the post from Firebase
       await ref.remove();
 
-      // Find and remove the post from mPostsList
+      //Need to delete the filtered post first, otherwise cannot update ui
+      // Find and remove the post
+      final deletedFilteredPostIndex = mFilterPostsList.indexWhere((post) => post.postId == postId);
+
+      if (deletedFilteredPostIndex != -1) {
+        mFilterPostsList.removeAt(deletedFilteredPostIndex);
+      }
+
+      // Find and remove the post
       final deletedPostIndex = mPostsList.indexWhere((post) => post.postId == postId);
+
+      print("Index of filter post :"+deletedFilteredPostIndex.toString());
+
       if (deletedPostIndex != -1) {
         mPostsList.removeAt(deletedPostIndex);
       }
@@ -421,6 +478,7 @@ class PostController extends ChangeNotifier {
       print('Error deleting post: $error');
       throw error;
     }
+
   }
 
 }

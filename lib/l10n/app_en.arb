@@ -74,7 +74,10 @@
   "passwordHintText": "Enter your new password",
   "emailHintText": "Enter your new email",
   "updateSuccess": "Update successful",
-  "updateFailed": "Update failed",
+
+  "usernameUpdateFailed": "Username needs to contain at least 3 characters to 20 characters",
+  "passwordUpdateFailed": "Password needs to contain at least 6 characters",
+  "emailUpdateFailed": "Invalid email format",
 
   "managePost" : "Manage My Post",
   "myPost" : "My Post",
