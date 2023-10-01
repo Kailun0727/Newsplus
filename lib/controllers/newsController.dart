@@ -1,9 +1,13 @@
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
 import 'dart:math';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
+import 'package:logger/logger.dart';
 import 'package:newsplus/models/ArticleModel.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -28,8 +32,137 @@ class NewsController extends ChangeNotifier {
       _filteredNewsList; // Getter for filteredNewsList
   bool get loadingNews => _loadingNews;
 
+  static final logger = Logger();
+
   // Constructor
   NewsController() {}
+
+
+  static Future<String> extractText(String newsUrl) async{
+    final url = Uri.parse('https://text-extract7.p.rapidapi.com/?url='+newsUrl);
+    final headers = {
+      'content-type': 'application/x-www-form-urlencoded',
+      'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
+      'X-Rapidapi-Host': 'text-extract7.p.rapidapi.com',
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        // Parse the JSON response
+        final jsonResponse = json.decode(response.body);
+
+        // Extract the "trans" field from the JSON
+        final extractedText = jsonResponse['raw_text'];
+
+        // // Get the documents directory
+        // final directory = await getApplicationDocumentsDirectory();
+        //
+        // // Create a File in the documents directory
+        // final File outputFile = File('${directory.path}/extracted_text.txt');
+        //
+        // // Write the extracted text to the file
+        // await outputFile.writeAsString(extractedText);
+        //
+        // // Log the file path where the text is saved
+        // print('Extracted text saved to: ${outputFile.path}');
+
+        // Return the translation
+        return extractedText;
+      } else {
+        // Handle errors here, e.g., print an error message
+        print('Request failed with status: ${response.statusCode}');
+        print('Response: ${response.body}');
+        return 'Extract failed'; // Return a default value or error message
+      }
+    } catch (e) {
+      // Handle exceptions, e.g., network issues
+      print('Error: $e');
+      return 'Extract failed'; // Return a default value or error message
+    }
+  }
+
+
+  static Future<String> summarizeNews(String newsUrl) async {
+    String extractedText = await extractText(newsUrl);
+
+    final url = Uri.parse('https://text-analysis12.p.rapidapi.com/summarize-text/api/v1.1');
+    final headers = {
+      'content-type': 'application/json',
+      'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
+      'X-Rapidapi-Host': 'text-analysis12.p.rapidapi.com',
+    };
+
+    // Use json to encode the object to json format and send it to server
+    final body = json.encode({
+      "language": "english",
+      "summary_percent": 10,
+      "text": extractedText
+    });
+
+      try {
+        final response = await http.post(url, headers: headers, body: body);
+
+        if (response.statusCode == 200) {
+          // Parse the JSON response
+          final jsonResponse = json.decode(response.body);
+
+          // Extract the "trans" field from the JSON
+          final summary = jsonResponse['summary'];
+
+          return summary;
+        } else {
+          // Handle errors here, e.g., print an error message
+          print('Request failed with status: ${response.statusCode}');
+          print('Response: ${response.body}');
+          return 'Summarize failed'; // Return a default value or error message
+        }
+      } catch (e) {
+        // Handle exceptions, e.g., network issues
+        print('Error: $e');
+        return 'Summarize failed'; // Return a default value or error message
+      }
+  }
+
+  static Future<String> translateText(String text, String languageCode) async {
+    final url = Uri.parse(
+        'https://google-translate113.p.rapidapi.com/api/v1/translator/text');
+    final headers = {
+      'content-type': 'application/x-www-form-urlencoded',
+      'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
+      'X-Rapidapi-Host': 'google-translate113.p.rapidapi.com',
+    };
+    final body = {
+      'from': 'auto',
+      'to': languageCode,
+      'text': text, // The text to translate
+    };
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        // Parse the JSON response
+        final jsonResponse = json.decode(response.body);
+
+        // Extract the "trans" field from the JSON
+        final translation = jsonResponse['trans'];
+
+        // Return the translation
+        return translation;
+      } else {
+        // Handle errors here, e.g., print an error message
+        print('Request failed with status: ${response.statusCode}');
+        print('Response: ${response.body}');
+        return 'Translation failed'; // Return a default value or error message
+      }
+    } catch (e) {
+      // Handle exceptions, e.g., network issues
+      print('Error: $e');
+      return 'Translation failed'; // Return a default value or error message
+    }
+  }
 
 
   static Future<void> saveNews(SavedNewsModel model) async {
@@ -196,44 +329,6 @@ class NewsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> translateText(String text) async {
-    final url = Uri.parse(
-        'https://google-translate113.p.rapidapi.com/api/v1/translator/text');
-    final headers = {
-      'content-type': 'application/x-www-form-urlencoded',
-      'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
-      'X-Rapidapi-Host': 'google-translate113.p.rapidapi.com',
-    };
-    final body = {
-      'from': 'auto',
-      'to': 'zh-CN',
-      'text': text, // The text to translate
-    };
-
-    try {
-      final response = await http.post(url, headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        // Parse the JSON response
-        final jsonResponse = json.decode(response.body);
-
-        // Extract the "trans" field from the JSON
-        final translation = jsonResponse['trans'];
-
-        // Return the translation
-        return translation;
-      } else {
-        // Handle errors here, e.g., print an error message
-        print('Request failed with status: ${response.statusCode}');
-        print('Response: ${response.body}');
-        return 'Translation failed'; // Return a default value or error message
-      }
-    } catch (e) {
-      // Handle exceptions, e.g., network issues
-      print('Error: $e');
-      return 'Translation failed'; // Return a default value or error message
-    }
-  }
 
   // Fetch news data and set _newsList and _loadingNews
   Future<void> fetchCategoryNews(String categoryTitle) async {

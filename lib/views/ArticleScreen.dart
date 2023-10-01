@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:logger/logger.dart';
+import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/helper/languageMapper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -74,10 +76,56 @@ class _ArticleScreenState extends State<ArticleScreen> {
     super.initState();
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
+
+    String text = 'Test';
+
+
     return Scaffold(
-      appBar: AppBar(
+
+      floatingActionButton: FloatingActionButton(
+        heroTag: "btn_create",
+        onPressed: () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          String? preferLanguage = prefs.getString('prefer_language') ?? 'English';
+
+          if (preferLanguage != null) {
+            String summarizedText = await NewsController.summarizeNews(widget.url);
+
+            String? languageCode = LanguageMapper.getLanguageCode(preferLanguage);
+
+            String translation = await NewsController.translateText(summarizedText, languageCode!);
+
+            // Show a dialog with the translated text
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("Summary"),
+                  content: Text(translation),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text("Close"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        },
+        child: Icon(Icons.add),
+      ),
+
+
+
+        appBar: AppBar(
         centerTitle: true,
         title: Row(
           children: [
