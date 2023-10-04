@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:newsplus/helper/languageMapper.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'dart:math';
@@ -13,6 +14,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:intl/intl.dart';
+
+
 
 class NewsController extends ChangeNotifier {
   final List<ArticleModel> _newsList = [];
@@ -34,8 +37,10 @@ class NewsController extends ChangeNotifier {
 
   static final logger = Logger();
 
+
   // Constructor
-  NewsController() {}
+  NewsController() {
+  }
 
 
   static Future<String> extractText(String newsUrl) async{
@@ -56,18 +61,6 @@ class NewsController extends ChangeNotifier {
         // Extract the "trans" field from the JSON
         final extractedText = jsonResponse['raw_text'];
 
-        // // Get the documents directory
-        // final directory = await getApplicationDocumentsDirectory();
-        //
-        // // Create a File in the documents directory
-        // final File outputFile = File('${directory.path}/extracted_text.txt');
-        //
-        // // Write the extracted text to the file
-        // await outputFile.writeAsString(extractedText);
-        //
-        // // Log the file path where the text is saved
-        // print('Extracted text saved to: ${outputFile.path}');
-
         // Return the translation
         return extractedText;
       } else {
@@ -84,8 +77,7 @@ class NewsController extends ChangeNotifier {
   }
 
 
-  static Future<String> summarizeNews(String newsUrl) async {
-    String extractedText = await extractText(newsUrl);
+  static Future<String> summarizeNews(String extractedText) async {
 
     final url = Uri.parse('https://text-analysis12.p.rapidapi.com/summarize-text/api/v1.1');
     final headers = {
@@ -97,7 +89,7 @@ class NewsController extends ChangeNotifier {
     // Use json to encode the object to json format and send it to server
     final body = json.encode({
       "language": "english",
-      "summary_percent": 10,
+      "summary_percent": 30,
       "text": extractedText
     });
 
@@ -112,16 +104,19 @@ class NewsController extends ChangeNotifier {
           final summary = jsonResponse['summary'];
 
           return summary;
-        } else {
+        }
+
+        else {
           // Handle errors here, e.g., print an error message
           print('Request failed with status: ${response.statusCode}');
           print('Response: ${response.body}');
-          return 'Summarize failed'; // Return a default value or error message
+
+          return 'Failed to summarize'; // Return a default value or error message
         }
       } catch (e) {
         // Handle exceptions, e.g., network issues
         print('Error: $e');
-        return 'Summarize failed'; // Return a default value or error message
+        return 'Failed to summarize'; // Return a default value or error message
       }
   }
 
@@ -155,6 +150,7 @@ class NewsController extends ChangeNotifier {
         // Handle errors here, e.g., print an error message
         print('Request failed with status: ${response.statusCode}');
         print('Response: ${response.body}');
+        print('Translation failed');
         return 'Translation failed'; // Return a default value or error message
       }
     } catch (e) {
@@ -501,7 +497,7 @@ class NewsController extends ChangeNotifier {
     String selectedCountry = countryList[randomIndex];
 
     final apiUrl = Uri.parse(
-        "https://newsapi.org/v2/top-headlines?country=my&pageSize=100&category=Technology&apiKey=$apiKey");
+        "https://newsapi.org/v2/top-headlines?country=us&pageSize=100&category=Technology&apiKey=$apiKey");
 
     final res = await http.get(apiUrl);
 

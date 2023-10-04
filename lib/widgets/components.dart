@@ -388,7 +388,7 @@ class _NewsCardState extends State<NewsCard> {
 
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? preferLanguage = prefs.getString('prefer_language');
+        String? preferLanguage = prefs.getString('prefer_language') ?? "English";
         String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
 
         print("On tap :"+languageCode.toString());
