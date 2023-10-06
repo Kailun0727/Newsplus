@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:newsplus/controllers/profileController.dart';
+import 'package:newsplus/helper/languageMapper.dart';
 import 'package:newsplus/main.dart';
 import 'package:newsplus/views/UserPost.dart';
 import 'package:newsplus/widgets/components.dart';
@@ -34,7 +35,7 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
   final TextEditingController emailController = TextEditingController();
 
 // Create lists for dropdown menus (preferred language and country/region)
-  final List<String> supportedLanguages = ['English', 'Chinese', 'Malay'];
+  final List<String> supportedLanguages = LanguageMapper.languageMappings.keys.toList();
   final List<String> displayLanguages = ['English', 'Chinese', 'Malay'];
 
 // Initialize variables to store user preferences for language and country
@@ -473,7 +474,7 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            AppLocalizations.of(context)!.translateNewsTo,
+                            AppLocalizations.of(context)!.translateLanguage,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -493,8 +494,6 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                             child: Padding(
                               padding: const EdgeInsets.only(left:8.0),
                               child: DropdownButton<String>(
-
-
 
                                 value: selectedLanguage,
                                 onChanged: (String? newValue) async {

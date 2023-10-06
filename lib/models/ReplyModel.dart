@@ -1,7 +1,7 @@
 class ReplyModel {
   final String replyId;
   final String postId;
-  final String content;
+  String content;
   final String creationDate;
   int likesCount;
   int reportCount;

@@ -67,18 +67,16 @@
   "email" : "Email",
 
   "password" : "Password",
-  "translateNewsTo" : "Translate News To",
-  "displayLanguage" :"Display Language",
+  "translateLanguage": "Translate Language",
+  "displayLanguage":"Display Language",
   "signOut":"Sign Out",
   "usernameHintText": "Enter your new username",
   "passwordHintText": "Enter your new password",
   "emailHintText": "Enter your new email",
   "updateSuccess": "Update successful",
-
   "usernameUpdateFailed": "Username needs to contain at least 3 characters to 20 characters",
   "passwordUpdateFailed": "Password needs to contain at least 6 characters",
   "emailUpdateFailed": "Invalid email format",
-
   "managePost" : "Manage My Post",
   "myPost" : "My Post",
   "edit" : "Edit",
@@ -88,5 +86,8 @@
   "confirmSignOutTitle" : "Confirm Sign Out",
   "confirmSignOutHintText" : "Are you sure you want to sign out?",
   "confirmDeleteTitle" : "Confirm Delete",
-  "confirmDeleteHintText" : "Are you sure you want to delete this post?"
+  "confirmDeleteHintText" : "Are you sure you want to delete this post?",
+  "summary" : "Summary",
+  "translate" : "Translate"
+
 }

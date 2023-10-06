@@ -356,13 +356,13 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
 //News Card
 class NewsCard extends StatefulWidget {
   final imageUrl;
-  final title;
-  final description;
+  String? title;
+  String? description;
   final url;
   final publishedAt;
   final category;
 
-  const NewsCard(
+  NewsCard(
       {Key? key,
       required this.imageUrl,
       required this.title,
@@ -380,6 +380,32 @@ class NewsCard extends StatefulWidget {
 
 class _NewsCardState extends State<NewsCard> {
   bool isSavedToLater = false; // Added state variable
+  String? translatedTitle;
+  String? translatedDescription;
+
+  Future<void> translateTitleAndDescription() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? preferLanguage = prefs.getString('prefer_language') ?? "English";
+    String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
+
+
+    String translateTitle = await NewsController.translate(widget.title,languageCode!.toLowerCase());
+    String translateDescription = await NewsController.translate(widget.description,languageCode!.toLowerCase());
+
+    setState(() {
+      translatedTitle = translateTitle;
+      translatedDescription = translateDescription;
+    });
+  }
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -455,7 +481,8 @@ class _NewsCardState extends State<NewsCard> {
                           Padding(
                             padding: const EdgeInsets.only(left:8.0,right: 8),
                             child: Text(
-                              widget.title,
+                              translatedTitle ??  widget.title!,
+
                               style: const TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
@@ -466,7 +493,7 @@ class _NewsCardState extends State<NewsCard> {
                           Padding(
                             padding: const EdgeInsets.only(left:8.0,right: 8),
                             child: Text(
-                              widget.description,
+                              translatedDescription ?? widget.description!,
                               style: const TextStyle(color: Colors.black54),
                             ),
                           ),
@@ -529,22 +556,24 @@ class _NewsCardState extends State<NewsCard> {
                                 ],
                               ),
                             ),
-                            PopupMenuItem<String>(
-                              value: 'Dislike',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.thumb_down,
-                                      color: Colors.red), // Thumb down icon
-                                  const SizedBox(width: 8.0),
-                                  Text(
-                                    AppLocalizations.of(context)!.fewerStories,
-                                    style: const TextStyle(
-                                      color: Colors.red,
-                                    ),
+                        PopupMenuItem<String>(
+                            value: 'translate', // Add a value for the "Translate" option
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.translate,
+                                  color: Colors.blue, // Set the icon color to blue
+                                ),
+                                const SizedBox(width: 8.0),
+                                Text(
+                                  'Translate', // Add the text for the "Translate" option
+                                  style: const TextStyle(
+                                    color: Colors.blue, // Set the text color to blue
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
+                        )
                           ],
                           onSelected: (value) async {
                             // Handle the selected menu item
@@ -559,8 +588,8 @@ class _NewsCardState extends State<NewsCard> {
                                   String userId = user.uid;
 
                                   SavedNewsModel model = SavedNewsModel(
-                                    title: widget.title,
-                                    description: widget.description,
+                                    title: widget.title!,
+                                    description: widget.description!,
                                     url : widget.url,
                                     imageUrl: widget.imageUrl,
                                     creationDate: DateTime.now().add(const Duration(hours: 8)),
@@ -617,8 +646,9 @@ class _NewsCardState extends State<NewsCard> {
                               ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
 
-                            } else if (value == 'Dislike') {
-                              // Perform action for Fewer Stories Like This
+                            } else if (value == 'translate') {
+                                translateTitleAndDescription();
+
                             }
                           },
                           child: Container(
@@ -654,15 +684,15 @@ class _NewsCardState extends State<NewsCard> {
 
 
 class ReplyCard extends StatefulWidget {
-  final ReplyModel reply;
+  ReplyModel reply;
   final String username;
   final String creationDate;
-  final String content;
+  String content;
   final String photoUrl;
   final ReplyController controller;
   final Function()? onUpdate; // callback function
 
-  const ReplyCard({
+   ReplyCard({
     required this.reply,
     required this.username,
     required this.creationDate,
@@ -680,10 +710,67 @@ class _ReplyCardState extends State<ReplyCard> {
 
   bool isLiked = false;
 
+  bool isReported = false;
+
+  Future<void> translateReply() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? preferLanguage = prefs.getString('prefer_language') ?? "English";
+    String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
+
+    String translateReply = await NewsController.translate(widget.content,languageCode!.toLowerCase());
+
+    setState(() {
+      widget.content = translateReply;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
     final reply = widget.reply; // Access the post from the widget's properties
+
+    void showReportConfirmationDialog(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(AppLocalizations.of(context)!.reportTitle),
+            content: Text(AppLocalizations.of(context)!.reportHintText),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false); // User chose not to report
+                },
+                child: Text(AppLocalizations.of(context)!.reportNo),
+              ),
+              TextButton(
+                onPressed: () async {
+
+                  await widget.controller.updateReplyReportCount(context, reply.postId, reply.replyId, reply.reportCount, isReported);
+
+                  // Toggle the like status
+                  setState(() {
+                    isReported = !isReported;
+                  });
+
+                  // Trigger the refresh callback after successful update
+                  if (widget.onUpdate != null) {
+                    widget.onUpdate!();
+                  }
+
+                  Navigator.of(context).pop(true); // User chose to report
+
+                },
+                child: Text(AppLocalizations.of(context)!.reportYes),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
 
     return Card(
       elevation: 2.0,
@@ -739,7 +826,24 @@ class _ReplyCardState extends State<ReplyCard> {
                     // Handle menu item selection
                     if (value == 'report') {
                       // Handle report action
+                      if (!isReported) {
+                        showReportConfirmationDialog(context);
+                      } else {
+                        // Show a SnackBar message to inform the user
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!.cannotReportAgain),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     }
+
+                    if(value == "translate"){
+                      translateReply();
+                    }
+
+
                   },
                   itemBuilder: (BuildContext context) {
                     return [
@@ -761,6 +865,25 @@ class _ReplyCardState extends State<ReplyCard> {
                           ],
                         ),
                       ),
+                      PopupMenuItem<String>(
+                        value: 'translate', // Add a value for the "Translate" option
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.translate,
+                              color: Colors.blue, // Set the icon color to blue
+                            ),
+                            const SizedBox(width: 8.0),
+                            Text(
+                              AppLocalizations.of(context)!.translate, // Add the text for the "Translate" option
+                              style: const TextStyle(
+                                color: Colors.blue, // Set the text color to blue
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+
                     ];
                   },
                 ),
@@ -837,6 +960,23 @@ class EditPostCard extends StatefulWidget {
 class _EditPostCardState extends State<EditPostCard> {
   bool isLiked = false;
   bool isReported = false;
+
+
+  Future<void> translateTitleAndContent() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? preferLanguage = prefs.getString('prefer_language') ?? "English";
+    String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
+
+
+    String translateTitle = await NewsController.translate(widget.post.title,languageCode!.toLowerCase());
+    String translateContent = await NewsController.translate(widget.post.content,languageCode!.toLowerCase());
+
+    setState(() {
+      widget.post.title = translateTitle;
+      widget.post.content = translateContent;
+    });
+  }
 
   // map communityId values to category names
   String mapCommunityIdToCategory(String communityId) {
@@ -1145,6 +1285,8 @@ class _EditPostCardState extends State<EditPostCard> {
                           } else if (value == 'delete') {
                             // Handle delete action
                             _showDeletePostConfirmationDialog();
+                          }else if(value == "translate"){
+                            translateTitleAndContent();
                           }
                         },
                         itemBuilder: (BuildContext context) {
@@ -1185,6 +1327,25 @@ class _EditPostCardState extends State<EditPostCard> {
                                 ],
                               ),
                             ),
+                            PopupMenuItem<String>(
+                              value: 'translate', // Add a value for the "Translate" option
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.translate,
+                                    color: Colors.blue, // Set the icon color to blue
+                                  ),
+                                  const SizedBox(width: 8.0),
+                                  Text(
+                                    AppLocalizations.of(context)!.translate, // Add the text for the "Translate" option
+                                    style: const TextStyle(
+                                      color: Colors.blue, // Set the text color to blue
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+
                           ];
                         },
                       )
@@ -1235,6 +1396,24 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   bool isLiked = false;
   bool isReported = false;
+
+
+  Future<void> translateTitleAndContent() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? preferLanguage = prefs.getString('prefer_language') ?? "English";
+    String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
+
+
+    String translateTitle = await NewsController.translate(widget.post.title,languageCode!.toLowerCase());
+    String translateContent = await NewsController.translate(widget.post.content,languageCode!.toLowerCase());
+
+    setState(() {
+      widget.post.title = translateTitle;
+      widget.post.content = translateContent;
+    });
+  }
+
 
   // map communityId values to category names
   String mapCommunityIdToCategory(String communityId) {
@@ -1393,6 +1572,10 @@ class _PostCardState extends State<PostCard> {
                                 );
                               }
                             }
+
+                            if(value == "translate"){
+                              translateTitleAndContent();
+                            }
                           },
                           itemBuilder: (BuildContext context) {
                             return [
@@ -1414,6 +1597,25 @@ class _PostCardState extends State<PostCard> {
                                   ],
                                 ),
                               ),
+
+                              PopupMenuItem<String>(
+                                value: 'translate', // Add a value for the "Translate" option
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.translate,
+                                      color: Colors.blue, // Set the icon color to blue
+                                    ),
+                                    const SizedBox(width: 8.0),
+                                    Text(
+                                      AppLocalizations.of(context)!.translate, // Add the text for the "Translate" option
+                                      style: const TextStyle(
+                                        color: Colors.blue, // Set the text color to blue
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
                             ];
                           },
                         ),

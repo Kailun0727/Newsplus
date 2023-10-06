@@ -14,6 +14,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:intl/intl.dart';
+import 'package:translator/translator.dart';
 
 
 
@@ -23,6 +24,7 @@ class NewsController extends ChangeNotifier {
 
   List<SavedNewsModel> _savedNewsList = [];
   List<SavedNewsModel> _filterSavedNewsList = [];
+
 
   bool _loadingNews = true;
   String _filterKeyword = ""; // Store the filter keyword
@@ -42,6 +44,41 @@ class NewsController extends ChangeNotifier {
   NewsController() {
   }
 
+  // static Future<String> extractTextAPI(String newsUrl) async{
+  //   final url = Uri.parse('https://textapis.p.rapidapi.com/text?url='+newsUrl);
+  //   final headers = {
+  //     'content-type': 'application/x-www-form-urlencoded',
+  //     'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
+  //     'X-Rapidapi-Host': 'textapis.p.rapidapi.com',
+  //   };
+  //
+  //   try {
+  //     final response = await http.get(url, headers: headers);
+  //
+  //     if (response.statusCode == 200) {
+  //       // Parse the JSON response
+  //       final jsonResponse = json.decode(response.body);
+  //
+  //       print(jsonResponse);
+  //
+  //       final extractedText = jsonResponse['text'];
+  //
+  //       print(extractedText);
+  //
+  //       // Return the translation
+  //       return extractedText;
+  //     } else {
+  //       // Handle errors here, e.g., print an error message
+  //       print('Request failed with status: ${response.statusCode}');
+  //       print('Response: ${response.body}');
+  //       return 'Extract failed'; // Return a default value or error message
+  //     }
+  //   } catch (e) {
+  //     // Handle exceptions, e.g., network issues
+  //     print('Error: $e');
+  //     return 'Extract failed'; // Return a default value or error message
+  //   }
+  // }
 
   static Future<String> extractText(String newsUrl) async{
     final url = Uri.parse('https://text-extract7.p.rapidapi.com/?url='+newsUrl);
@@ -89,7 +126,7 @@ class NewsController extends ChangeNotifier {
     // Use json to encode the object to json format and send it to server
     final body = json.encode({
       "language": "english",
-      "summary_percent": 30,
+      "summary_percent": 10,
       "text": extractedText
     });
 
@@ -120,45 +157,52 @@ class NewsController extends ChangeNotifier {
       }
   }
 
-  static Future<String> translateText(String text, String languageCode) async {
-    final url = Uri.parse(
-        'https://google-translate113.p.rapidapi.com/api/v1/translator/text');
-    final headers = {
-      'content-type': 'application/x-www-form-urlencoded',
-      'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
-      'X-Rapidapi-Host': 'google-translate113.p.rapidapi.com',
-    };
-    final body = {
-      'from': 'auto',
-      'to': languageCode,
-      'text': text, // The text to translate
-    };
-
-    try {
-      final response = await http.post(url, headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        // Parse the JSON response
-        final jsonResponse = json.decode(response.body);
-
-        // Extract the "trans" field from the JSON
-        final translation = jsonResponse['trans'];
-
-        // Return the translation
-        return translation;
-      } else {
-        // Handle errors here, e.g., print an error message
-        print('Request failed with status: ${response.statusCode}');
-        print('Response: ${response.body}');
-        print('Translation failed');
-        return 'Translation failed'; // Return a default value or error message
-      }
-    } catch (e) {
-      // Handle exceptions, e.g., network issues
-      print('Error: $e');
-      return 'Translation failed'; // Return a default value or error message
-    }
+  static Future<String> translate(String? text, String languageCode) async {
+    final translator = GoogleTranslator();
+    var translation = await translator.translate(text!, to: languageCode);
+    print(translation);
+    return translation.text;
   }
+
+  // static Future<String> translateText(String text, String languageCode) async {
+  //   final url = Uri.parse(
+  //       'https://google-translate113.p.rapidapi.com/api/v1/translator/text');
+  //   final headers = {
+  //     'content-type': 'application/x-www-form-urlencoded',
+  //     'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
+  //     'X-Rapidapi-Host': 'google-translate113.p.rapidapi.com',
+  //   };
+  //   final body = {
+  //     'from': 'auto',
+  //     'to': languageCode,
+  //     'text': text, // The text to translate
+  //   };
+  //
+  //   try {
+  //     final response = await http.post(url, headers: headers, body: body);
+  //
+  //     if (response.statusCode == 200) {
+  //       // Parse the JSON response
+  //       final jsonResponse = json.decode(response.body);
+  //
+  //       // Extract the "trans" field from the JSON
+  //       final translation = jsonResponse['trans'];
+  //
+  //       // Return the translation
+  //       return translation;
+  //     } else {
+  //       // Handle errors here, e.g., print an error message
+  //       print('Request failed with status: ${response.statusCode}');
+  //       print('Response: ${response.body}');
+  //       print('Translation failed');
+  //       return 'Translation failed'; // Return a default value or error message
+  //     }
+  //   } catch (e) {
+  //     // Handle exceptions, e.g., network issues
+  //     print('Error: $e');
+  //     return 'Translation failed'; // Return a default value or error message
+  //   }
+  // }
 
 
   static Future<void> saveNews(SavedNewsModel model) async {
@@ -374,47 +418,6 @@ class NewsController extends ChangeNotifier {
             urlToImage: data['urlToImage'],
           );
           _newsList.add(mArticleModel);
-        } else {
-          // If any of the fields is null, assign default values
-          String inputDateString = data['publishedAt'];
-
-          DateTime dateTime = DateTime.parse(inputDateString);
-
-          String formattedDate =
-              "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
-
-          ArticleModel mArticleModel = ArticleModel(
-            title: data['title'],
-            publishedAt: formattedDate,
-            url: data['url'],
-          );
-
-          if (data['urlToImage'] == null) {
-            // If urlToImage is null, assign a default image URL
-            mArticleModel.urlToImage =
-                'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png';
-          } else {
-            // If urlToImage is not null, use the original value
-            mArticleModel.urlToImage = data['urlToImage'];
-          }
-
-          if (data['description'] == null) {
-            // If description is null, assign a default description
-            mArticleModel.description = 'Click the news for more details.';
-          } else {
-            // If description is not null, use the original value
-            mArticleModel.description = data['description'];
-          }
-
-          if (data['content'] == null) {
-            // If content is null, assign a default content
-            mArticleModel.content = 'Click the news for more details.';
-          } else {
-            // If content is not null, use the original value
-            mArticleModel.content = data['content'];
-          }
-
-          _newsList.add(mArticleModel);
         }
       }
     }
@@ -435,69 +438,8 @@ class NewsController extends ChangeNotifier {
       return; // Return early if the API key is missing or empty
     }
 
-    List<String> countryList = [
-      'ae',
-      'ar',
-      'at',
-      'au',
-      'be',
-      'bg',
-      'br',
-      'ca',
-      'ch',
-      'cn',
-      'co',
-      'cu',
-      'cz',
-      'de',
-      'eg',
-      'fr',
-      'gb',
-      'gr',
-      'hk',
-      'hu',
-      'id',
-      'ie',
-      'il',
-      'in',
-      'it',
-      'jp',
-      'kr',
-      'lt',
-      'lv',
-      'ma',
-      'mx',
-      'my',
-      'ng',
-      'nl',
-      'no',
-      'nz',
-      'ph',
-      'pl',
-      'pt',
-      'ro',
-      'rs',
-      'ru',
-      'sa',
-      'se',
-      'sg',
-      'si',
-      'sk',
-      'th',
-      'tr',
-      'tw',
-      'ua',
-      'us',
-      've',
-      'za'
-    ];
-
-    Random random = Random();
-    int randomIndex = random.nextInt(countryList.length);
-    String selectedCountry = countryList[randomIndex];
-
     final apiUrl = Uri.parse(
-        "https://newsapi.org/v2/top-headlines?country=us&pageSize=100&category=Technology&apiKey=$apiKey");
+        "https://newsapi.org/v2/top-headlines?country=us&pageSize=100&category=$categoryTitle&apiKey=$apiKey");
 
     final res = await http.get(apiUrl);
 
@@ -526,76 +468,8 @@ class NewsController extends ChangeNotifier {
             urlToImage: data['urlToImage'],
           );
           _newsList.add(mArticleModel);
-        } else {
-          // If any of the fields is null, assign default values
-          String inputDateString = data['publishedAt'];
-
-          DateTime dateTime = DateTime.parse(inputDateString);
-
-          String formattedDate =
-              "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
-
-          ArticleModel mArticleModel = ArticleModel(
-            title: data['title'],
-            publishedAt: formattedDate,
-            url: data['url'],
-          );
-
-          if (data['urlToImage'] == null) {
-            // If urlToImage is null, assign a default image URL
-            mArticleModel.urlToImage =
-                'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png';
-          } else {
-            // If urlToImage is not null, use the original value
-            mArticleModel.urlToImage = data['urlToImage'];
-          }
-
-          if (data['description'] == null) {
-            // If description is null, assign a default description
-            mArticleModel.description = 'Click the news for more details.';
-          } else {
-            // If description is not null, use the original value
-            mArticleModel.description = data['description'];
-          }
-
-          if (data['content'] == null) {
-            // If content is null, assign a default content
-            mArticleModel.content = 'Click the news for more details.';
-          } else {
-            // If content is not null, use the original value
-            mArticleModel.content = data['content'];
-          }
-
-          _newsList.add(mArticleModel);
         }
       }
-
-      // json['articles'].forEach((data) async {
-      //   if (data['urlToImage'] != null && data['description'] != null && data['content'] != null) {
-      //
-      //     String inputDateString = data['publishedAt'];
-      //
-      //     String translatedText = await translateText(data['title']);
-      //
-      //
-      //     // Parse the input string into a DateTime object
-      //     DateTime dateTime = DateTime.parse(inputDateString);
-      //
-      //     // Format the DateTime object into the desired format (YYYY-MM-dd)
-      //     String formattedDate = "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
-      //
-      //     ArticleModel mArticleModel = ArticleModel(
-      //       author: data['author'],
-      //       description: data['description'],
-      //       title: data['title'],
-      //       content: data['content'],
-      //       publishedAt: formattedDate,
-      //       url: data['url'],
-      //       urlToImage: data['urlToImage'],
-      //     );
-      //     _newsList.add(mArticleModel);
-      //   }
-      // });
     }
 
     _loadingNews = false;

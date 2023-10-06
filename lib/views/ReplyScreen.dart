@@ -2,12 +2,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/controllers/replyController.dart';
+import 'package:newsplus/helper/languageMapper.dart';
 import 'package:newsplus/models/PostModel.dart';
 import 'package:newsplus/models/ReplyModel.dart';
 import 'package:newsplus/widgets/components.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class ReplyScreen extends StatefulWidget {
@@ -37,6 +40,23 @@ class _ReplyScreenState extends State<ReplyScreen> {
       loading = false;
     });
 
+  }
+
+  Future<void> translatePost() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? preferLanguage = prefs.getString('prefer_language') ?? "English";
+    String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
+
+    String translatePostContent = await NewsController.translate(widget.post.content,languageCode!.toLowerCase());
+    String translatePostTitle = await NewsController.translate(widget.post.title,languageCode!.toLowerCase());
+
+
+    setState(() {
+      widget.post.content = translatePostContent;
+      widget.post.title = translatePostTitle;
+
+    });
   }
 
 
@@ -190,8 +210,32 @@ class _ReplyScreenState extends State<ReplyScreen> {
                                 ),
 
                                 SizedBox(
-                                  height: 20,
+                                  height: 10,
                                 ),
+
+                                Padding(
+                                  padding: const EdgeInsets.only(left:8.0),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      // Your translation logic here
+                                      translatePost();
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Colors.transparent, // Set the button's background color to transparent
+                                      elevation: 0, // Remove the button's shadow
+                                      padding: EdgeInsets.zero, // Remove padding
+                                    ),
+                                    child: Text(
+                                      AppLocalizations.of(context)!.translate,
+                                      style: TextStyle(
+                                        color: Colors.blue, // Set the text color to blue
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+
+
                                 Divider(
                                     color: Colors.black12,
                                     thickness: 4), // Add a grey divider

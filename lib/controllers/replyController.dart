@@ -34,21 +34,22 @@ class ReplyController extends ChangeNotifier {
       if (replyMap is Map) {
         replyMap.forEach((key, replyData) {
           // Convert the data to a ReplyModel
-          ReplyModel reply = ReplyModel(
-            replyId: replyData['replyId'],
-            postId: replyData['postId'],
-            content: replyData['content'],
-            creationDate: replyData['creationDate'],
-            likesCount: replyData['likesCount'],
-            reportCount: replyData['reportCount'],
-            hidden: replyData['hidden'],
-            userId: replyData['userId'],
-            username: replyData['username'],
-            photoUrl:  replyData['photoUrl'],
-          );
-
-          // Add the reply to the list
-          _mReplyList.insert(0, reply);
+          if(replyData['hidden'] != true){
+            ReplyModel reply = ReplyModel(
+              replyId: replyData['replyId'],
+              postId: replyData['postId'],
+              content: replyData['content'],
+              creationDate: replyData['creationDate'],
+              likesCount: replyData['likesCount'],
+              reportCount: replyData['reportCount'],
+              hidden: replyData['hidden'],
+              userId: replyData['userId'],
+              username: replyData['username'],
+              photoUrl:  replyData['photoUrl'],
+            );
+            // Add the reply to the list
+            _mReplyList.insert(0, reply);
+          }
         });
 
         // Sort the list by likesCount in descending order (highest likesCount first)
@@ -207,7 +208,7 @@ class ReplyController extends ChangeNotifier {
 
   Future<void> updateReplyReportCount(BuildContext context, String postId, String replyId, int reportCount, bool isReported) async {
     // Define a reference to the Firebase Realtime Database for replies
-    DatabaseReference ref = FirebaseDatabase.instance.ref().child('post').child(postId).child('replies').child(replyId);
+    DatabaseReference ref = FirebaseDatabase.instance.ref().child('reply').child(replyId);
 
     int updatedReportCount = ++reportCount;
 

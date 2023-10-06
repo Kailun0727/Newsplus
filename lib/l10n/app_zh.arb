@@ -65,7 +65,7 @@
   "username": "用户名",
   "email": "电子邮件",
   "password": "密码",
-  "translateNewsTo": "翻译新闻至",
+  "translateLanguage": "翻译语言",
   "displayLanguage": "显示语言",
   "signOut": "登出",
   "usernameHintText": "输入您的新用户名",
@@ -84,5 +84,7 @@
   "confirmSignOutTitle": "确认登出",
   "confirmSignOutHintText": "您确定要退出登录吗？",
   "confirmDeleteTitle" : "确认删除",
-  "confirmDeleteHintText" : "您确定要删除此帖子吗？"
+  "confirmDeleteHintText" : "您确定要删除此帖子吗？",
+  "summary": "摘要",
+  "translate": "翻译"
 }

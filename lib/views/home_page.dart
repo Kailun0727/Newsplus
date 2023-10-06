@@ -24,6 +24,9 @@ class _HomePageState extends State<HomePage> {
   bool isFilterApplied = false;
 
   bool isFABVisible = false;
+
+  bool isSearch = false;
+
   final ScrollController _scrollController = ScrollController();
 
   NewsController newsController = NewsController();
@@ -50,6 +53,9 @@ class _HomePageState extends State<HomePage> {
 
 // To set the 'category' variable, you need to await the result of the Future.
   Future<void> getCategory() async {
+
+
+
     category = await getPreferCategory();
     print("getCategory call first : " + category);
   }
@@ -219,6 +225,8 @@ class _HomePageState extends State<HomePage> {
 
   void _searchNews(String keyword) async {
     setState(() {
+      isSearch = true;
+
       loadingNews =
           true; // Set loadingNews to true while fetching search results
     });
@@ -273,15 +281,9 @@ class _HomePageState extends State<HomePage> {
 
 
   initializeNews(String categoryTitle) async {
-    // News defaultNews = News();
-    // await defaultNews.getNewsData();
-    // mArticleList = defaultNews.newsList;
-
-
 
     await newsController
         .fetchNewsData(categoryTitle); // Use the NewsController to fetch news data
-
 
     if(mounted){
       setState(() {
@@ -295,8 +297,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
 
     mCategoryList = getCategories(); // Initialize mCategoryList here
-
-
 
     return Scaffold(
       floatingActionButton: Visibility(
@@ -447,10 +447,18 @@ class _HomePageState extends State<HomePage> {
                     Padding(
                       padding: const EdgeInsets.only(left:8.0),
                       child: Text(
+
+
+
                         (isFilterApplied
                             ? AppLocalizations.of(context)!.filterResults + " : " + newsController.filteredNewsList.length
                             .toString()
-                            : AppLocalizations.of(context)!.totalResults + " : "+ newsController.newsList.length.toString())
+                            :
+
+        (!isSearch ? "Recommended News : " + newsController.newsList.length.toString() :   AppLocalizations.of(context)!.totalResults + " : "+ newsController.newsList.length.toString())
+
+
+                        )
 
                            ,
                         style: TextStyle(
@@ -472,6 +480,7 @@ class _HomePageState extends State<HomePage> {
                                 .length, // Use filteredNewsList if a filter is applied
                         scrollDirection: Axis.vertical,
                         itemBuilder: (context, index) {
+
                           return NewsCard(
                             // should retrieve prefer category from shared preference, but now i just set to general
                             category: category.toString(),

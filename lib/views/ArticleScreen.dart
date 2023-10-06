@@ -8,15 +8,17 @@ import 'package:logger/logger.dart';
 import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/helper/languageMapper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class ArticleScreen extends StatefulWidget {
-
   final String languageCode;
 
   String url;
 
   // Named constructor that takes a parameter
-  ArticleScreen({Key? key, required this.url, required this.languageCode}) : super(key: key);
+  ArticleScreen({Key? key, required this.url, required this.languageCode})
+      : super(key: key);
 
   @override
   _ArticleScreenState createState() => _ArticleScreenState();
@@ -27,7 +29,9 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   bool _isLoading = true; // Add this variable
 
-  String transformUrl(String inputUrl){
+  StreamController<bool> shouldPlayStream = StreamController<bool>();
+
+  String transformUrl(String inputUrl) {
     // Split the input URL by '/'
     List<String> urlParts = inputUrl.split('/');
 
@@ -43,64 +47,33 @@ class _ArticleScreenState extends State<ArticleScreen> {
         transformedUrl += '/${urlParts[i]}';
       }
 
-
-
       if (transformedUrl.contains('?')) {
         // The transformedUrl contains the '?' symbol
         return transformedUrl +
-            '&_x_tr_sl=auto&_x_tr_tl='+ widget.languageCode  +'&_x_tr_hl=en-US&_x_tr_pto=wapp';
+            '&_x_tr_sl=auto&_x_tr_tl=' +
+            widget.languageCode +
+            '&_x_tr_hl=en-US&_x_tr_pto=wapp';
       } else {
         // The transformedUrl does not contain the '?' symbol
         return transformedUrl +
-            '?_x_tr_sl=auto&_x_tr_tl='+ widget.languageCode  +'&_x_tr_hl=en-US&_x_tr_pto=wapp';
+            '?_x_tr_sl=auto&_x_tr_tl=' +
+            widget.languageCode +
+            '&_x_tr_hl=en-US&_x_tr_pto=wapp';
       }
-
-
     } else {
       // If the URL doesn't have at least 4 parts, return it as is
       return inputUrl;
     }
   }
 
-  String extractUrlFromText(String text) {
-    // Define a regular expression pattern to match "Google NewsOpening" and capture the URL
-    final pattern = RegExp(r'Google NewsOpening (.+?) ');
-
-    // Search for the pattern in the text
-    final match = pattern.firstMatch(text);
-
-    if (match != null) {
-      // Extract the captured URL (group 1)
-      final url = match.group(1);
-
-      if (url != null) {
-        // Remove any leading and trailing whitespaces
-        return url.trim();
-      }
-    }
-
-    // Return an empty string if no URL is found
-    return '';
-  }
-
-  final FlutterTts flutterTts = FlutterTts(); // Define flutterTts at the class level
-
-
+  final FlutterTts flutterTts =
+      FlutterTts(); // Define flutterTts at the class level
 
   Future<void> initTts(String languageCode) async {
-    await flutterTts.setLanguage(languageCode); // Set the initial language (you can change this)
-
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // String? preferLanguage = prefs.getString('prefer_language') ?? 'English';
-    // if (preferLanguage != null) {
-    //   String? languageCode = LanguageMapper.getLanguageCode(preferLanguage);
-    //
-    //
-    // }
-
+    await flutterTts.setLanguage(languageCode); // Set the initial language
   }
 
-   Future<void> speakContent(String content) async {
+  Future<void> speakContent(String content) async {
     await flutterTts.speak(content);
   }
 
@@ -117,13 +90,12 @@ class _ArticleScreenState extends State<ArticleScreen> {
     return chunks;
   }
 
-
-
-
   @override
-  void dispose() async{
-
+  void dispose() async {
     super.dispose();
+    stopSpeaking();
+    await flutterTts.stop();
+
   }
 
   @override
@@ -133,16 +105,18 @@ class _ArticleScreenState extends State<ArticleScreen> {
     initTts(widget.languageCode);
   }
 
+  bool shouldContinue = true;
 
-
+  void stopSpeaking() {
+    shouldContinue = false;
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    bool isTtsPaused = false; // Initially, TTS is not paused
+
 
     return Scaffold(
-
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -150,25 +124,27 @@ class _ArticleScreenState extends State<ArticleScreen> {
             heroTag: "btn_summary",
             onPressed: () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
-              String? preferLanguage = prefs.getString('prefer_language') ?? 'English';
-
-
+              String? preferLanguage =
+                  prefs.getString('prefer_language') ?? 'English';
               if (preferLanguage != null) {
+                // String extractedText = await NewsController.extractTextAPI(widget.url);
+                String extractedText =
+                    await NewsController.extractText(widget.url);
 
+                String summary =
+                    await NewsController.summarizeNews(extractedText);
 
-                String extractedText = await NewsController.extractText(widget.url);
+                String? languageCode =
+                    LanguageMapper.getLanguageCode(preferLanguage);
 
-                String summary = await NewsController.summarizeNews(extractedText);
-
-                String? languageCode = LanguageMapper.getLanguageCode(preferLanguage);
-
-                String translation = await NewsController.translateText(summary, languageCode!);
+                String translation = await NewsController.translate(
+                    summary, languageCode!.toLowerCase());
 
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text("Summary"),
+                      title: Text(AppLocalizations.of(context)!.summary),
                       content: SingleChildScrollView(
                         child: (extractedText == "Extract failed"
                             ? Text("This site does not support summarization")
@@ -176,7 +152,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
                       ),
                       actions: <Widget>[
                         TextButton(
-                          child: Text("Close"),
+                          child: Text(AppLocalizations.of(context)!.cancelButtonText),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
@@ -187,47 +163,58 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 );
               }
             },
-            child: Icon(Icons.add),
+            child: Icon(Icons.description),
+          ),
+          SizedBox(
+            height: 20,
           ),
 
-          SizedBox(height: 20,),
-
           FloatingActionButton(
-              onPressed: () async {
-                String extractedText = await NewsController.extractText(widget.url);
+            heroTag: "btn_speak",
+            onPressed: () async {
 
-                // Split the extracted text into sentences
-                List<String> sentences = extractedText.split('. '); // Split by sentences (you might need a more robust sentence splitting logic)
+              shouldContinue = true; //
 
-                // Define a function to speak each sentence with completion await
-                Future<void> speakWithCompletion(int index) async {
-                  if (index < sentences.length) {
-                    // Speak the current sentence
-                    await flutterTts.speak(sentences[index]);
+              shouldPlayStream?.add(true);
 
-                    // Wait for the TTS to complete speaking the current sentence
-                    await flutterTts.awaitSpeakCompletion(true);
+              String extractedText = await NewsController.extractText(widget.url);
+              List<String> sentences = extractedText.split('. ');
 
-                    // Move to the next sentence
-                    await speakWithCompletion(index + 1);
-                  }
+              for (int index = 0; index < sentences.length; index++) {
+                if (!shouldContinue) {
+                  break;
                 }
 
-                // Start speaking sentences from the beginning
-                await speakWithCompletion(0);
-              },
+                String translate = await NewsController.translate(sentences[index],widget.languageCode.toLowerCase());
 
-
-              child: Icon(Icons.volume_up), // You can use a speaker icon or any other appropriate icon
+                await flutterTts.speak(translate);
+                await flutterTts.awaitSpeakCompletion(true);
+              }
+            },
+            child: Icon(Icons.volume_up),
             tooltip: "Read Content",
-          )
+          ),
+
+          SizedBox(
+            height: 20,
+          ),
+
+          FloatingActionButton(
+            heroTag: "btn_pause",
+            onPressed: () async {
+              await flutterTts.stop();
+              shouldPlayStream?.add(false);
+              stopSpeaking();
+            },
+            child: Icon(Icons.pause),
+            tooltip: "Pause",
+          ),
+
+
 
         ],
       ),
-
-
-
-        appBar: AppBar(
+      appBar: AppBar(
         centerTitle: true,
         title: Row(
           children: [
@@ -284,38 +271,27 @@ class _ArticleScreenState extends State<ArticleScreen> {
       body: Stack(
         children: [
           InAppWebView(
-            shouldOverrideUrlLoading:
-                (controller, navigationAction) async {
-
+            shouldOverrideUrlLoading: (controller, navigationAction) async {
               return NavigationActionPolicy.ALLOW;
             },
-
             initialUrlRequest:
-            URLRequest(url: Uri.parse(transformUrl(widget.url))),
-
+                URLRequest(url: Uri.parse(transformUrl(widget.url))),
             initialOptions: InAppWebViewGroupOptions(
               android: AndroidInAppWebViewOptions(
                 useWideViewPort: true,
                 useOnRenderProcessGone: true,
-
-
               ),
               ios: IOSInAppWebViewOptions(
                 allowsInlineMediaPlayback: true,
               ),
-
-
-
             ),
             onWebViewCreated: (controller) {
               _webViewController = controller;
             },
-
             onLoadError: (controller, url, code, message) {
               print("Error loading web page: $message");
               // Handle the error here or take appropriate action
             },
-
             onLoadStart: (controller, url) {
               // print("Current URL :" + widget.url);
               // Intercept the URL and set it as the current URL
@@ -323,20 +299,16 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 _isLoading = true; // Start loading
               });
 
-              print("On Load Start : " + widget.url);
-
+              print("On Load Start ");
             },
             onLoadStop: (controller, url) {
-
               setState(() {
                 _isLoading = false; // Stop loading
               });
 
-              print("On Load Stop : " + widget.url);
+              print("On Load Stop");
             },
           ),
-
-
           if (_isLoading)
             Center(
               child: CircularProgressIndicator(), // Show a loading indicator
