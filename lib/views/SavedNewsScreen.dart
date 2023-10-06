@@ -58,8 +58,6 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
     // TODO: implement initState
     super.initState();
 
-    logEvent();
-
     getSavedNews();
 
     _scrollController.addListener(() {

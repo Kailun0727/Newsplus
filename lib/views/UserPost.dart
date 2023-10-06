@@ -1,4 +1,5 @@
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/postController.dart';
@@ -15,6 +16,8 @@ class UserPost extends StatefulWidget {
 }
 
 class _UserPostState extends State<UserPost> {
+
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   final PostController postController = PostController();
 
@@ -209,6 +212,15 @@ class _UserPostState extends State<UserPost> {
                                   displayName,
                                   selectedCategory,
                                 );
+
+                                await analytics.logEvent(
+                                  name: 'create_post',
+                                  parameters: <String, dynamic>{
+                                    'post_title': title,
+                                    'post_content': postText,
+                                  },
+                                );
+
                               }
                               Navigator.pop(context);
 

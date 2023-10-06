@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/postController.dart';
@@ -16,6 +17,8 @@ class CommunityScreen extends StatefulWidget {
 
 class _CommunityScreenState extends State<CommunityScreen> {
   List<CommunityModel> communityList = [];
+
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -164,6 +167,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
     // Perform the search
     await postController.searchPost(keyword);
 
+    await analytics.logEvent(
+      name: 'search_post',
+      parameters: <String, dynamic>{
+        'keyword': keyword,
+      },
+    );
+
     setState(() {
       loading =
           false; // Set loadingNews to false when the search results are available
@@ -308,6 +318,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   user.uid,
                                   displayName,
                                   selectedCategory,
+                                );
+
+                                await analytics.logEvent(
+                                  name: 'create_post',
+                                  parameters: <String, dynamic>{
+                                    'post_title': title,
+                                    'post_content': postText,
+                                  },
                                 );
                               }
                               Navigator.pop(context);

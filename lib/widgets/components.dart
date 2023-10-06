@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -166,6 +167,8 @@ class SavedNewsCard extends StatefulWidget {
 
 class _SavedNewsCardState extends State<SavedNewsCard> {
 
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
 
   void _handleRemove() async {
     try {
@@ -192,8 +195,6 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? preferLanguage = prefs.getString('prefer_language');
         String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
-
-        print("On tap :"+languageCode.toString());
 
         Navigator.push(
           context,
@@ -317,8 +318,23 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
 
                             if (value == 'Share') {
                               // Perform action for Share
+
+                              await analytics.logEvent(
+                                name: 'share_news',
+                                parameters: <String, dynamic>{
+                                  'share_news_url': widget.url,
+                                },
+                              );
+
                               Share.share(widget.url);
                             } else if (value == 'Remove') {
+                              await analytics.logEvent(
+                                name: 'remove_news',
+                                parameters: <String, dynamic>{
+                                  'news_title': widget.title,
+                                },
+                              );
+
                                _handleRemove();
                             }
                           },
@@ -383,6 +399,9 @@ class _NewsCardState extends State<NewsCard> {
   String? translatedTitle;
   String? translatedDescription;
 
+  // Initialize Firebase Analytics
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
   Future<void> translateTitleAndDescription() async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -412,12 +431,16 @@ class _NewsCardState extends State<NewsCard> {
     return GestureDetector(
       onTap: () async {
 
+        await analytics.logEvent(
+          name: 'view_news',
+          parameters: <String, dynamic>{
+            'news_title': widget.title,
+          },
+        );
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? preferLanguage = prefs.getString('prefer_language') ?? "English";
         String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
-
-        print("On tap :"+languageCode.toString());
 
         Navigator.push(
           context,
@@ -579,8 +602,24 @@ class _NewsCardState extends State<NewsCard> {
                             // Handle the selected menu item
                             if (value == 'Share') {
                               // Perform action for Share
+
+                              await analytics.logEvent(
+                                name: 'share_news',
+                                parameters: <String, dynamic>{
+                                  'share_news_url': widget.url,
+                                },
+                              );
+
                               Share.share(widget.url);
                             } else if (value == 'Save') {
+
+                              await analytics.logEvent(
+                                name: 'save_news',
+                                parameters: <String, dynamic>{
+                                  'news_title': widget.title,
+                                },
+                              );
+
                               if (!isSavedToLater) {
                                 final user = FirebaseAuth.instance.currentUser;
 
@@ -631,6 +670,14 @@ class _NewsCardState extends State<NewsCard> {
                                     .showSnackBar(snackBar);
                               }
                             } else if (value == 'Like') {
+
+                              await analytics.logEvent(
+                                name: 'recommend_category',
+                                parameters: <String, dynamic>{
+                                  'category': widget.category,
+                                },
+                              );
+
                               // Perform action for More Stories Like This
                               // Store the widget.category using shared preferences
                               SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -647,6 +694,14 @@ class _NewsCardState extends State<NewsCard> {
 
 
                             } else if (value == 'translate') {
+
+                              await analytics.logEvent(
+                                name: 'translate_news',
+                                parameters: <String, dynamic>{
+                                  'news_title': widget.title,
+                                },
+                              );
+
                                 translateTitleAndDescription();
 
                             }
@@ -712,6 +767,8 @@ class _ReplyCardState extends State<ReplyCard> {
 
   bool isReported = false;
 
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
   Future<void> translateReply() async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -747,6 +804,14 @@ class _ReplyCardState extends State<ReplyCard> {
               ),
               TextButton(
                 onPressed: () async {
+
+                  await analytics.logEvent(
+                    name: 'report_reply',
+                    parameters: <String, dynamic>{
+                      'reply_id': widget.reply.replyId,
+                    },
+                  );
+
 
                   await widget.controller.updateReplyReportCount(context, reply.postId, reply.replyId, reply.reportCount, isReported);
 
@@ -822,7 +887,7 @@ class _ReplyCardState extends State<ReplyCard> {
                 ),
                 // Kebab Menu
                 PopupMenuButton<String>(
-                  onSelected: (value) {
+                  onSelected: (value) async {
                     // Handle menu item selection
                     if (value == 'report') {
                       // Handle report action
@@ -840,6 +905,13 @@ class _ReplyCardState extends State<ReplyCard> {
                     }
 
                     if(value == "translate"){
+                      await analytics.logEvent(
+                        name: 'translate_reply',
+                        parameters: <String, dynamic>{
+                          'reply_content': widget.content,
+                        },
+                      );
+
                       translateReply();
                     }
 
@@ -907,6 +979,14 @@ class _ReplyCardState extends State<ReplyCard> {
                     ElevatedButton.icon(
                       onPressed: () async {
 
+                        await analytics.logEvent(
+                          name: 'like__reply',
+                          parameters: <String, dynamic>{
+                            'reply_like_count': reply.likesCount,
+                          },
+                        );
+
+
                         await widget.controller.updateLikesCount(reply.replyId, reply.likesCount, isLiked);
 
                         // Toggle the like status
@@ -961,8 +1041,10 @@ class _EditPostCardState extends State<EditPostCard> {
   bool isLiked = false;
   bool isReported = false;
 
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   Future<void> translateTitleAndContent() async {
+
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? preferLanguage = prefs.getString('prefer_language') ?? "English";
@@ -971,6 +1053,14 @@ class _EditPostCardState extends State<EditPostCard> {
 
     String translateTitle = await NewsController.translate(widget.post.title,languageCode!.toLowerCase());
     String translateContent = await NewsController.translate(widget.post.content,languageCode!.toLowerCase());
+
+    await analytics.logEvent(
+      name: 'translate_post',
+      parameters: <String, dynamic>{
+        'post_title': widget.post.title,
+        'post_content' : widget.post.content
+      },
+    );
 
     setState(() {
       widget.post.title = translateTitle;
@@ -1123,7 +1213,16 @@ class _EditPostCardState extends State<EditPostCard> {
                                 final user = FirebaseAuth.instance.currentUser;
 
                                 if (user != null) {
+
                                   await widget.controller.editPost(widget.post.postId, title, postText, selectedCategory);
+
+                                  await analytics.logEvent(
+                                    name: 'edit_post',
+                                    parameters: <String, dynamic>{
+                                      'post_title': widget.post.title,
+                                      'post_content': widget.post.content,
+                                    },
+                                  );
                                 }
 
                                 Navigator.pop(context);
@@ -1180,6 +1279,13 @@ class _EditPostCardState extends State<EditPostCard> {
                 onPressed: () async {
 
                   await widget.controller.deletePost(widget.post.postId);
+
+                  await analytics.logEvent(
+                    name: 'delete_post',
+                    parameters: <String, dynamic>{
+                      'post_id': widget.post.postId
+                    },
+                  );
 
                   Navigator.pop(context);
 
@@ -1397,6 +1503,7 @@ class _PostCardState extends State<PostCard> {
   bool isLiked = false;
   bool isReported = false;
 
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   Future<void> translateTitleAndContent() async {
 
@@ -1404,9 +1511,16 @@ class _PostCardState extends State<PostCard> {
     String? preferLanguage = prefs.getString('prefer_language') ?? "English";
     String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
 
-
     String translateTitle = await NewsController.translate(widget.post.title,languageCode!.toLowerCase());
     String translateContent = await NewsController.translate(widget.post.content,languageCode!.toLowerCase());
+
+    await analytics.logEvent(
+      name: 'translate_post',
+      parameters: <String, dynamic>{
+        'post_title': widget.post.title,
+        'post_content': widget.post.content,
+      },
+    );
 
     setState(() {
       widget.post.title = translateTitle;
@@ -1457,6 +1571,13 @@ class _PostCardState extends State<PostCard> {
               ),
               TextButton(
                 onPressed: () async {
+
+                  await analytics.logEvent(
+                    name: 'report_post',
+                    parameters: <String, dynamic>{
+                      'report_post_id': widget.post.postId,
+                    },
+                  );
 
                   await widget.controller.updateReportCount(context,post.postId, post.reportCount, isReported);
 

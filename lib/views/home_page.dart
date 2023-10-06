@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
 import 'package:newsplus/controllers/profileController.dart';
@@ -17,7 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<CategoryModel> mCategoryList = [];
 
-  // List<ArticleModel> mArticleList = [];
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   bool loadingNews = true;
 
@@ -233,6 +234,13 @@ class _HomePageState extends State<HomePage> {
 
     // Perform the search
     await newsController.searchNews(keyword);
+
+    await analytics.logEvent(
+      name: 'search_news',
+      parameters: <String, dynamic>{
+        'keyword': keyword,
+      },
+    );
 
     setState(() {
       loadingNews =

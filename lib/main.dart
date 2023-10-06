@@ -40,8 +40,6 @@ Future<void> main() async{
 
   print('Connected to firebase');
 
-
-
   runApp(
     MultiProvider(
       providers: [

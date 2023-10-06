@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -26,6 +27,8 @@ class ArticleScreen extends StatefulWidget {
 
 class _ArticleScreenState extends State<ArticleScreen> {
   late InAppWebViewController _webViewController;
+
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   bool _isLoading = true; // Add this variable
 
@@ -140,6 +143,14 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 String translation = await NewsController.translate(
                     summary, languageCode!.toLowerCase());
 
+                await analytics.logEvent(
+                  name: 'summary_news',
+                  parameters: <String, dynamic>{
+                    'summary': summary,
+                  },
+                );
+
+
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -173,6 +184,13 @@ class _ArticleScreenState extends State<ArticleScreen> {
             heroTag: "btn_speak",
             onPressed: () async {
 
+              await analytics.logEvent(
+                name: 'start_tts',
+                parameters: <String, dynamic>{
+                  'start': true,
+                },
+              );
+
               shouldContinue = true; //
 
               shouldPlayStream?.add(true);
@@ -205,6 +223,14 @@ class _ArticleScreenState extends State<ArticleScreen> {
               await flutterTts.stop();
               shouldPlayStream?.add(false);
               stopSpeaking();
+
+              await analytics.logEvent(
+                name: 'pause_tts',
+                parameters: <String, dynamic>{
+                  'pause': true,
+                },
+              );
+
             },
             child: Icon(Icons.pause),
             tooltip: "Pause",

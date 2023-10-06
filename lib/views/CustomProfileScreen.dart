@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -26,6 +27,8 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
   bool isEditingPassword = false;
   bool isEditingEmail = false;
 
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
 
   final ProfileController profileController = ProfileController();
 
@@ -50,7 +53,6 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
       selectedDisplayLanguage = prefs.getString('display_language') ?? 'English';
     });
   }
-
 
 
   @override
@@ -119,6 +121,14 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                             try {
                               final user = FirebaseAuth.instance.currentUser;
                               if (user != null) {
+
+                                await analytics.logEvent(
+                                  name: 'update_photo',
+                                  parameters: <String, dynamic>{
+                                    'photo_url': image,
+                                  },
+                                );
+
                                 await user.updatePhotoURL(image);
                                 // Refresh the user object to reflect the changes
                                 await user.reload();
@@ -206,9 +216,19 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                               ),
                               onPressed: () async {
 
+
+
                                 bool updateSuccess = await profileController.updateUsername(usernameController.text.toString());
 
                                 if (updateSuccess) {
+
+                                  await analytics.logEvent(
+                                    name: 'update_username',
+                                    parameters: <String, dynamic>{
+                                      'username': usernameController.text.toString(),
+                                    },
+                                  );
+
                                   // Email update was successful
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
@@ -314,7 +334,14 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                                 bool updateSuccess = await profileController.updatePassword(passwordController.text.toString());
 
                                 if (updateSuccess) {
-                                  // Email update was successful
+
+                                  await analytics.logEvent(
+                                    name: 'update_password',
+                                    parameters: <String, dynamic>{
+                                      'update_success': updateSuccess,
+                                    },
+                                  );
+
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(AppLocalizations.of(context)!.updateSuccess),
@@ -417,6 +444,15 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
 
                                 if (updateSuccess) {
                                   // Email update was successful
+
+                                  await analytics.logEvent(
+                                    name: 'update_email',
+                                    parameters: <String, dynamic>{
+                                      'email': emailController.text.toString(),
+                                    },
+                                  );
+
+
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(AppLocalizations.of(context)!.updateSuccess),
@@ -504,6 +540,14 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
 
                                   SharedPreferences prefs = await SharedPreferences.getInstance();
                                   await prefs.setString('prefer_language', selectedLanguage.toString());
+
+                                  await analytics.logEvent(
+                                    name: 'prefer_language',
+                                    parameters: <String, dynamic>{
+                                      'prefer_language': selectedLanguage.toString(),
+                                    },
+                                  );
+
                                 },
                                 items: supportedLanguages
                                     .map<DropdownMenuItem<String>>((String language) {
@@ -566,6 +610,14 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
 
                                   SharedPreferences prefs = await SharedPreferences.getInstance();
                                   await prefs.setString('display_language', selectedDisplayLanguage.toString());
+
+                                  await analytics.logEvent(
+                                    name: 'display_language',
+                                    parameters: <String, dynamic>{
+                                      'display_language': selectedDisplayLanguage.toString(),
+                                    },
+                                  );
+
                                 },
                                 items: displayLanguages
                                     .map<DropdownMenuItem<String>>((String country) {
@@ -641,6 +693,14 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                             if (confirmSignOut == true) {
                               try {
                                 await FirebaseAuth.instance.signOut();
+
+                                await analytics.logEvent(
+                                  name: 'sign_out',
+                                  parameters: <String, dynamic>{
+                                    'sign_out': true,
+                                  },
+                                );
+
                                 print("Successfully sign out");
                                 Navigator.pushReplacementNamed(context, '/sign-in');
                               } catch (e) {
