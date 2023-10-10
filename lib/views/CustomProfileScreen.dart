@@ -27,9 +27,6 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
   bool isEditingPassword = false;
   bool isEditingEmail = false;
 
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
-
   final ProfileController profileController = ProfileController();
 
   // Declare TextEditingController variables for username, password, and email editing
@@ -40,6 +37,14 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
 // Create lists for dropdown menus (preferred language and country/region)
   final List<String> supportedLanguages = LanguageMapper.languageMappings.keys.toList();
   final List<String> displayLanguages = ['English', 'Chinese', 'Malay'];
+  final List<String> displayCountries = [
+    'United Arab Emirates', 'Argentina', 'Austria', 'Australia', 'Belgium', 'Bulgaria', 'Brazil', 'Canada', 'Switzerland', 'China',
+    'Colombia', 'Cuba', 'Czech Republic', 'Germany', 'Egypt', 'France', 'United Kingdom', 'Greece', 'Hong Kong', 'Hungary', 'Indonesia',
+    'Ireland', 'Israel', 'India', 'Italy', 'Japan', 'South Korea', 'Lithuania', 'Latvia', 'Morocco', 'Mexico', 'Malaysia', 'Nigeria',
+    'Netherlands', 'Norway', 'New Zealand', 'Philippines', 'Poland', 'Portugal', 'Romania', 'Serbia', 'Russia', 'Saudi Arabia', 'Sweden',
+    'Singapore', 'Slovenia', 'Slovakia', 'Thailand', 'Turkey', 'Taiwan', 'Ukraine', 'United States', 'Venezuela', 'South Africa'
+  ];
+
 
 // Initialize variables to store user preferences for language and country
   String selectedLanguage = 'English';
@@ -121,6 +126,10 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                             try {
                               final user = FirebaseAuth.instance.currentUser;
                               if (user != null) {
+
+                                FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                                analytics.setAnalyticsCollectionEnabled(true);
 
                                 await analytics.logEvent(
                                   name: 'update_photo',
@@ -221,6 +230,10 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                                 bool updateSuccess = await profileController.updateUsername(usernameController.text.toString());
 
                                 if (updateSuccess) {
+
+                                  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                                  analytics.setAnalyticsCollectionEnabled(true);
 
                                   await analytics.logEvent(
                                     name: 'update_username',
@@ -335,10 +348,14 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
 
                                 if (updateSuccess) {
 
+                                  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                                  analytics.setAnalyticsCollectionEnabled(true);
+
                                   await analytics.logEvent(
                                     name: 'update_password',
                                     parameters: <String, dynamic>{
-                                      'update_success': updateSuccess,
+                                      'update_success': 'true',
                                     },
                                   );
 
@@ -443,7 +460,9 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                                 bool updateSuccess = await profileController.updateEmail(emailController.text.toString());
 
                                 if (updateSuccess) {
-                                  // Email update was successful
+                                  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                                  analytics.setAnalyticsCollectionEnabled(true);
 
                                   await analytics.logEvent(
                                     name: 'update_email',
@@ -541,6 +560,10 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                                   SharedPreferences prefs = await SharedPreferences.getInstance();
                                   await prefs.setString('prefer_language', selectedLanguage.toString());
 
+                                  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                                  analytics.setAnalyticsCollectionEnabled(true);
+
                                   await analytics.logEvent(
                                     name: 'prefer_language',
                                     parameters: <String, dynamic>{
@@ -571,7 +594,7 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
 
                     const SizedBox(height: 8,),
 
-                    // Country Dropdown
+
                     Padding(
                       padding: const EdgeInsets.only(left: 28.0),
                       child: Column(
@@ -611,6 +634,10 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                                   SharedPreferences prefs = await SharedPreferences.getInstance();
                                   await prefs.setString('display_language', selectedDisplayLanguage.toString());
 
+                                  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                                  analytics.setAnalyticsCollectionEnabled(true);
+
                                   await analytics.logEvent(
                                     name: 'display_language',
                                     parameters: <String, dynamic>{
@@ -638,6 +665,7 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                         ],
                       ),
                     ),
+                    
 
                     Padding(
                       padding: const EdgeInsets.only(top : 16, left:16,right:16),
@@ -694,15 +722,18 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
                               try {
                                 await FirebaseAuth.instance.signOut();
 
+                                Navigator.pushReplacementNamed(context, '/sign-in');
+
+                                FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                                analytics.setAnalyticsCollectionEnabled(true);
+
                                 await analytics.logEvent(
                                   name: 'sign_out',
                                   parameters: <String, dynamic>{
-                                    'sign_out': true,
+                                    'sign_out': 'true',
                                   },
                                 );
-
-                                print("Successfully sign out");
-                                Navigator.pushReplacementNamed(context, '/sign-in');
                               } catch (e) {
                                 // Handle sign-out error
                               }

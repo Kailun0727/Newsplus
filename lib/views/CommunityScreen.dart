@@ -18,8 +18,6 @@ class CommunityScreen extends StatefulWidget {
 class _CommunityScreenState extends State<CommunityScreen> {
   List<CommunityModel> communityList = [];
 
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
   final ScrollController _scrollController = ScrollController();
 
   // This controller will store the value of the search bar
@@ -166,6 +164,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
     // Perform the search
     await postController.searchPost(keyword);
+
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+    analytics.setAnalyticsCollectionEnabled(true);
 
     await analytics.logEvent(
       name: 'search_post',
@@ -319,6 +321,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   displayName,
                                   selectedCategory,
                                 );
+
+                                FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                                analytics.setAnalyticsCollectionEnabled(true);
 
                                 await analytics.logEvent(
                                   name: 'create_post',

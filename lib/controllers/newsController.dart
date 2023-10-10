@@ -14,6 +14,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:newsplus/models/SavedNewsModel.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translator/translator.dart';
 
 
@@ -38,7 +39,6 @@ class NewsController extends ChangeNotifier {
   bool get loadingNews => _loadingNews;
 
   static final logger = Logger();
-
 
   // Constructor
   NewsController() {
@@ -80,41 +80,86 @@ class NewsController extends ChangeNotifier {
   //   }
   // }
 
-  static Future<String> extractText(String newsUrl) async{
-    final url = Uri.parse('https://text-extract7.p.rapidapi.com/?url='+newsUrl);
+  // static Future<String> extractText(String newsUrl) async{
+  //   final url = Uri.parse('https://text-extract7.p.rapidapi.com/?url='+newsUrl);
+  //   final headers = {
+  //     'content-type': 'application/x-www-form-urlencoded',
+  //     'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
+  //     'X-Rapidapi-Host': 'text-extract7.p.rapidapi.com',
+  //   };
+  //
+  //   try {
+  //     final response = await http.get(url, headers: headers);
+  //
+  //     if (response.statusCode == 200) {
+  //       // Parse the JSON response
+  //       final jsonResponse = json.decode(response.body);
+  //
+  //       // Extract the "trans" field from the JSON
+  //       final extractedText = jsonResponse['raw_text'];
+  //
+  //       // Return the translation
+  //       return extractedText;
+  //     } else {
+  //       // Handle errors here, e.g., print an error message
+  //       print('Request failed with status: ${response.statusCode}');
+  //       print('Response: ${response.body}');
+  //       return 'Extract failed'; // Return a default value or error message
+  //     }
+  //   } catch (e) {
+  //     // Handle exceptions, e.g., network issues
+  //     print('Error: $e');
+  //     return 'Extract failed'; // Return a default value or error message
+  //   }
+  // }
+
+  static Future<String> extractText(String newsUrl) async {
+
+    final url = Uri.parse('https://magicapi-article-extraction.p.rapidapi.com/extract');
     final headers = {
-      'content-type': 'application/x-www-form-urlencoded',
+      'content-type': 'application/json',
       'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
-      'X-Rapidapi-Host': 'text-extract7.p.rapidapi.com',
+      'X-Rapidapi-Host': 'magicapi-article-extraction.p.rapidapi.com',
     };
 
+    // Use json to encode the object to json format and send it to server
+    final body = json.encode({
+      "url": newsUrl,
+    });
+
     try {
-      final response = await http.get(url, headers: headers);
+      final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
+
+
         // Parse the JSON response
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
 
-        // Extract the "trans" field from the JSON
-        final extractedText = jsonResponse['raw_text'];
+        final extractText = jsonResponse['text'];
 
-        // Return the translation
-        return extractedText;
-      } else {
+
+        print(extractText);
+
+        return extractText;
+      }
+
+      else {
         // Handle errors here, e.g., print an error message
         print('Request failed with status: ${response.statusCode}');
         print('Response: ${response.body}');
-        return 'Extract failed'; // Return a default value or error message
+        return 'Failed'; // Return a default value or error message
       }
     } catch (e) {
       // Handle exceptions, e.g., network issues
       print('Error: $e');
-      return 'Extract failed'; // Return a default value or error message
+      return 'Failed'; // Return a default value or error message
     }
   }
 
 
   static Future<String> summarizeNews(String extractedText) async {
+
 
     final url = Uri.parse('https://text-analysis12.p.rapidapi.com/summarize-text/api/v1.1');
     final headers = {
@@ -125,9 +170,9 @@ class NewsController extends ChangeNotifier {
 
     // Use json to encode the object to json format and send it to server
     final body = json.encode({
-      "language": "english",
-      "summary_percent": 10,
-      "text": extractedText
+      "language": 'english',
+      "summary_percent": 20,
+      "text": extractedText,
     });
 
       try {
@@ -137,8 +182,14 @@ class NewsController extends ChangeNotifier {
           // Parse the JSON response
           final jsonResponse = json.decode(response.body);
 
-          // Extract the "trans" field from the JSON
+          print(jsonResponse);
+
           final summary = jsonResponse['summary'];
+
+          if(summary == null){
+            final message = jsonResponse['msg'];
+            return message;
+          }
 
           return summary;
         }
@@ -163,46 +214,6 @@ class NewsController extends ChangeNotifier {
     print(translation);
     return translation.text;
   }
-
-  // static Future<String> translateText(String text, String languageCode) async {
-  //   final url = Uri.parse(
-  //       'https://google-translate113.p.rapidapi.com/api/v1/translator/text');
-  //   final headers = {
-  //     'content-type': 'application/x-www-form-urlencoded',
-  //     'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
-  //     'X-Rapidapi-Host': 'google-translate113.p.rapidapi.com',
-  //   };
-  //   final body = {
-  //     'from': 'auto',
-  //     'to': languageCode,
-  //     'text': text, // The text to translate
-  //   };
-  //
-  //   try {
-  //     final response = await http.post(url, headers: headers, body: body);
-  //
-  //     if (response.statusCode == 200) {
-  //       // Parse the JSON response
-  //       final jsonResponse = json.decode(response.body);
-  //
-  //       // Extract the "trans" field from the JSON
-  //       final translation = jsonResponse['trans'];
-  //
-  //       // Return the translation
-  //       return translation;
-  //     } else {
-  //       // Handle errors here, e.g., print an error message
-  //       print('Request failed with status: ${response.statusCode}');
-  //       print('Response: ${response.body}');
-  //       print('Translation failed');
-  //       return 'Translation failed'; // Return a default value or error message
-  //     }
-  //   } catch (e) {
-  //     // Handle exceptions, e.g., network issues
-  //     print('Error: $e');
-  //     return 'Translation failed'; // Return a default value or error message
-  //   }
-  // }
 
 
   static Future<void> saveNews(SavedNewsModel model) async {
@@ -319,15 +330,12 @@ class NewsController extends ChangeNotifier {
   Future<void> searchNews(String keyword) async {
     _newsList.clear();
     _filteredNewsList.clear();
-
-    // Fetch news data from your data source (e.g., API)
-    // Update _newsList and _loadingNews accordingly
     _loadingNews = true;
 
     const apiKey = "2bb4019c07fb4e9ebda44c552cc573ac";
     if (apiKey == null || apiKey.isEmpty) {
       print("API key is missing or empty");
-      return; // Return early if the API key is missing or empty
+      return;
     }
 
     final apiUrl = Uri.parse(
@@ -359,12 +367,10 @@ class NewsController extends ChangeNotifier {
             url: data['url'],
             urlToImage: data['urlToImage'],
           );
-
           _newsList.insert(0,mArticleModel);
         }
       });
     }
-
     _loadingNews = false;
     notifyListeners();
   }
@@ -372,8 +378,7 @@ class NewsController extends ChangeNotifier {
 
   // Fetch news data and set _newsList and _loadingNews
   Future<void> fetchCategoryNews(String categoryTitle) async {
-    // Fetch news data from your data source (e.g., API)
-    // Update _newsList and _loadingNews accordingly
+
     _loadingNews = true;
 
     String convertedCategory = convertCategoryTitle(categoryTitle);
@@ -426,20 +431,18 @@ class NewsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Fetch news data and set _newsList and _loadingNews
+  // Fetch news data
   Future<void> fetchNewsData(String categoryTitle) async {
-    // Fetch news data from your data source (e.g., API)
-    // Update _newsList and _loadingNews accordingly
+
     _loadingNews = true;
 
     const apiKey = "2bb4019c07fb4e9ebda44c552cc573ac";
     if (apiKey == null || apiKey.isEmpty) {
       print("API key is missing or empty");
-      return; // Return early if the API key is missing or empty
+      return;
     }
 
-    final apiUrl = Uri.parse(
-        "https://newsapi.org/v2/top-headlines?country=us&pageSize=100&category=$categoryTitle&apiKey=$apiKey");
+    final apiUrl = Uri.parse("https://newsapi.org/v2/top-headlines?pageSize=100&country=us&category=$categoryTitle&apiKey=$apiKey");
 
     final res = await http.get(apiUrl);
 
@@ -448,30 +451,39 @@ class NewsController extends ChangeNotifier {
     if (json['status'] == "ok") {
       for (final data in json['articles']) {
         // Check if urlToImage, description, and content are not null
-        if (data['urlToImage'] != null &&
-            data['description'] != null &&
-            data['content'] != null) {
-          // If all fields are not null, use the original values
+        if ( data['title'] != null &&  data['title'] != '[Removed]' &&data['description'] != null) {
           String inputDateString = data['publishedAt'];
 
           DateTime dateTime = DateTime.parse(inputDateString);
 
-          String formattedDate =
-              "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
+          String formattedDate = "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
-          ArticleModel mArticleModel = ArticleModel(
-            description: data['description'],
-            title: data['title'],
-            content: data['content'],
-            publishedAt: formattedDate,
-            url: data['url'],
-            urlToImage: data['urlToImage'],
-          );
-          _newsList.add(mArticleModel);
+          if(data['urlToImage'] == null){
+            ArticleModel mArticleModel = ArticleModel(
+              description: data['description'],
+              title: data['title'],
+              content: data['content'],
+              publishedAt: formattedDate,
+              url: data['url'],
+              urlToImage: 'http://sagarikaelectronics.com/sagarika_admin/dist/img/no-image.png',
+            );
+            _newsList.add(mArticleModel);
+          }else{
+            ArticleModel mArticleModel = ArticleModel(
+              description: data['description'],
+              title: data['title'],
+              content: data['content'],
+              publishedAt: formattedDate,
+              url: data['url'],
+              urlToImage: data['urlToImage'],
+            );
+            _newsList.add(mArticleModel);
+          }
+
+
         }
       }
     }
-
     _loadingNews = false;
     notifyListeners();
   }

@@ -28,8 +28,6 @@ class ArticleScreen extends StatefulWidget {
 class _ArticleScreenState extends State<ArticleScreen> {
   late InAppWebViewController _webViewController;
 
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
   bool _isLoading = true; // Add this variable
 
   StreamController<bool> shouldPlayStream = StreamController<bool>();
@@ -143,10 +141,14 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 String translation = await NewsController.translate(
                     summary, languageCode!.toLowerCase());
 
+                FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                analytics.setAnalyticsCollectionEnabled(true);
+
                 await analytics.logEvent(
                   name: 'summary_news',
                   parameters: <String, dynamic>{
-                    'summary': summary,
+                    'summary': 'true',
                   },
                 );
 
@@ -184,13 +186,6 @@ class _ArticleScreenState extends State<ArticleScreen> {
             heroTag: "btn_speak",
             onPressed: () async {
 
-              await analytics.logEvent(
-                name: 'start_tts',
-                parameters: <String, dynamic>{
-                  'start': true,
-                },
-              );
-
               shouldContinue = true; //
 
               shouldPlayStream?.add(true);
@@ -224,10 +219,14 @@ class _ArticleScreenState extends State<ArticleScreen> {
               shouldPlayStream?.add(false);
               stopSpeaking();
 
+              FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+              analytics.setAnalyticsCollectionEnabled(true);
+
               await analytics.logEvent(
                 name: 'pause_tts',
                 parameters: <String, dynamic>{
-                  'pause': true,
+                  'pause': 'true',
                 },
               );
 

@@ -15,18 +15,6 @@ class SavedNewsScreen extends StatefulWidget {
 }
 
 class _SavedNewsScreenState extends State<SavedNewsScreen> {
-  // Initialize Firebase Analytics
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
-// Log an event
-  Future<void> logEvent() async {
-    await analytics.logEvent(
-      name: 'button_click',
-      parameters: <String, dynamic>{
-        'button_id': 'example_button',
-      },
-    );
-  }
 
   List<SavedNewsModel> savedNewsList = [];
 

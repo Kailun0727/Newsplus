@@ -167,7 +167,7 @@ class SavedNewsCard extends StatefulWidget {
 
 class _SavedNewsCardState extends State<SavedNewsCard> {
 
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
 
 
   void _handleRemove() async {
@@ -319,6 +319,10 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                             if (value == 'Share') {
                               // Perform action for Share
 
+                              FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                              analytics.setAnalyticsCollectionEnabled(true);
+
                               await analytics.logEvent(
                                 name: 'share_news',
                                 parameters: <String, dynamic>{
@@ -328,6 +332,11 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
 
                               Share.share(widget.url);
                             } else if (value == 'Remove') {
+
+                              FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                              analytics.setAnalyticsCollectionEnabled(true);
+
                               await analytics.logEvent(
                                 name: 'remove_news',
                                 parameters: <String, dynamic>{
@@ -399,9 +408,6 @@ class _NewsCardState extends State<NewsCard> {
   String? translatedTitle;
   String? translatedDescription;
 
-  // Initialize Firebase Analytics
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
   Future<void> translateTitleAndDescription() async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -431,10 +437,14 @@ class _NewsCardState extends State<NewsCard> {
     return GestureDetector(
       onTap: () async {
 
+        FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+        analytics.setAnalyticsCollectionEnabled(true);
+
         await analytics.logEvent(
           name: 'view_news',
           parameters: <String, dynamic>{
-            'news_title': widget.title,
+            'news_url': widget.url,
           },
         );
 
@@ -589,7 +599,7 @@ class _NewsCardState extends State<NewsCard> {
                                 ),
                                 const SizedBox(width: 8.0),
                                 Text(
-                                  'Translate', // Add the text for the "Translate" option
+                                  AppLocalizations.of(context)!.translate, // Add the text for the "Translate" option
                                   style: const TextStyle(
                                     color: Colors.blue, // Set the text color to blue
                                   ),
@@ -603,6 +613,10 @@ class _NewsCardState extends State<NewsCard> {
                             if (value == 'Share') {
                               // Perform action for Share
 
+                              FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                              analytics.setAnalyticsCollectionEnabled(true);
+
                               await analytics.logEvent(
                                 name: 'share_news',
                                 parameters: <String, dynamic>{
@@ -613,10 +627,14 @@ class _NewsCardState extends State<NewsCard> {
                               Share.share(widget.url);
                             } else if (value == 'Save') {
 
+                              FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                              analytics.setAnalyticsCollectionEnabled(true);
+
                               await analytics.logEvent(
                                 name: 'save_news',
                                 parameters: <String, dynamic>{
-                                  'news_title': widget.title,
+                                  'news_url': widget.url,
                                 },
                               );
 
@@ -671,6 +689,10 @@ class _NewsCardState extends State<NewsCard> {
                               }
                             } else if (value == 'Like') {
 
+                              FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                              analytics.setAnalyticsCollectionEnabled(true);
+
                               await analytics.logEvent(
                                 name: 'recommend_category',
                                 parameters: <String, dynamic>{
@@ -694,6 +716,10 @@ class _NewsCardState extends State<NewsCard> {
 
 
                             } else if (value == 'translate') {
+
+                              FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                              analytics.setAnalyticsCollectionEnabled(true);
 
                               await analytics.logEvent(
                                 name: 'translate_news',
@@ -767,8 +793,6 @@ class _ReplyCardState extends State<ReplyCard> {
 
   bool isReported = false;
 
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
   Future<void> translateReply() async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -804,6 +828,10 @@ class _ReplyCardState extends State<ReplyCard> {
               ),
               TextButton(
                 onPressed: () async {
+
+                  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                  analytics.setAnalyticsCollectionEnabled(true);
 
                   await analytics.logEvent(
                     name: 'report_reply',
@@ -905,6 +933,10 @@ class _ReplyCardState extends State<ReplyCard> {
                     }
 
                     if(value == "translate"){
+                      FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                      analytics.setAnalyticsCollectionEnabled(true);
+
                       await analytics.logEvent(
                         name: 'translate_reply',
                         parameters: <String, dynamic>{
@@ -979,6 +1011,10 @@ class _ReplyCardState extends State<ReplyCard> {
                     ElevatedButton.icon(
                       onPressed: () async {
 
+                        FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                        analytics.setAnalyticsCollectionEnabled(true);
+
                         await analytics.logEvent(
                           name: 'like__reply',
                           parameters: <String, dynamic>{
@@ -1041,8 +1077,6 @@ class _EditPostCardState extends State<EditPostCard> {
   bool isLiked = false;
   bool isReported = false;
 
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
   Future<void> translateTitleAndContent() async {
 
 
@@ -1053,6 +1087,10 @@ class _EditPostCardState extends State<EditPostCard> {
 
     String translateTitle = await NewsController.translate(widget.post.title,languageCode!.toLowerCase());
     String translateContent = await NewsController.translate(widget.post.content,languageCode!.toLowerCase());
+
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+    analytics.setAnalyticsCollectionEnabled(true);
 
     await analytics.logEvent(
       name: 'translate_post',
@@ -1216,6 +1254,10 @@ class _EditPostCardState extends State<EditPostCard> {
 
                                   await widget.controller.editPost(widget.post.postId, title, postText, selectedCategory);
 
+                                  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                                  analytics.setAnalyticsCollectionEnabled(true);
+
                                   await analytics.logEvent(
                                     name: 'edit_post',
                                     parameters: <String, dynamic>{
@@ -1279,6 +1321,10 @@ class _EditPostCardState extends State<EditPostCard> {
                 onPressed: () async {
 
                   await widget.controller.deletePost(widget.post.postId);
+
+                  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                  analytics.setAnalyticsCollectionEnabled(true);
 
                   await analytics.logEvent(
                     name: 'delete_post',
@@ -1503,7 +1549,6 @@ class _PostCardState extends State<PostCard> {
   bool isLiked = false;
   bool isReported = false;
 
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   Future<void> translateTitleAndContent() async {
 
@@ -1513,6 +1558,10 @@ class _PostCardState extends State<PostCard> {
 
     String translateTitle = await NewsController.translate(widget.post.title,languageCode!.toLowerCase());
     String translateContent = await NewsController.translate(widget.post.content,languageCode!.toLowerCase());
+
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+    analytics.setAnalyticsCollectionEnabled(true);
 
     await analytics.logEvent(
       name: 'translate_post',
@@ -1571,6 +1620,10 @@ class _PostCardState extends State<PostCard> {
               ),
               TextButton(
                 onPressed: () async {
+
+                  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                  analytics.setAnalyticsCollectionEnabled(true);
 
                   await analytics.logEvent(
                     name: 'report_post',

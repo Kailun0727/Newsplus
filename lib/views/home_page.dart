@@ -235,6 +235,8 @@ class _HomePageState extends State<HomePage> {
     // Perform the search
     await newsController.searchNews(keyword);
 
+    analytics.setAnalyticsCollectionEnabled(true);
+
     await analytics.logEvent(
       name: 'search_news',
       parameters: <String, dynamic>{
@@ -463,7 +465,7 @@ class _HomePageState extends State<HomePage> {
                             .toString()
                             :
 
-        (!isSearch ? "Recommended News : " + newsController.newsList.length.toString() :   AppLocalizations.of(context)!.totalResults + " : "+ newsController.newsList.length.toString())
+        (!isSearch ? AppLocalizations.of(context)!.recommendedNews + " "+ newsController.newsList.length.toString() :   AppLocalizations.of(context)!.totalResults + " : "+ newsController.newsList.length.toString())
 
 
                         )

@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -324,6 +325,17 @@ class _ReplyScreenState extends State<ReplyScreen> {
                             final photoUrl = user.photoURL ?? "https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg";
 
                             await replyController.addReply(widget.post.postId, user.uid, displayName, replyContent,photoUrl);
+
+                            FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                            analytics.setAnalyticsCollectionEnabled(true);
+
+                            await analytics.logEvent(
+                              name: 'reply_post',
+                              parameters: <String, dynamic>{
+                                'reply_content' : replyContent
+                              },
+                            );
                           }
 
                           // Force to refresh page after creating a post

@@ -86,5 +86,8 @@
   "confirmDeleteTitle" : "确认删除",
   "confirmDeleteHintText" : "您确定要删除此帖子吗？",
   "summary": "摘要",
-  "translate": "翻译"
+  "translate": "翻译",
+  "recommendedNews": "推荐新闻"
+
+
 }

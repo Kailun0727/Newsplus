@@ -88,5 +88,6 @@
   "confirmDeleteTitle" : "Sahkan Padam",
   "confirmDeleteHintText" : "Adakah anda pasti ingin padam pos ini?",
   "summary": "Ringkasan",
-  "translate": "Terjemah"
+  "translate": "Terjemah",
+  "recommendedNews": "Berita Disyorkan"
 }

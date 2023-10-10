@@ -17,8 +17,6 @@ class UserPost extends StatefulWidget {
 
 class _UserPostState extends State<UserPost> {
 
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
   final PostController postController = PostController();
 
   final ScrollController _scrollController = ScrollController();
@@ -212,6 +210,10 @@ class _UserPostState extends State<UserPost> {
                                   displayName,
                                   selectedCategory,
                                 );
+
+                                FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                                analytics.setAnalyticsCollectionEnabled(true);
 
                                 await analytics.logEvent(
                                   name: 'create_post',

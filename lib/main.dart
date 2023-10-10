@@ -145,64 +145,53 @@ class _MyAppState extends State<MyApp> {
                 actions: [
                   AuthStateChangeAction<SignedIn>((context, state) async {
                     try {
-                      // Your login logic here
+                      if(mounted){
+                        Navigator.pushReplacementNamed(context, '/home');
 
-                      await FirebaseAnalytics.instance.logEvent(
-                        name: "login",
-                        parameters: {
-                          "userId": 'id',
-                        },
-                      );
+                        FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
-                      print("Successfully signed in");
-
-                      Navigator.pushReplacementNamed(context, '/home');
+                        await analytics.logEvent(
+                          name: 'login',
+                          parameters: <String, dynamic>{
+                            'user_login': 'true',
+                          },
+                        );
+                      }
                     } catch (e) {
                       // Handle login error and display a message to the user
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Invalid email or password"), // Customize the message as needed
+                        const SnackBar(
+                          content: Text("Invalid email or password"),
                         ),
                       );
-
                       print("Login error: $e");
                     }
                   }),
 
                   AuthStateChangeAction<UserCreated>((context, state) async{
-                    // User registration is successful
-                      print("Register is success, above");
-
                       final user = FirebaseAuth.instance.currentUser;
 
                       if (user != null) {
-                        print("User is not null");
 
                         String name = user.email!.split("@")[0];
 
                         await user.updateDisplayName(name); // Await the update
 
-                        print(name);
-
                         final userData = {
                           'username': name,
                           'email': user.email ?? '',
                           'registrationDate': DateTime.now().add(Duration(hours: 8)).toString(),
-                          'preferredLanguage' : 'English',
-                          // Add more fields as needed
                         };
 
-                        // Store the user data in the Realtime Database
                         DatabaseReference ref = FirebaseDatabase.instance.ref("user/"+user.uid);
 
                         await ref.set(userData);
-
-                        print("Added user to database");
                       }
 
-
-                    // Navigate to the home page
-                    Navigator.pushReplacementNamed(context, '/home');
+                      // Navigate to the home page
+                      if(mounted){
+                        Navigator.pushReplacementNamed(context, '/home');
+                      }
                   }),
 
                 ],
@@ -212,6 +201,8 @@ class _MyAppState extends State<MyApp> {
               return Builder(
                 builder: (BuildContext context) {
                   // Use Builder to create a new context
+                  final user = FirebaseAuth.instance.currentUser;
+                  user!.reload();
                   return const HomePage();
                 },
               );
@@ -256,18 +247,25 @@ class _MyAppState extends State<MyApp> {
             actions: [
               AuthStateChangeAction<SignedIn>((context, state) async {
                 try {
-                  // Your login logic here
 
-                  await FirebaseAnalytics.instance.logEvent(
-                    name: "login",
-                    parameters: {
-                      "userId": 'id',
-                    },
-                  );
+                  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
-                  print("Successfully signed in");
+                  final user = FirebaseAuth.instance.currentUser;
 
-                  Navigator.pushReplacementNamed(context, '/home');
+                  if(user!=null){
+                    await analytics.logEvent(
+                      name: 'login',
+                      parameters: <String, dynamic>{
+                        'user_login': user.email,
+                      },
+                    );
+
+                    if(mounted){
+                      Navigator.pushReplacementNamed(context, '/home');
+                    }
+                  }
+
+
                 } catch (e) {
                   // Handle login error and display a message to the user
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -311,7 +309,11 @@ class _MyAppState extends State<MyApp> {
                 }
 
                 // Navigate to the home page
-                Navigator.pushReplacementNamed(context, '/home');
+
+                if(mounted){
+                  Navigator.pushReplacementNamed(context, '/home');
+
+                }
               }),
 
 
