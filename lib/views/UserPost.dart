@@ -271,89 +271,97 @@ class _UserPostState extends State<UserPost> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text(
-            AppLocalizations.of(context)!.filterPostTitle,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20.0,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: filterPostController,
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.keywordFilter,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20.0),
+        return Dialog(
+          child: Container(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.filterPostTitle,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.0,
                   ),
                 ),
-              ),
-              SizedBox(height: 16.0), // Add some spacing
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      // Apply the filter based on the keyword entered
-                      String keyword = filterPostController.text;
-                      if (keyword.isEmpty) {
-                        // Show an error message if the text is empty
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              AppLocalizations.of(context)!.keywordFilter,
-                            ),
-                          ),
-                        );
-                      } else {
-                        // Call a method to apply the filter based on the keyword
-                        _applyFilter(keyword);
-                        Navigator.pop(context);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.blue, // Change the button color
-                      onPrimary: Colors.white, // Change the text color
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.apply,
-                    ),
+                SizedBox(height: 16.0), // Add some spacing
+                TextField(
+                  controller: filterPostController,
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.keywordFilter,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (isFilterApplied) {
-                        // Clear the filter only if isFiltered is true
-                        filterPostController.clear();
-                        _clearFilter();
-                        setState(() {
-                          isFilterApplied = false; // Set isFiltered to false
-                        });
-                        Navigator.pop(context);
-                      } else {
-                        // Show an error message if the filter is not applied
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              AppLocalizations.of(context)!.noFilterToClear,
+                ),
+                SizedBox(height: 16.0), // Add more spacing
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        String keyword = filterPostController.text;
+                        if (keyword.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(context)!.keywordFilter,
+                              ),
                             ),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.red, // Change the button color
-                      onPrimary: Colors.white, // Change the text color
+                          );
+                        } else {
+                          _applyFilter(keyword);
+                          Navigator.pop(context);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.blue,
+                        onPrimary: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0.0), // Remove border radius
+                        ),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.apply,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    child: Text(
-                      AppLocalizations.of(context)!.clear,
+                    ElevatedButton(
+                      onPressed: () {
+                        if (isFilterApplied) {
+                          filterPostController.clear();
+                          _clearFilter();
+                          setState(() {
+                            isFilterApplied = false;
+                          });
+                          Navigator.pop(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(context)!.noFilterToClear,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.red,
+                        onPrimary: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0.0), // Remove border radius
+                        ),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.clear,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },

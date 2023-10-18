@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:newsplus/models/ArticleModel.dart';
+import 'package:newsplus/models/NewsModel.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:newsplus/models/SavedNewsModel.dart';

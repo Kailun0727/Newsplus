@@ -50,19 +50,13 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
       if (transformedUrl.contains('?')) {
         // The transformedUrl contains the '?' symbol
-        return transformedUrl +
-            '&_x_tr_sl=auto&_x_tr_tl=' +
-            widget.languageCode +
-            '&_x_tr_hl=en-US&_x_tr_pto=wapp';
+        return transformedUrl + '&_x_tr_sl=auto&_x_tr_tl=' + widget.languageCode + '&_x_tr_hl=en-US&_x_tr_pto=wapp';
       } else {
         // The transformedUrl does not contain the '?' symbol
-        return transformedUrl +
-            '?_x_tr_sl=auto&_x_tr_tl=' +
-            widget.languageCode +
-            '&_x_tr_hl=en-US&_x_tr_pto=wapp';
+        return transformedUrl + '?_x_tr_sl=auto&_x_tr_tl=' + widget.languageCode + '&_x_tr_hl=en-US&_x_tr_pto=wapp';
       }
     } else {
-      // If the URL doesn't have at least 4 parts, return it as is
+      // If the URL doesn't have at least 4 parts, return original url
       return inputUrl;
     }
   }
@@ -114,9 +108,6 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-
-
     return Scaffold(
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -176,7 +167,8 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 );
               }
             },
-            child: Icon(Icons.description),
+            child: Icon(Icons.receipt),
+            tooltip: "Summary",
           ),
           SizedBox(
             height: 20,

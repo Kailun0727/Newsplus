@@ -167,7 +167,34 @@ class SavedNewsCard extends StatefulWidget {
 
 class _SavedNewsCardState extends State<SavedNewsCard> {
 
+  String? translatedTitle;
+  String? translatedDescription;
 
+  Future<void> translateTitleAndDescription() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? preferLanguage = prefs.getString('prefer_language') ?? "English";
+    String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
+
+    String translateTitle = await NewsController.translate(widget.title,languageCode!.toLowerCase());
+    String translateDescription = await NewsController.translate(widget.description,languageCode!.toLowerCase());
+
+    setState(() {
+      translatedTitle = translateTitle;
+      translatedDescription = translateDescription;
+    });
+
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+    analytics.setAnalyticsCollectionEnabled(true);
+
+    await analytics.logEvent(
+      name: 'translate_news',
+      parameters: <String, dynamic>{
+        'news_title': widget.title,
+      },
+    );
+  }
 
 
   void _handleRemove() async {
@@ -257,7 +284,7 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                           Padding(
                             padding: const EdgeInsets.only(left:8.0, right: 8),
                             child: Text(
-                              widget.title,
+                              translatedTitle ?? widget.title,
                               style: const TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
@@ -268,7 +295,7 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                           Padding(
                             padding: const EdgeInsets.only(left:8.0, right: 8),
                             child: Text(
-                              widget.description,
+                              translatedDescription ?? widget.description,
                               style: const TextStyle(color: Colors.black54),
                             ),
                           ),
@@ -313,6 +340,27 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                                 ],
                               ),
                             ),
+                            PopupMenuItem<String>(
+                              value: 'translate', // Add a value for the "Translate" option
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.translate,
+                                    color: Colors.blue, // Set the icon color to blue
+                                  ),
+                                  const SizedBox(width: 8.0),
+                                  Text(
+                                    AppLocalizations.of(context)!.translate, // Add the text for the "Translate" option
+                                    style: const TextStyle(
+                                      color: Colors.blue, // Set the text color to blue
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+
+
+
                           ],
                           onSelected: (value) async {
 
@@ -345,6 +393,10 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                               );
 
                                _handleRemove();
+                            }else if (value == 'translate') {
+
+                              translateTitleAndDescription();
+
                             }
                           },
                           child: Container(
@@ -414,7 +466,6 @@ class _NewsCardState extends State<NewsCard> {
     String? preferLanguage = prefs.getString('prefer_language') ?? "English";
     String? languageCode = LanguageMapper.getLanguageCode(preferLanguage!);
 
-
     String translateTitle = await NewsController.translate(widget.title,languageCode!.toLowerCase());
     String translateDescription = await NewsController.translate(widget.description,languageCode!.toLowerCase());
 
@@ -422,6 +473,17 @@ class _NewsCardState extends State<NewsCard> {
       translatedTitle = translateTitle;
       translatedDescription = translateDescription;
     });
+
+    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+    analytics.setAnalyticsCollectionEnabled(true);
+
+    await analytics.logEvent(
+      name: 'translate_news',
+      parameters: <String, dynamic>{
+        'news_title': widget.title,
+      },
+    );
   }
 
 
@@ -716,17 +778,6 @@ class _NewsCardState extends State<NewsCard> {
 
 
                             } else if (value == 'translate') {
-
-                              FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
-                              analytics.setAnalyticsCollectionEnabled(true);
-
-                              await analytics.logEvent(
-                                name: 'translate_news',
-                                parameters: <String, dynamic>{
-                                  'news_title': widget.title,
-                                },
-                              );
 
                                 translateTitleAndDescription();
 

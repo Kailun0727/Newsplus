@@ -69,11 +69,14 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(
-            AppLocalizations.of(context)!.filterTitle,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20.0,
+          title: Align(
+            alignment: Alignment.center,
+            child: Text(
+              AppLocalizations.of(context)!.filterTitle,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20.0,
+              ),
             ),
           ),
           content: Column(
@@ -84,7 +87,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(context)!.keywordFilter,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20.0),
+                    borderRadius: BorderRadius.zero, // Remove border radius
                   ),
                 ),
               ),
@@ -150,6 +153,7 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
       },
     );
   }
+
 
   void _applyFilter(String keyword) {
     // Call the applyFilter method of NewsController
@@ -329,12 +333,12 @@ class _SavedNewsScreenState extends State<SavedNewsScreen> {
                                       : savedNewsController
                                           .savedNewsList[index].description,
                                   creationDate: isFilterApplied
-                                      ? "Saved Date : " +
+                                      ? AppLocalizations.of(context)!.savedDate + " " +
                                           DateFormat('yyyy-MM-dd HH:mm').format(
                                               savedNewsController
                                                   .filterSavedNewsList[index]
                                                   .creationDate)
-                                      : "Saved Date : " +
+                                      : AppLocalizations.of(context)!.savedDate + " " +
                                           DateFormat('yyyy-MM-dd HH:mm').format(
                                               savedNewsController
                                                   .savedNewsList[index]

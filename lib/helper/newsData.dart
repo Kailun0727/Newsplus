@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:newsplus/models/ArticleModel.dart';
+import 'package:newsplus/models/NewsModel.dart';
 
 class News {
-  List<ArticleModel> newsList = [];
+  List<NewsModel> newsList = [];
 
   Future<void> getNewsData() async {
     const apiKey = "2bb4019c07fb4e9ebda44c552cc573ac"; // Replace with your actual API key
@@ -23,7 +23,7 @@ class News {
         if (data['urlToImage'] != null && data['description'] != null && data['content'] != null) {
 
 
-          ArticleModel mArticleModel = ArticleModel(
+          NewsModel mArticleModel = NewsModel(
             description: data['description'],
             title: data['title'],
             content: data['content'],

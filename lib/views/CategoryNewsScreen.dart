@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
-import 'package:newsplus/models/ArticleModel.dart';
+import 'package:newsplus/models/NewsModel.dart';
 import 'package:newsplus/widgets/components.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -19,7 +19,7 @@ class CategoryNewsScreen extends StatefulWidget {
 
 class _CategoryNewsScreenState extends State<CategoryNewsScreen> {
 
-  List<ArticleModel> newsList = [];
+  List<NewsModel> newsList = [];
 
   bool isFilterApplied = false;
 

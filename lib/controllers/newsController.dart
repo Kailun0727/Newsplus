@@ -9,7 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
-import 'package:newsplus/models/ArticleModel.dart';
+import 'package:newsplus/models/NewsModel.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:newsplus/models/SavedNewsModel.dart';
@@ -20,8 +20,8 @@ import 'package:translator/translator.dart';
 
 
 class NewsController extends ChangeNotifier {
-  final List<ArticleModel> _newsList = [];
-  List<ArticleModel> _filteredNewsList = []; // Declare _filteredNewsList
+  final List<NewsModel> _newsList = [];
+  List<NewsModel> _filteredNewsList = []; // Declare _filteredNewsList
 
   List<SavedNewsModel> _savedNewsList = [];
   List<SavedNewsModel> _filterSavedNewsList = [];
@@ -33,85 +33,14 @@ class NewsController extends ChangeNotifier {
   List<SavedNewsModel> get savedNewsList => _savedNewsList;
   List<SavedNewsModel> get filterSavedNewsList => _filterSavedNewsList;
 
-  List<ArticleModel> get newsList => _newsList;
-  List<ArticleModel> get filteredNewsList =>
+  List<NewsModel> get newsList => _newsList;
+  List<NewsModel> get filteredNewsList =>
       _filteredNewsList; // Getter for filteredNewsList
   bool get loadingNews => _loadingNews;
-
-  static final logger = Logger();
 
   // Constructor
   NewsController() {
   }
-
-  // static Future<String> extractTextAPI(String newsUrl) async{
-  //   final url = Uri.parse('https://textapis.p.rapidapi.com/text?url='+newsUrl);
-  //   final headers = {
-  //     'content-type': 'application/x-www-form-urlencoded',
-  //     'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
-  //     'X-Rapidapi-Host': 'textapis.p.rapidapi.com',
-  //   };
-  //
-  //   try {
-  //     final response = await http.get(url, headers: headers);
-  //
-  //     if (response.statusCode == 200) {
-  //       // Parse the JSON response
-  //       final jsonResponse = json.decode(response.body);
-  //
-  //       print(jsonResponse);
-  //
-  //       final extractedText = jsonResponse['text'];
-  //
-  //       print(extractedText);
-  //
-  //       // Return the translation
-  //       return extractedText;
-  //     } else {
-  //       // Handle errors here, e.g., print an error message
-  //       print('Request failed with status: ${response.statusCode}');
-  //       print('Response: ${response.body}');
-  //       return 'Extract failed'; // Return a default value or error message
-  //     }
-  //   } catch (e) {
-  //     // Handle exceptions, e.g., network issues
-  //     print('Error: $e');
-  //     return 'Extract failed'; // Return a default value or error message
-  //   }
-  // }
-
-  // static Future<String> extractText(String newsUrl) async{
-  //   final url = Uri.parse('https://text-extract7.p.rapidapi.com/?url='+newsUrl);
-  //   final headers = {
-  //     'content-type': 'application/x-www-form-urlencoded',
-  //     'X-Rapidapi-Key': '91beb912femshe4936b9eb0c9e29p113efajsn9003840a6986',
-  //     'X-Rapidapi-Host': 'text-extract7.p.rapidapi.com',
-  //   };
-  //
-  //   try {
-  //     final response = await http.get(url, headers: headers);
-  //
-  //     if (response.statusCode == 200) {
-  //       // Parse the JSON response
-  //       final jsonResponse = json.decode(response.body);
-  //
-  //       // Extract the "trans" field from the JSON
-  //       final extractedText = jsonResponse['raw_text'];
-  //
-  //       // Return the translation
-  //       return extractedText;
-  //     } else {
-  //       // Handle errors here, e.g., print an error message
-  //       print('Request failed with status: ${response.statusCode}');
-  //       print('Response: ${response.body}');
-  //       return 'Extract failed'; // Return a default value or error message
-  //     }
-  //   } catch (e) {
-  //     // Handle exceptions, e.g., network issues
-  //     print('Error: $e');
-  //     return 'Extract failed'; // Return a default value or error message
-  //   }
-  // }
 
   static Future<String> extractText(String newsUrl) async {
 
@@ -156,7 +85,6 @@ class NewsController extends ChangeNotifier {
       return 'Failed'; // Return a default value or error message
     }
   }
-
 
   static Future<String> summarizeNews(String extractedText) async {
 
@@ -211,10 +139,8 @@ class NewsController extends ChangeNotifier {
   static Future<String> translate(String? text, String languageCode) async {
     final translator = GoogleTranslator();
     var translation = await translator.translate(text!, to: languageCode);
-    print(translation);
     return translation.text;
   }
-
 
   static Future<void> saveNews(SavedNewsModel model) async {
     final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(model.creationDate);
@@ -271,7 +197,6 @@ class NewsController extends ChangeNotifier {
   }
 
 
-
   Future<void> searchCategoryNews(String keyword, String categoryTitle) async {
     _newsList.clear();
     _filteredNewsList.clear();
@@ -309,7 +234,7 @@ class NewsController extends ChangeNotifier {
           String formattedDate =
               "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
-          ArticleModel mArticleModel = ArticleModel(
+          NewsModel mArticleModel = NewsModel(
             description: data['description'],
             title: data['title'],
             content: data['content'],
@@ -359,7 +284,7 @@ class NewsController extends ChangeNotifier {
           String formattedDate =
               "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
-          ArticleModel mArticleModel = ArticleModel(
+          NewsModel mArticleModel = NewsModel(
             description: data['description'],
             title: data['title'],
             content: data['content'],
@@ -414,7 +339,7 @@ class NewsController extends ChangeNotifier {
           String formattedDate =
               "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
-          ArticleModel mArticleModel = ArticleModel(
+          NewsModel mArticleModel = NewsModel(
             description: data['description'],
             title: data['title'],
             content: data['content'],
@@ -459,7 +384,7 @@ class NewsController extends ChangeNotifier {
           String formattedDate = "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
           if(data['urlToImage'] == null){
-            ArticleModel mArticleModel = ArticleModel(
+            NewsModel mArticleModel = NewsModel(
               description: data['description'],
               title: data['title'],
               content: data['content'],
@@ -469,7 +394,7 @@ class NewsController extends ChangeNotifier {
             );
             _newsList.add(mArticleModel);
           }else{
-            ArticleModel mArticleModel = ArticleModel(
+            NewsModel mArticleModel = NewsModel(
               description: data['description'],
               title: data['title'],
               content: data['content'],

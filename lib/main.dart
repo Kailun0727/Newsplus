@@ -16,8 +16,10 @@ import 'package:newsplus/controllers/savedNewsController.dart';
 
 import 'package:newsplus/views/ArticleScreen.dart';
 import 'package:newsplus/views/CommunityScreen.dart';
+import 'package:newsplus/views/CustomLoginScreen.dart';
 import 'package:newsplus/views/CustomProfileScreen.dart';
 import 'package:newsplus/firebase_options.dart';
+import 'package:newsplus/views/CustomRegisterScreen.dart';
 import 'package:newsplus/views/SavedNewsScreen.dart';
 import 'package:newsplus/views/home_page.dart';
 
@@ -133,85 +135,7 @@ class _MyAppState extends State<MyApp> {
       supportedLocales: L10n.all,
 
       debugShowCheckedModeBanner: false,
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            final user = snapshot.data;
-            if (user == null) {
-              // User is not authenticated, navigate to sign-in
-              return SignInScreen(
-                providers: providers,
-                actions: [
-                  AuthStateChangeAction<SignedIn>((context, state) async {
-                    try {
-                      if(mounted){
-                        Navigator.pushReplacementNamed(context, '/home');
-
-                        FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
-                        await analytics.logEvent(
-                          name: 'login',
-                          parameters: <String, dynamic>{
-                            'user_login': 'true',
-                          },
-                        );
-                      }
-                    } catch (e) {
-                      // Handle login error and display a message to the user
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Invalid email or password"),
-                        ),
-                      );
-                      print("Login error: $e");
-                    }
-                  }),
-
-                  AuthStateChangeAction<UserCreated>((context, state) async{
-                      final user = FirebaseAuth.instance.currentUser;
-
-                      if (user != null) {
-
-                        String name = user.email!.split("@")[0];
-
-                        await user.updateDisplayName(name); // Await the update
-
-                        final userData = {
-                          'username': name,
-                          'email': user.email ?? '',
-                          'registrationDate': DateTime.now().add(Duration(hours: 8)).toString(),
-                        };
-
-                        DatabaseReference ref = FirebaseDatabase.instance.ref("user/"+user.uid);
-
-                        await ref.set(userData);
-                      }
-
-                      // Navigate to the home page
-                      if(mounted){
-                        Navigator.pushReplacementNamed(context, '/home');
-                      }
-                  }),
-
-                ],
-              );
-            } else {
-              // User is authenticated, navigate to home
-              return Builder(
-                builder: (BuildContext context) {
-                  // Use Builder to create a new context
-                  final user = FirebaseAuth.instance.currentUser;
-                  user!.reload();
-                  return const HomePage();
-                },
-              );
-
-            }
-          }
-          return CircularProgressIndicator(); // Loading state
-        },
-      ),
+      home:  CustomLoginScreen(),
       theme: ThemeData(
         primarySwatch: Colors.blue, // Change this to your desired primary color
         brightness: Brightness.light,
@@ -241,85 +165,9 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       routes: {
-        '/sign-in': (context) {
-          return SignInScreen(
-            providers: providers,
-            actions: [
-              AuthStateChangeAction<SignedIn>((context, state) async {
-                try {
-
-                  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
-                  final user = FirebaseAuth.instance.currentUser;
-
-                  if(user!=null){
-                    await analytics.logEvent(
-                      name: 'login',
-                      parameters: <String, dynamic>{
-                        'user_login': user.email,
-                      },
-                    );
-
-                    if(mounted){
-                      Navigator.pushReplacementNamed(context, '/home');
-                    }
-                  }
-
-
-                } catch (e) {
-                  // Handle login error and display a message to the user
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Invalid email or password"), // Customize the message as needed
-                    ),
-                  );
-
-                  print("Login error: $e");
-                }
-              }),
-              AuthStateChangeAction<UserCreated>((context, state) async{
-                // User registration is successful
-                print("Register is success, below");
-
-                final user = FirebaseAuth.instance.currentUser;
-
-                if (user != null) {
-                  print("User is not null");
-
-                  String name = user.email!.split("@")[0];
-
-                  await user.updateDisplayName(name); // Await the update
-
-                  print(name);
-
-                  final userData = {
-                    'username': name,
-                    'email': user.email ?? '',
-                    'registrationDate': DateTime.now().add(Duration(hours: 8)).toString(),
-                    'preferredLanguage' : 'English',
-                    // Add more fields as needed
-                  };
-
-                  // Store the user data in the Realtime Database
-                  DatabaseReference ref = FirebaseDatabase.instance.ref("user/"+user.uid);
-
-                  await ref.set(userData);
-
-                  print("Added user to database");
-                }
-
-                // Navigate to the home page
-
-                if(mounted){
-                  Navigator.pushReplacementNamed(context, '/home');
-
-                }
-              }),
-
-
-            ],
-          );
-        },
+        '/sign-in': (context) =>  CustomLoginScreen(),
+        '/register': (context) => CustomRegisterScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/home': (context) => const HomePage(),
         '/profile': (context) => const CustomProfileScreen(),
         '/savedNews' : (context) => const SavedNewsScreen(),

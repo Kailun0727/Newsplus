@@ -1,4 +1,4 @@
-class ArticleModel {
+class NewsModel {
 
   String? url;
   String? urlToImage;
@@ -7,7 +7,7 @@ class ArticleModel {
   String? publishedAt;
   String? content;
 
-  ArticleModel(
+  NewsModel(
       {
       this.description,
       required this.publishedAt,
