@@ -81,14 +81,16 @@
   "myPost" : "My Post",
   "edit" : "Edit",
   "delete" : "Delete",
+  "deleteSuccess" : "Delete successful",
   "editPost": "Edit Post",
   "editButtonText" : "Edit",
   "confirmSignOutTitle" : "Confirm Sign Out",
   "confirmSignOutHintText" : "Are you sure you want to sign out?",
   "confirmDeleteTitle" : "Confirm Delete",
-  "confirmDeleteHintText" : "Are you sure you want to delete this post?",
+  "confirmDeleteHintText" : "Are you sure you want to delete this?",
   "summary" : "Summary",
   "translate" : "Translate",
-  "recommendedNews" : "Recommended News"
+  "recommendedNews" : "Recommended News",
+  "replyEmpty" : "Reply cannot be empty"
 
 }

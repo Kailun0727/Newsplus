@@ -324,18 +324,28 @@ class _ReplyScreenState extends State<ReplyScreen> {
                             final displayName = user.displayName ?? 'Unknown User';
                             final photoUrl = user.photoURL ?? "https://t4.ftcdn.net/jpg/03/32/59/65/360_F_332596535_lAdLhf6KzbW6PWXBWeIFTovTii1drkbT.jpg";
 
-                            await replyController.addReply(widget.post.postId, user.uid, displayName, replyContent,photoUrl);
+                            if(replyContent.isNotEmpty){
+                              await replyController.addReply(widget.post.postId, user.uid, displayName, replyContent,photoUrl);
 
-                            FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+                              FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
-                            analytics.setAnalyticsCollectionEnabled(true);
+                              analytics.setAnalyticsCollectionEnabled(true);
 
-                            await analytics.logEvent(
-                              name: 'reply_post',
-                              parameters: <String, dynamic>{
-                                'reply_content' : replyContent
-                              },
-                            );
+                              await analytics.logEvent(
+                                name: 'reply_post',
+                                parameters: <String, dynamic>{
+                                  'reply_content' : replyContent
+                                },
+                              );
+                            }else{
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(AppLocalizations.of(context)!.replyEmpty),
+                                ),
+                              );
+                            }
+
+
                           }
 
                           // Force to refresh page after creating a post

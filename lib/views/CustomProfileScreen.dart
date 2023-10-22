@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:newsplus/controllers/profileController.dart';
+import 'package:newsplus/controllers/userController.dart';
 import 'package:newsplus/helper/languageMapper.dart';
 import 'package:newsplus/main.dart';
 import 'package:newsplus/views/UserPost.dart';

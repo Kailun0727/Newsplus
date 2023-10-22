@@ -1,7 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:newsplus/controllers/newsController.dart';
-import 'package:newsplus/controllers/profileController.dart';
+import 'package:newsplus/controllers/userController.dart';
 import 'package:newsplus/models/CategoryModel.dart';
 import 'package:provider/provider.dart';
 import 'package:newsplus/widgets/components.dart';

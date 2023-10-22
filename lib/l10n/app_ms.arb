@@ -81,13 +81,15 @@
   "myPost": "Catatan Saya",
   "edit": "Edit",
   "delete": "Padam",
+  "deleteSuccess": "Berjaya padam",
   "editPost": "Edit Catatan",
   "editButtonText": "Edit",
   "confirmSignOutTitle": "Sahkan Log Keluar",
   "confirmSignOutHintText": "Adakah anda pasti ingin log keluar?",
   "confirmDeleteTitle" : "Sahkan Padam",
-  "confirmDeleteHintText" : "Adakah anda pasti ingin padam pos ini?",
+  "confirmDeleteHintText" : "Adakah anda pasti ingin padam ini?",
   "summary": "Ringkasan",
   "translate": "Terjemah",
-  "recommendedNews": "Berita Disyorkan"
+  "recommendedNews": "Berita Disyorkan",
+  "replyEmpty": "Balasan tidak boleh kosong"
 }

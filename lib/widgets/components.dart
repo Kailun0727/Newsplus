@@ -196,6 +196,54 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
     );
   }
 
+  void _showDeletePostConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context)!.confirmDeleteTitle),
+          content: Text(AppLocalizations.of(context)!.confirmDeleteHintText),
+          actions: [
+            TextButton(
+              onPressed: () async {
+
+                await widget.controller.removeSavedNews(context, widget.title);
+
+                // Trigger the refresh callback after successful removal
+                if (widget.onRemove != null) {
+                  widget.onRemove!();
+                }
+
+                FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+                analytics.setAnalyticsCollectionEnabled(true);
+
+                await analytics.logEvent(
+                  name: 'delete_news',
+                  parameters: <String, dynamic>{
+                    'news_title': widget.title
+                  },
+                );
+
+                Navigator.pop(context);
+
+                setState(() {});
+
+              },
+              child: Text(AppLocalizations.of(context)!.delete),
+            ),
+            TextButton(
+              onPressed: () {
+                // Close the dialog without deleting the post
+                Navigator.pop(context);
+              },
+              child: Text(AppLocalizations.of(context)!.cancelButtonText),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _handleRemove() async {
     try {
@@ -392,7 +440,7 @@ class _SavedNewsCardState extends State<SavedNewsCard> {
                                 },
                               );
 
-                               _handleRemove();
+                              _showDeletePostConfirmationDialog();
                             }else if (value == 'translate') {
 
                               translateTitleAndDescription();
@@ -711,7 +759,7 @@ class _NewsCardState extends State<NewsCard> {
                                     description: widget.description!,
                                     url : widget.url,
                                     imageUrl: widget.imageUrl,
-                                    creationDate: DateTime.now().add(const Duration(hours: 8)),
+                                    creationDate: DateTime.now(),
                                     userId: userId,
                                   );
 
@@ -742,7 +790,7 @@ class _NewsCardState extends State<NewsCard> {
                                 }
                               } else {
                                 final snackBar = SnackBar(
-                                  content: Text(AppLocalizations.of(context)!.searchPostHintText),
+                                  content: Text(AppLocalizations.of(context)!.newsIsSaved),
                                   duration: const Duration(seconds: 2),
                                 );
 
@@ -894,6 +942,7 @@ class _ReplyCardState extends State<ReplyCard> {
 
                   await widget.controller.updateReplyReportCount(context, reply.postId, reply.replyId, reply.reportCount, isReported);
 
+                  Navigator.of(context).pop(true); // User chose to report
                   // Toggle the like status
                   setState(() {
                     isReported = !isReported;
@@ -904,7 +953,7 @@ class _ReplyCardState extends State<ReplyCard> {
                     widget.onUpdate!();
                   }
 
-                  Navigator.of(context).pop(true); // User chose to report
+
 
                 },
                 child: Text(AppLocalizations.of(context)!.reportYes),
@@ -1305,6 +1354,12 @@ class _EditPostCardState extends State<EditPostCard> {
 
                                   await widget.controller.editPost(widget.post.postId, title, postText, selectedCategory);
 
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(AppLocalizations.of(context)!.updateSuccess),
+                                    ),
+                                  );
+
                                   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
                                   analytics.setAnalyticsCollectionEnabled(true);
@@ -1372,6 +1427,12 @@ class _EditPostCardState extends State<EditPostCard> {
                 onPressed: () async {
 
                   await widget.controller.deletePost(widget.post.postId);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(AppLocalizations.of(context)!.deleteSuccess),
+                    ),
+                  );
 
                   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
@@ -1755,7 +1816,7 @@ class _PostCardState extends State<PostCard> {
                                     post.creationDate,
                                     style: const TextStyle(
                                       color: Colors.blue,
-                                      fontSize: 14.0,
+                                      fontSize: 12.0,
                                     ),
                                   ),
                                   const SizedBox(width: 3.0),
@@ -1770,7 +1831,7 @@ class _PostCardState extends State<PostCard> {
                                     mapCommunityIdToCategory(post.communityId),
                                     style: const TextStyle(
                                       color: Colors.blue,
-                                      fontSize: 14.0,
+                                      fontSize: 12.0,
                                     ),
                                   ),
                                 ],
