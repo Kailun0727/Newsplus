@@ -16,7 +16,6 @@ class ReplyController extends ChangeNotifier {
 
   // Fetch replies for a specific post by postId
   Future<void> fetchRealTimeRepliesByPostId(String postId, Function onUpdate) {
-    // Define a reference to the Firebase Realtime Database for replies
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('reply');
 
     // Create a query to filter replies by postId
@@ -51,19 +50,12 @@ class ReplyController extends ChangeNotifier {
             _mReplyList.insert(0, reply);
           }
         });
-
         // Sort the list by likesCount in descending order (highest likesCount first)
         _mReplyList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
-
-        // Notify listeners after adding and sorting all items to the list
         notifyListeners();
-
-        // Call the onUpdate callback to signal that updates are complete
         onUpdate();
       }
     });
-
-    // Return a completed Future since there are no asynchronous operations here.
     return Future.value();
   }
 

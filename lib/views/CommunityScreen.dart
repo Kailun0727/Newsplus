@@ -387,7 +387,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   initializePost() async {
     //pass setState to force the page refresh every time when the value of firebase is changed
-    await postController.fetchRealtimePopularPosts(() {
+    await postController.fetchRealtimePosts(() {
       setState(() {});
     });
     // await postController.fetchPosts();
@@ -619,7 +619,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                     .toString()
                             : (isSearchApplied
                                 ? AppLocalizations.of(context)!.totalResults +" " +postController.mPostsList.length.toString()
-                                : AppLocalizations.of(context)!.popularPost),
+                                : AppLocalizations.of(context)!.allPost),
                         style: TextStyle(
                             fontSize: 18,
                             color: Colors.black,
@@ -630,7 +630,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       height: 20,
                     ),
 
-                    postController.mPopularList.isEmpty && !isFilterApplied
+                    postController.mPostsList.isEmpty && !isFilterApplied
                         ? Container(
                             height: 500,
                             child: Center(
@@ -651,12 +651,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   post: (isFilterApplied
                                       ? postController.mFilterPostsList[
                                           index] // If a filter is applied, display posts from the filtered list
-                                      : (isSearchApplied
-                                          ? postController.mPostsList[
+                                      : postController.mPostsList[
                                               index] // If a search is applied, display posts from the search results list
-                                          : postController.mPopularList[
-                                              index] // Otherwise, display posts from the popular list
-                                      )),
+                                         ),
                                   controller: postController,
                                   onUpdate: () {
                                     setState(() {});

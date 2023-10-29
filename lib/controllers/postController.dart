@@ -10,7 +10,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PostController extends ChangeNotifier {
 
-  List<PostModel> mPopularList = [];
+
   List<PostModel> mPostsList = []; // Initialize an empty list to store posts
   List<PostModel> mFilterPostsList = []; // Initialize an empty list to store filter posts
 
@@ -116,23 +116,15 @@ class PostController extends ChangeNotifier {
     return Future.value();
   }
 
-  Future<void> fetchRealtimePopularPosts(Function onUpdate) {
-
-    mPopularList.clear();
-
-    mPostsList.clear();
-
-    // Define a reference to the Firebase Realtime Database
+  Future<void> fetchRealtimePosts(Function onUpdate) {
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
 
-    // Create a query to filter news items by userId
     Query query = ref.orderByChild('hidden').equalTo(false);
 
     // Listen for real-time changes to the data
     query.onValue.listen((event) {
       // Clear the list before adding fetched items
       mPostsList.clear();
-      mPopularList.clear();
 
       // Get the value of the snapshot
       final dynamic postMap = event.snapshot!.value;
@@ -154,23 +146,12 @@ class PostController extends ChangeNotifier {
             photoUrl: postData['photoUrl'],
             communityId: postData['communityId'],
           );
-
-          // Add the post to the list
           mPostsList.insert(0, post);
         });
 
         // Sort the list by likesCount in descending order (highest likesCount first)
         mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
-
-
-        // Loop through the first 10 items in mPostsList or all items if there are fewer than 10
-        for (int i = 0; i < mPostsList.length; i++) {
-          mPopularList.add(mPostsList[i]);
-        }
-
-        // Notify listeners after adding and sorting all items to the list
         notifyListeners();
-
         onUpdate();
       }
     });

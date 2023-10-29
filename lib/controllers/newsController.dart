@@ -264,7 +264,8 @@ class NewsController extends ChangeNotifier {
     }
 
     final apiUrl = Uri.parse(
-        "https://newsapi.org/v2/everything?q=$keyword&sortBy=publishedAt&searchIn=title,description&pageSize=50&apiKey=$apiKey");
+        "https://newsapi.org/v2/everything?q=$keyword&sortBy=publishedAt&searchIn=title,description&pageSize=100&apiKey=$apiKey"
+    );
 
     final res = await http.get(apiUrl);
 
@@ -277,12 +278,12 @@ class NewsController extends ChangeNotifier {
             data['content'] != null) {
           String inputDateString = data['publishedAt'];
 
-          // Parse the input string into a DateTime object
           DateTime dateTime = DateTime.parse(inputDateString);
 
           // Format the DateTime object into the desired format (YYYY-MM-dd)
           String formattedDate =
-              "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
+              "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString()
+              .padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
           NewsModel mArticleModel = NewsModel(
             description: data['description'],
@@ -311,10 +312,6 @@ class NewsController extends ChangeNotifier {
     newsList.clear(); //clear previous data
 
     const apiKey = "2bb4019c07fb4e9ebda44c552cc573ac";
-    if (apiKey == null || apiKey.isEmpty) {
-      print("API key is missing or empty");
-      return; // Return early if the API key is missing or empty
-    }
 
     final apiUrl = Uri.parse(
         "https://newsapi.org/v2/top-headlines?pageSize=100&country=us&category=$convertedCategory&apiKey=$apiKey");
@@ -358,14 +355,8 @@ class NewsController extends ChangeNotifier {
 
   // Fetch news data
   Future<void> fetchNewsData(String categoryTitle) async {
-
     _loadingNews = true;
-
     const apiKey = "2bb4019c07fb4e9ebda44c552cc573ac";
-    if (apiKey == null || apiKey.isEmpty) {
-      print("API key is missing or empty");
-      return;
-    }
 
     final apiUrl = Uri.parse("https://newsapi.org/v2/top-headlines?pageSize=100&country=us&category=$categoryTitle&apiKey=$apiKey");
 
@@ -381,7 +372,9 @@ class NewsController extends ChangeNotifier {
 
           DateTime dateTime = DateTime.parse(inputDateString);
 
-          String formattedDate = "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
+          String formattedDate = "${dateTime.year.toString()
+              .padLeft(4, '0')}-${dateTime.month.toString()
+              .padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
           if(data['urlToImage'] == null){
             NewsModel mArticleModel = NewsModel(
@@ -404,8 +397,6 @@ class NewsController extends ChangeNotifier {
             );
             _newsList.add(mArticleModel);
           }
-
-
         }
       }
     }

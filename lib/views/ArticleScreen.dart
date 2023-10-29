@@ -28,7 +28,7 @@ class ArticleScreen extends StatefulWidget {
 class _ArticleScreenState extends State<ArticleScreen> {
   late InAppWebViewController _webViewController;
 
-  bool _isLoading = true; // Add this variable
+  bool _isLoading = true;
 
   StreamController<bool> shouldPlayStream = StreamController<bool>();
 
@@ -61,8 +61,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
     }
   }
 
-  final FlutterTts flutterTts =
-      FlutterTts(); // Define flutterTts at the class level
+  final FlutterTts flutterTts = FlutterTts();
 
   Future<void> initTts(String languageCode) async {
     await flutterTts.setLanguage(languageCode); // Set the initial language
@@ -78,7 +77,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
     for (int i = 0; i < textLength; i += maxChunkLength) {
       int end = i + maxChunkLength;
       if (end > textLength) {
-        end = textLength; // Ensure we don't go beyond the text length
+        end = textLength; // Ensure don't go beyond the text length
       }
       chunks.add(text.substring(i, end));
     }
@@ -178,7 +177,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
             heroTag: "btn_speak",
             onPressed: () async {
 
-              shouldContinue = true; //
+              shouldContinue = true;
 
               shouldPlayStream?.add(true);
 

@@ -19,7 +19,7 @@
   "health": "Health",
   "science": "Science",
   "sports": "Sports",
-  "popularPost" : "Most Popular Post",
+  "allPost" : "All Post",
   "chooseCommunity" : "Choose Community",
   "filterPostTitle" : "Filter Post",
   "searchPostHintText" : "Search posts here",
