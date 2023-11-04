@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,6 +19,12 @@ class _CustomLoginScreenState extends State<CustomLoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  String hashPassword(String password) {
+    final passwordBytes = utf8.encode(password);
+    final hashedPassword = sha256.convert(passwordBytes).toString();
+    return hashedPassword;
+  }
 
   String? _emailValidator(String? value) {
     if (value == null || value.isEmpty) {
@@ -36,10 +45,12 @@ class _CustomLoginScreenState extends State<CustomLoginScreen> {
 
   Future<void> _signInWithEmailAndPassword() async {
     if (_formKey.currentState!.validate()) {
+      String hashedPassword = hashPassword(_passwordController.text);
+
       try {
         await _auth.signInWithEmailAndPassword(
           email: _emailController.text,
-          password: _passwordController.text,
+          password: hashedPassword,
         );
 
         FirebaseAnalytics analytics = FirebaseAnalytics.instance;

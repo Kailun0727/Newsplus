@@ -18,6 +18,12 @@ class _CustomRegisterScreenState extends State<CustomRegisterScreen> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  String hashPassword(String password) {
+    final passwordBytes = utf8.encode(password);
+    final hashedPassword = sha256.convert(passwordBytes).toString();
+    return hashedPassword;
+  }
+
   String? _emailValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Email is required';
@@ -47,10 +53,13 @@ class _CustomRegisterScreenState extends State<CustomRegisterScreen> {
 
   Future<void> _registerWithEmailAndPassword() async {
     if (_formKey.currentState!.validate()) {
+
+      String hashedPassword = hashPassword(_passwordController.text);
+
       try {
         await _auth.createUserWithEmailAndPassword(
           email: _emailController.text,
-          password: _passwordController.text,
+          password: hashedPassword,
         );
 
         final user = FirebaseAuth.instance.currentUser;
@@ -74,10 +83,24 @@ class _CustomRegisterScreenState extends State<CustomRegisterScreen> {
         }
         Navigator.pushReplacementNamed(context, '/home');
       } catch (e) {
-        // Handle registration error and display a message to the user
+        // Check for specific error codes and display corresponding error messages
+        String errorMessage = 'An error occurred during registration.';
+
+        if (e is FirebaseAuthException) {
+          switch (e.code) {
+            case 'email-already-in-use':
+              errorMessage = 'The email address is already in use by another account.';
+              break;
+            case 'weak-password':
+              errorMessage = 'The password provided is too weak.';
+              break;
+          }
+        }
+
+        // Display the error message to the user
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Registration error: $e"),
+            content: Text(errorMessage),
           ),
         );
         print("Registration error: $e");
