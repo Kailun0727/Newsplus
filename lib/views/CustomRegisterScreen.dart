@@ -56,8 +56,6 @@ class _CustomRegisterScreenState extends State<CustomRegisterScreen> {
         final user = FirebaseAuth.instance.currentUser;
 
         if (user != null) {
-          print("User is not null");
-
           String name = user.email!.split("@")[0];
 
           await user.updateDisplayName(name); // Await the update
@@ -73,11 +71,7 @@ class _CustomRegisterScreenState extends State<CustomRegisterScreen> {
           DatabaseReference ref = FirebaseDatabase.instance.ref("user/"+user.uid);
 
           await ref.set(userData);
-
-          print("Added user to database");
         }
-
-        // Successful registration logic
         Navigator.pushReplacementNamed(context, '/home');
       } catch (e) {
         // Handle registration error and display a message to the user
