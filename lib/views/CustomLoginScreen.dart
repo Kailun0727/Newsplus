@@ -65,7 +65,6 @@ class _CustomLoginScreenState extends State<CustomLoginScreen> {
             },
           );
         }
-
         // Navigate to the home page on successful login
         Navigator.pushReplacementNamed(context, '/home');
       } catch (e) {

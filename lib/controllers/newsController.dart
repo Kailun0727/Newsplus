@@ -302,22 +302,16 @@ class NewsController extends ChangeNotifier {
   }
 
 
-  // Fetch news data and set _newsList and _loadingNews
   Future<void> fetchCategoryNews(String categoryTitle) async {
-
     _loadingNews = true;
-
     String convertedCategory = convertCategoryTitle(categoryTitle);
-
     newsList.clear(); //clear previous data
 
     const apiKey = "2bb4019c07fb4e9ebda44c552cc573ac";
-
     final apiUrl = Uri.parse(
         "https://newsapi.org/v2/top-headlines?pageSize=100&country=us&category=$convertedCategory&apiKey=$apiKey");
 
     final res = await http.get(apiUrl);
-
     final json = jsonDecode(res.body);
 
     if (json['status'] == "ok") {
@@ -326,15 +320,13 @@ class NewsController extends ChangeNotifier {
             data['description'] != null &&
             data['content'] != null) {
           String inputDateString = data['publishedAt'];
-
-          // String translatedText = await translateText(data['title']);
-
           // Parse the input string into a DateTime object
           DateTime dateTime = DateTime.parse(inputDateString);
 
           // Format the DateTime object into the desired format (YYYY-MM-dd)
           String formattedDate =
-              "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
+              "${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString()
+              .padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
           NewsModel mArticleModel = NewsModel(
             description: data['description'],
@@ -348,7 +340,6 @@ class NewsController extends ChangeNotifier {
         }
       }
     }
-
     _loadingNews = false;
     notifyListeners();
   }

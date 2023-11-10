@@ -37,7 +37,6 @@ Future<List<CommunityModel>> getCommunity() async {
           mCommunity.add(community);
         });
 
-        // Sort the mCommunity list if needed
         // For example, to sort by communityId:
         mCommunity.sort((a, b) => a.communityId.compareTo(b.communityId));
       }

@@ -53,39 +53,30 @@ class _CustomRegisterScreenState extends State<CustomRegisterScreen> {
 
   Future<void> _registerWithEmailAndPassword() async {
     if (_formKey.currentState!.validate()) {
-
       String hashedPassword = hashPassword(_passwordController.text);
-
       try {
         await _auth.createUserWithEmailAndPassword(
           email: _emailController.text,
           password: hashedPassword,
         );
-
         final user = FirebaseAuth.instance.currentUser;
-
         if (user != null) {
           String name = user.email!.split("@")[0];
-
-          await user.updateDisplayName(name); // Await the update
-
+          await user.updateDisplayName(name);
           final userData = {
             'userId' : user.uid,
             'username': name,
             'email': user.email ?? '',
             'registrationDate': DateTime.now().add(Duration(hours: 8)).toString(),
           };
-
           // Store the user data in the Realtime Database
           DatabaseReference ref = FirebaseDatabase.instance.ref("user/"+user.uid);
-
           await ref.set(userData);
         }
         Navigator.pushReplacementNamed(context, '/home');
       } catch (e) {
         // Check for specific error codes and display corresponding error messages
         String errorMessage = 'An error occurred during registration.';
-
         if (e is FirebaseAuthException) {
           switch (e.code) {
             case 'email-already-in-use':
@@ -96,7 +87,6 @@ class _CustomRegisterScreenState extends State<CustomRegisterScreen> {
               break;
           }
         }
-
         // Display the error message to the user
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

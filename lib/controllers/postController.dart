@@ -60,27 +60,17 @@ class PostController extends ChangeNotifier {
   }
 
   Future<void> fetchRealtimeUserPosts(Function onUpdate, String userId) {
-
-    // Define a reference to the Firebase Realtime Database
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
-
-    // Create a query to filter news items by userId
     Query query = ref.orderByChild('hidden').equalTo(false);
 
     // Listen for real-time changes to the data
     query.onValue.listen((event) {
-      // Clear the list before adding fetched items
       mPostsList.clear();
-
-      // Get the value of the snapshot
       final dynamic postMap = event.snapshot!.value;
 
       // Check if the retrieved data is a Map
       if (postMap is Map) {
         postMap.forEach((key, postData) {
-          // Convert the data to a PostModel
-
-
           // Check if the post's userId matches the specified userId
           if (postData['userId'] == userId) {
             PostModel post = PostModel(
@@ -96,23 +86,15 @@ class PostController extends ChangeNotifier {
               photoUrl: postData['photoUrl'],
               communityId: postData['communityId'],
             );
-
-            // Add the post to the list
             mPostsList.insert(0, post);
           }
         });
-
         // Sort the list by likesCount in descending order (highest likesCount first)
         mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
-
-        // Notify listeners after adding and sorting all items to the list
         notifyListeners();
-
         onUpdate();
       }
     });
-
-    // Return a completed Future since there are no asynchronous operations here.
     return Future.value();
   }
 
@@ -161,21 +143,13 @@ class PostController extends ChangeNotifier {
   }
 
   Future<void> fetchRealtimeCommunityPosts(String communityId, Function onUpdate) {
-
     mPostsList.clear();
-
-    // Define a reference to the Firebase Realtime Database
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('post');
-
-    // Create a query to filter news items by userId
     Query query = ref.orderByChild('hidden').equalTo(false);
 
     // Listen for real-time changes to the data
     query.onValue.listen((event) {
-      // Clear the list before adding fetched items
       mPostsList.clear();
-
-      // Get the value of the snapshot
       final dynamic postMap = event.snapshot!.value;
 
       // Check if the retrieved data is a Map
@@ -184,7 +158,6 @@ class PostController extends ChangeNotifier {
 
           // Check if the post's communityId matches the specified communityId
           if (postData['communityId'] == communityId) {
-            // Convert the data to a PostModel
             PostModel post = PostModel(
               postId: postData['postId'],
               title: postData['title'],
@@ -198,22 +171,13 @@ class PostController extends ChangeNotifier {
               photoUrl: postData['photoUrl'],
               communityId: postData['communityId'],
             );
-
-            // Add the post to the list
             mPostsList.insert(0, post);
           }
-
         });
-
         // Sort the list by likesCount in descending order (highest likesCount first)
         mPostsList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
-
         onUpdate();
-
-        // Notify listeners after adding and sorting all items to the list
         notifyListeners();
-
-
       }
     });
 

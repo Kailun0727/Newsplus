@@ -37,25 +37,18 @@ class SavedNewsController extends ChangeNotifier {
 
     if (user != null) {
       String userId = user.uid;
-
       try {
         // Create a query to filter news items by userId
         Query query = newsRef.orderByChild("userId").equalTo(userId);
 
-        // Retrieve data once from the database
         DatabaseEvent event = await query.once();
 
         // Check if the snapshot contains data
         if (event.snapshot != null) {
-          // Get the value of the snapshot
           final dynamic newsMap = event.snapshot!.value;
 
-          // Check if the retrieved data is a Map
           if (newsMap is Map) {
-            // Clear the list before adding fetched items
             _savedNewsList.clear();
-
-            // Iterate through each key-value pair in the Map
             newsMap.forEach((key, newsData) {
               // Convert the data to a SavedNewsModel
               SavedNewsModel savedNews = SavedNewsModel(
@@ -66,16 +59,10 @@ class SavedNewsController extends ChangeNotifier {
                 creationDate: DateTime.parse(newsData['creationDate']),
                 userId: newsData['userId'],
               );
-
-
-              // Add the converted SavedNewsModel to the _savedNewsList
               _savedNewsList.insert(0, savedNews);
             });
-
             // Sort the _savedNewsList by creationDate in ascending order
             _savedNewsList.sort((a, b) => a.creationDate.compareTo(b.creationDate));
-
-            // Notify listeners after adding all items to the list
             notifyListeners();
           }
         }

@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -58,6 +61,7 @@ class _CustomProfileScreenState extends State<CustomProfileScreen> {
       selectedDisplayLanguage = prefs.getString('display_language') ?? 'English';
     });
   }
+
 
 
   @override

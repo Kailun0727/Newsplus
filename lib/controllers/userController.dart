@@ -1,4 +1,7 @@
 
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,13 +9,21 @@ import 'package:newsplus/main.dart';
 
 class ProfileController extends ChangeNotifier {
 
+  String hashPassword(String password) {
+    final passwordBytes = utf8.encode(password);
+    final hashedPassword = sha256.convert(passwordBytes).toString();
+    return hashedPassword;
+  }
 
   Future<bool> updatePassword(String password) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         if (password.isNotEmpty && isValidPassword(password)) {
-          await user.updatePassword(password);
+
+          String hashedPassword = hashPassword(password);
+
+          await user.updatePassword(hashedPassword);
           // Password update was successful
           return true;
         } else {
