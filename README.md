@@ -1,7 +1,5 @@
 # NewsPlus
 
-A new Flutter application.
-
 ## Overview
 
 Welcome to NewsPlus – Your Personalized News Companion! NewsPlus is an innovative mobile application designed to provide users with a seamless and customizable news-reading experience. Stay informed, save time, and explore news effortlessly with our feature-rich application.
