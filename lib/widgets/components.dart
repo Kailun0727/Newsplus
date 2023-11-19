@@ -827,7 +827,7 @@ class _NewsCardState extends State<NewsCard> {
 
                             } else if (value == 'translate') {
 
-                                translateTitleAndDescription();
+                              translateTitleAndDescription();
 
                             }
                           },
